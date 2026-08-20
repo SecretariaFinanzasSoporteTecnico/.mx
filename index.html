@@ -209,7 +209,6 @@
         }
         tbody tr:hover { background: #f5f8fc; }
 
-        /* Botones de acciones - TAMAÑO MEDIANO */
         .btn-small {
             font-size: clamp(12px, 0.85vw, 14px);
             padding: 6px 14px;
@@ -326,7 +325,189 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         .cargando { text-align: center; padding: 35px; color: #999; font-size: 15px; }
 
-        @media print { .no-print { display: none !important; } }
+        /* ======================================== */
+        /* ESTILOS PARA IMPRESIÓN - COMO EL FORMATO DE imprimir.html */
+        /* ======================================== */
+        @media print {
+            /* Ocultar elementos que no deben imprimirse */
+            .no-print { display: none !important; }
+            
+            /* Resetear estilos para impresión */
+            body { 
+                background: white !important; 
+                padding: 20px !important; 
+                margin: 0 !important;
+            }
+            .container { 
+                box-shadow: none !important; 
+                border: 1px solid #ddd !important; 
+                padding: 25px 30px !important;
+                max-width: 100% !important;
+                border-radius: 0 !important;
+            }
+            
+            /* Encabezado - igual que imprimir.html */
+            .header-superior {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                padding-bottom: 12px !important;
+                border-bottom: 3px solid #1a3a5c !important;
+                margin-bottom: 20px !important;
+            }
+            .header-superior .logo-izquierda {
+                display: flex !important;
+                align-items: center !important;
+                gap: 15px !important;
+            }
+            .header-superior .logo-izquierda .logo-img {
+                height: 55px !important;
+                width: auto !important;
+                object-fit: contain !important;
+            }
+            .header-superior .logo-izquierda .textos-logo {
+                display: flex !important;
+                flex-direction: column !important;
+                line-height: 1.15 !important;
+            }
+            .header-superior .logo-izquierda .textos-logo .humanismo {
+                font-size: 12px !important;
+                font-weight: 700 !important;
+                color: #1a3a5c !important;
+                letter-spacing: 0.8px !important;
+            }
+            .header-superior .logo-izquierda .textos-logo .secret {
+                font-size: 15px !important;
+                font-weight: 800 !important;
+                color: #b8860b !important;
+            }
+            .header-superior .logo-izquierda .textos-logo .gobierno {
+                font-size: 12px !important;
+                font-weight: 600 !important;
+                color: #1a3a5c !important;
+            }
+            .header-superior .logo-izquierda .textos-logo .periodo {
+                font-size: 11px !important;
+                font-weight: 600 !important;
+                color: #1a3a5c !important;
+            }
+            
+            /* Reloj en impresión - igual que imprimir.html */
+            .reloj-moderno {
+                text-align: right !important;
+                font-size: 13px !important;
+                color: #6c757d !important;
+                font-weight: 600 !important;
+                background: none !important;
+                border: none !important;
+                padding: 0 !important;
+                min-width: auto !important;
+            }
+            .reloj-moderno .fecha {
+                font-size: 13px !important;
+                color: #6c757d !important;
+                display: block !important;
+            }
+            .reloj-moderno .hora {
+                font-size: 16px !important;
+                font-weight: 700 !important;
+                color: #1a3a5c !important;
+                display: block !important;
+            }
+            
+            /* Título - igual que imprimir.html */
+            .header-titulo {
+                text-align: center !important;
+                margin-bottom: 20px !important;
+            }
+            .titulo-gestion {
+                font-size: 24px !important;
+                color: #1a3a5c !important;
+                border-bottom: 2px solid #1a3a5c !important;
+                padding-bottom: 8px !important;
+                display: inline-block !important;
+            }
+            
+            /* Tabla en impresión - igual que imprimir.html */
+            .table-responsive {
+                border: 1px solid #e6eaef !important;
+                border-radius: 6px !important;
+                margin-top: 12px !important;
+            }
+            table {
+                font-size: 13px !important;
+                min-width: auto !important;
+                width: 100% !important;
+                border-collapse: collapse !important;
+            }
+            thead {
+                background: #1a3a5c !important;
+                color: #fff !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            th {
+                background: #1a3a5c !important;
+                color: #fff !important;
+                padding: 10px 12px !important;
+                text-align: left !important;
+                font-weight: 600 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            td {
+                padding: 9px 12px !important;
+                font-size: 13px !important;
+                border-bottom: 1px solid #e0e0e0 !important;
+                vertical-align: middle !important;
+            }
+            
+            /* Ocultar columna de acciones en impresión */
+            .acciones {
+                display: none !important;
+            }
+            td:last-child {
+                display: none !important;
+            }
+            th:last-child {
+                display: none !important;
+            }
+            
+            /* Ocultar elementos de interfaz */
+            .buscador-moderno { display: none !important; }
+            .header-actions { display: none !important; }
+            .alert { display: none !important; }
+            .volver-menu { display: none !important; }
+            #mensajeContainer { display: none !important; }
+            .no-print { display: none !important; }
+            
+            /* Ajuste para tabla responsiva en impresión - mantener formato tabla */
+            table, thead, tbody, th, td, tr {
+                display: table !important;
+            }
+            thead { display: table-header-group !important; }
+            tbody tr {
+                display: table-row !important;
+                border: none !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                margin: 0 !important;
+            }
+            tbody tr td {
+                display: table-cell !important;
+                border-bottom: 1px solid #e0e0e0 !important;
+                padding: 9px 12px !important;
+            }
+            tbody tr td::before {
+                display: none !important;
+            }
+            
+            /* Badges en impresión */
+            .badge {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
     </style>
 </head>
 <body>
