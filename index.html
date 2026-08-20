@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Usuario</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -13,22 +13,26 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f0f2f5;
             min-height: 100vh;
-            padding: 10px;
+            padding: 15px;
             margin: 0;
         }
         .container {
             max-width: 1200px;
             margin: 0 auto;
             background: #fff;
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            padding: 20px 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         }
+
+        /* ========================================
+           HEADER SUPERIOR - COMPACTO
+           ======================================== */
         .header-superior {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding-bottom: 10px;
+            padding-bottom: 8px;
             border-bottom: 2px solid #1a3a5c;
             margin-bottom: 15px;
             flex-wrap: wrap;
@@ -37,72 +41,68 @@
         .header-superior .logo-izquierda {
             display: flex;
             align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
+            gap: 12px;
         }
         .header-superior .logo-izquierda .logo-img {
-            height: clamp(40px, 10vw, 65px);
+            height: 50px;
             width: auto;
             object-fit: contain;
         }
         .header-superior .logo-izquierda .textos-logo {
             display: flex;
             flex-direction: column;
-            line-height: 1.1;
+            line-height: 1.15;
         }
         .header-superior .logo-izquierda .textos-logo .humanismo {
-            font-size: clamp(9px, 2vw, 13px);
+            font-size: 11px;
             font-weight: 700;
             color: #1a3a5c;
             letter-spacing: 0.5px;
         }
         .header-superior .logo-izquierda .textos-logo .secret {
-            font-size: clamp(11px, 2.5vw, 16px);
+            font-size: 14px;
             font-weight: 800;
             color: #b8860b;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
         .header-superior .logo-izquierda .textos-logo .gobierno {
-            font-size: clamp(9px, 2vw, 13px);
+            font-size: 11px;
             font-weight: 600;
             color: #1a3a5c;
         }
         .header-superior .logo-izquierda .textos-logo .periodo {
-            font-size: clamp(8px, 1.8vw, 12px);
+            font-size: 10px;
             font-weight: 600;
             color: #1a3a5c;
         }
         .reloj-moderno {
-            font-size: clamp(11px, 2.5vw, 15px);
+            font-size: 13px;
             font-weight: 700;
             color: #1a3a5c;
             background: #f8f9fa;
-            padding: 6px 12px;
-            border-radius: 8px;
+            padding: 4px 12px;
+            border-radius: 6px;
             border: 1px solid #e0e0e0;
             font-family: 'Courier New', monospace;
             text-align: center;
-            min-width: 80px;
         }
         .reloj-moderno .fecha {
-            font-size: clamp(8px, 1.8vw, 11px);
+            font-size: 10px;
             color: #6c757d;
             font-weight: 600;
             display: block;
         }
         .reloj-moderno .hora {
-            font-size: clamp(12px, 2.8vw, 18px);
+            font-size: 15px;
             display: block;
         }
-        @media (max-width: 768px) {
-            .header-superior { flex-direction: column; align-items: center; text-align: center; }
-            .header-superior .logo-izquierda { flex-direction: column; text-align: center; }
-            .reloj-moderno { width: 100%; }
-        }
 
+        /* ========================================
+           TÍTULO
+           ======================================== */
         .header-titulo { text-align: center; margin-bottom: 15px; }
         .titulo-gestion {
-            font-size: clamp(18px, 5vw, 28px);
+            font-size: 22px;
             font-weight: 700;
             color: #1a3a5c;
             display: inline-block;
@@ -110,19 +110,21 @@
             border-bottom: 3px solid #1a3a5c;
         }
 
+        /* ========================================
+           BOTONES - COMPACTOS
+           ======================================== */
         .header-actions { display: flex; justify-content: center; margin-bottom: 15px; }
         .header-buttons {
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
             justify-content: center;
-            width: 100%;
         }
         .btn {
-            padding: clamp(8px, 2vw, 12px) clamp(12px, 3vw, 20px);
+            padding: 6px 16px;
             border: none;
-            border-radius: 8px;
-            font-size: clamp(11px, 2.5vw, 14px);
+            border-radius: 6px;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
             text-decoration: none;
@@ -130,17 +132,21 @@
             transition: all 0.3s;
             text-align: center;
         }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,0.12); }
         .btn-agregar { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: #fff; }
         .btn-blanco { background: #6c757d; color: #fff; }
         .btn-imprimir { background: #1a3a5c; color: #fff; }
         .btn-faltas { background: #17a2b8; color: #fff; }
         .btn-incidencias { background: #6f42c1; color: #fff; }
         @media (max-width: 768px) {
-            .btn { width: 100%; white-space: normal; padding: 12px 15px; font-size: 14px; }
+            .btn { padding: 8px 14px; font-size: 13px; }
             .header-buttons { flex-direction: column; width: 100%; }
+            .btn { width: 100%; text-align: center; }
         }
 
+        /* ========================================
+           BUSCADOR
+           ======================================== */
         .buscador-moderno {
             display: flex;
             justify-content: center;
@@ -149,13 +155,12 @@
             flex-wrap: wrap;
         }
         .buscador-moderno input {
-            flex: 1;
-            min-width: 150px;
-            max-width: 100%;
-            padding: clamp(8px, 2vw, 12px) 12px;
+            width: 100%;
+            max-width: 380px;
+            padding: 7px 12px;
             border: 1px solid #dce1e8;
-            border-radius: 8px;
-            font-size: clamp(12px, 2.5vw, 15px);
+            border-radius: 6px;
+            font-size: 13px;
             transition: 0.3s;
             background: #f8f9fa;
             -webkit-appearance: none;
@@ -164,51 +169,106 @@
             border-color: #1a3a5c;
             outline: none;
             background: #fff;
-            box-shadow: 0 0 0 3px rgba(26,58,92,0.1);
+            box-shadow: 0 0 0 3px rgba(26,58,92,0.08);
         }
         .btn-buscar {
-            background: #1a3a5c; color: #fff;
-            padding: clamp(8px, 2vw, 12px) clamp(15px, 3vw, 25px);
+            background: #1a3a5c;
+            color: #fff;
+            padding: 7px 18px;
             border: none;
-            border-radius: 8px;
-            font-size: clamp(12px, 2.5vw, 15px);
+            border-radius: 6px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
         }
         .btn-limpiar {
-            background: #dc3545; color: #fff;
-            padding: clamp(8px, 2vw, 12px) clamp(15px, 3vw, 25px);
+            background: #dc3545;
+            color: #fff;
+            padding: 7px 18px;
             border: none;
-            border-radius: 8px;
-            font-size: clamp(12px, 2.5vw, 15px);
+            border-radius: 6px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             display: none;
         }
         @media (max-width: 768px) {
             .buscador-moderno { flex-direction: column; align-items: stretch; }
-            .buscador-moderno input { max-width: 100%; width: 100%; }
+            .buscador-moderno input { max-width: 100%; }
             .btn-buscar, .btn-limpiar { width: 100%; text-align: center; }
         }
 
+        /* ========================================
+           TABLA - COMPACTA
+           ======================================== */
         .table-responsive {
             overflow-x: auto;
             margin-top: 10px;
             border-radius: 8px;
             border: 1px solid #e6eaef;
-            -webkit-overflow-scrolling: touch;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: clamp(11px, 2vw, 14px);
-            min-width: 500px;
+            font-size: 13px;
         }
-        thead { background: #1a3a5c; color: #fff; }
-        th { padding: clamp(6px, 1.5vw, 10px) clamp(8px, 2vw, 12px); text-align: left; font-weight: 600; }
-        td { padding: clamp(6px, 1.5vw, 10px) clamp(8px, 2vw, 12px); border-bottom: 1px solid #e6eaef; vertical-align: middle; }
-        tbody tr:hover { background: #f5f8fc; }
+        thead {
+            background: #1a3a5c;
+            color: #fff;
+        }
+        th {
+            padding: 8px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+        td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #e6eaef;
+            vertical-align: middle;
+            font-size: 13px;
+        }
+        tbody tr:hover {
+            background: #f5f8fc;
+        }
+        .acciones {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .btn-small {
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-small:hover { transform: translateY(-1px); }
+        .btn-warning-small { background: #ffc107; color: #1e2a3a; }
+        .btn-danger-small { background: #dc3545; color: #fff; }
+        .btn-secondary-small { background: #6c757d; color: #fff; }
+        .btn-secondary-small:hover { background: #5a6268; }
+        .btn-warning-small:hover { background: #e0a800; }
+        .btn-danger-small:hover { background: #c82333; }
 
+        .sin-permisos {
+            color: #999;
+            font-size: 11px;
+            display: inline-block;
+            background: #f1f1f1;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        /* ========================================
+           MÓVIL - TABLA A TARJETAS
+           ======================================== */
         @media (max-width: 768px) {
             table, thead, tbody, th, td, tr { display: block; }
             thead { display: none; }
@@ -217,15 +277,15 @@
                 border: 1px solid #e6eaef;
                 border-radius: 8px;
                 margin-bottom: 10px;
-                padding: 10px;
+                padding: 10px 12px;
                 background: #fff;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                box-shadow: 0 2px 6px rgba(0,0,0,0.04);
             }
             tbody tr td {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                padding: 5px 3px;
+                padding: 4px 0;
                 border-bottom: 1px solid #f0f0f0;
                 font-size: 12px;
             }
@@ -236,68 +296,51 @@
                 color: #1a3a5c;
                 font-size: 10px;
                 text-transform: uppercase;
-                letter-spacing: 0.5px;
+                letter-spacing: 0.3px;
                 flex: 0 0 35%;
             }
-            .acciones { flex-wrap: wrap; gap: 5px; }
-            .acciones .btn-small { flex: 1; min-width: 60px; text-align: center; font-size: 11px; padding: 6px 8px; }
+            td[data-label="Acciones"] { flex-wrap: wrap; gap: 4px; }
+            td[data-label="Acciones"] .btn-small { flex: 1; min-width: 60px; text-align: center; font-size: 11px; padding: 5px 8px; }
         }
 
-        .btn-small {
-            font-size: clamp(10px, 2vw, 12px);
-            padding: 4px 10px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        .btn-warning-small { background: #ffc107; color: #1e2a3a; }
-        .btn-danger-small { background: #dc3545; color: #fff; }
-        .btn-secondary-small { background: #6c757d; color: #fff; }
-        .acciones { display: flex; gap: 4px; flex-wrap: wrap; }
-
+        /* ========================================
+           ALERTAS
+           ======================================== */
         .alert {
-            padding: 12px 15px;
-            border-radius: 8px;
+            padding: 10px 15px;
+            border-radius: 6px;
             margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-weight: 500;
+            font-size: 13px;
             flex-wrap: wrap;
-            gap: 10px;
-            font-size: clamp(12px, 2.5vw, 14px);
+            gap: 8px;
         }
         .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .close-btn { background: none; border: none; font-size: 18px; cursor: pointer; color: inherit; opacity: 0.7; }
+        .close-btn:hover { opacity: 1; }
 
+        /* ========================================
+           VOLVER AL MENÚ
+           ======================================== */
         .btn-volver-menu {
-            background: #6c757d; color: #fff;
-            padding: clamp(8px, 2vw, 12px) clamp(15px, 3vw, 25px);
-            border-radius: 8px;
+            background: #6c757d;
+            color: #fff;
+            padding: 6px 18px;
+            border-radius: 6px;
             text-decoration: none;
             font-weight: 600;
             display: inline-block;
             transition: all 0.3s;
             text-align: center;
-            font-size: clamp(12px, 2.5vw, 15px);
-            width: auto;
+            font-size: 12px;
         }
-        .btn-volver-menu:hover { background: #5a6268; transform: translateY(-2px); }
-        @media (max-width: 768px) { .btn-volver-menu { display: block; width: 100%; text-align: center; } }
+        .btn-volver-menu:hover { background: #5a6268; transform: translateY(-1px); }
+        @media (max-width: 768px) { .btn-volver-menu { display: block; width: 100%; text-align: center; padding: 10px; } }
 
-        .sin-permisos {
-            color: #999;
-            font-size: clamp(10px, 2vw, 12px);
-            display: inline-block;
-            background: #f1f1f1;
-            padding: 3px 6px;
-            border-radius: 4px;
-        }
         .spinner {
             display: inline-block;
             width: 16px;
@@ -308,7 +351,7 @@
             animation: spin 0.8s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .cargando { text-align: center; padding: 30px; color: #999; font-size: clamp(12px, 2.5vw, 14px); }
+        .cargando { text-align: center; padding: 30px; color: #999; font-size: 13px; }
 
         @media print { .no-print { display: none !important; } }
     </style>
@@ -332,16 +375,20 @@
             </div>
         </div>
 
+        <!-- TÍTULO -->
         <div class="header-titulo">
             <span class="titulo-gestion">📊 Gestión de Usuario</span>
         </div>
 
+        <!-- BOTONES -->
         <div class="header-actions">
             <div class="header-buttons no-print" id="botonesAccion"></div>
         </div>
 
+        <!-- MENSAJES -->
         <div id="mensajeContainer"></div>
 
+        <!-- BUSCADOR -->
         <div class="buscador-moderno no-print">
             <form id="buscarForm" style="display:flex; gap:8px; width:100%; justify-content:center; flex-wrap:wrap;">
                 <input type="text" id="buscarInput" placeholder="🔍 Buscar por nombre...">
@@ -350,16 +397,17 @@
             </form>
         </div>
 
+        <!-- TABLA -->
         <div class="table-responsive">
             <table>
                 <thead>
                     <tr>
-                        <th>#</th>
+                        <th style="width:40px;">#</th>
                         <th>Nombre</th>
                         <th>Área</th>
                         <th>Puesto</th>
-                        <th>Fecha Registro</th>
-                        <th class="no-print">Acciones</th>
+                        <th style="width:110px;">Fecha Registro</th>
+                        <th class="no-print" style="width:200px;">Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="tablaBody">
@@ -368,6 +416,7 @@
             </table>
         </div>
 
+        <!-- VOLVER AL MENÚ -->
         <div style="text-align:left; margin-top:15px;" class="no-print">
             <a href="menu.html" class="btn-volver-menu">⬅ Volver al Menú</a>
         </div>
@@ -400,23 +449,23 @@
             usuarioActual = JSON.parse(u);
             const b = document.getElementById('botonesAccion');
             if (usuarioActual.rol === 'admin') {
-                b.innerHTML = `<a href="agregar.html" class="btn btn-agregar">➕ Agregar Usuario</a><a href="imprimir_formato_blanco.html" target="_blank" class="btn btn-blanco">📄 Formato en Blanco</a><button onclick="window.print()" class="btn btn-imprimir">🖨️ Imprimir todo</button>`;
+                b.innerHTML = `<a href="agregar.html" class="btn btn-agregar">➕ Agregar</a><a href="imprimir_formato_blanco.html" target="_blank" class="btn btn-blanco">📄 Formato</a><button onclick="window.print()" class="btn btn-imprimir">🖨️ Imprimir</button>`;
             } else {
-                b.innerHTML = `<a href="imprimir_formato_blanco.html" target="_blank" class="btn btn-blanco">📄 Formato en Blanco</a><button onclick="window.print()" class="btn btn-imprimir">🖨️ Imprimir todo</button>`;
+                b.innerHTML = `<a href="imprimir_formato_blanco.html" target="_blank" class="btn btn-blanco">📄 Formato</a><button onclick="window.print()" class="btn btn-imprimir">🖨️ Imprimir</button>`;
             }
             await cargarUsuarios();
         }
 
         async function cargarUsuarios() {
             const t = document.getElementById('tablaBody');
-            t.innerHTML = `<tr><td colspan="6" class="cargando"><span class="spinner"></span> Cargando usuarios...</td></tr>`;
+            t.innerHTML = `<tr><td colspan="6" class="cargando"><span class="spinner"></span> Cargando...</td></tr>`;
             const r = await window.firebaseApp.obtenerUsuariosFirebase();
-            if (r.success) { usuarios = r.data; renderizarTabla(usuarios); } else { t.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:#999;">❌ Error: ${r.error}</td></tr>`; }
+            if (r.success) { usuarios = r.data; renderizarTabla(usuarios); } else { t.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:25px;color:#999;">❌ ${r.error}</td></tr>`; }
         }
 
         function renderizarTabla(lista) {
             const t = document.getElementById('tablaBody');
-            if (!lista || lista.length === 0) { t.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:30px;color:#999;">📭 No hay usuarios</td></tr>`; return; }
+            if (!lista || lista.length === 0) { t.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:25px;color:#999;">📭 No hay usuarios</td></tr>`; return; }
             let html = '';
             lista.forEach((u, i) => {
                 const f = u.fecha_registro ? formatearFechaHora(u.fecha_registro) : '--';
@@ -425,13 +474,13 @@
                     <td data-label="Nombre"><strong>${escapeHtml(u.nombre)}</strong></td>
                     <td data-label="Área">${escapeHtml(u.area || '')}</td>
                     <td data-label="Puesto">${escapeHtml(u.puesto || '')}</td>
-                    <td data-label="Fecha Registro" style="font-size:11px;color:#555;">${f}</td>
+                    <td data-label="Fecha" style="font-size:11px;color:#555;white-space:nowrap;">${f}</td>
                     <td data-label="Acciones" class="no-print">
                         <div class="acciones">
-                            ${usuarioActual && usuarioActual.rol === 'admin' ? `<a href="editar.html?uid=${u.uid}" class="btn btn-warning-small btn-small">✏️ Editar</a><button onclick="eliminarUsuario('${u.uid}')" class="btn btn-danger-small btn-small">🗑️ Eliminar</button>` : `<span class="sin-permisos">🔒 Sin permisos</span>`}
-                            <a href="faltas.html?usuario_id=${u.uid}" class="btn btn-faltas btn-small">📋 Faltas</a>
-                            <a href="ver_incidencia.html?usuario_id=${u.uid}" class="btn btn-incidencias btn-small">📄 Incidencias</a>
-                            <a href="imprimir_usuario.html?uid=${u.uid}" target="_blank" class="btn btn-secondary-small btn-small">🖨️ Imprimir</a>
+                            ${usuarioActual && usuarioActual.rol === 'admin' ? `<a href="editar.html?uid=${u.uid}" class="btn btn-warning-small btn-small">✏️</a><button onclick="eliminarUsuario('${u.uid}')" class="btn btn-danger-small btn-small">🗑️</button>` : `<span class="sin-permisos">🔒</span>`}
+                            <a href="faltas.html?usuario_id=${u.uid}" class="btn btn-faltas btn-small">📋</a>
+                            <a href="ver_incidencia.html?usuario_id=${u.uid}" class="btn btn-incidencias btn-small">📄</a>
+                            <a href="imprimir_usuario.html?uid=${u.uid}" target="_blank" class="btn btn-secondary-small btn-small">🖨️</a>
                         </div>
                     </td>
                 </tr>`;
@@ -443,7 +492,7 @@
             if (!confirm('¿Eliminar?')) return;
             if (usuarioActual && usuarioActual.uid === uid) { mostrarMensaje('No puedes eliminar tu propio usuario.', 'danger'); return; }
             const r = await window.firebaseApp.eliminarUsuarioFirebase(uid);
-            if (r.success) { mostrarMensaje('Usuario eliminado.', 'success'); await cargarUsuarios(); } else { mostrarMensaje('❌ Error: ' + r.error, 'danger'); }
+            if (r.success) { mostrarMensaje('✅ Usuario eliminado.', 'success'); await cargarUsuarios(); } else { mostrarMensaje('❌ ' + r.error, 'danger'); }
         }
 
         function buscarUsuarios(t) {
