@@ -326,7 +326,7 @@
         .cargando { text-align: center; padding: 35px; color: #999; font-size: 15px; }
 
         /* ======================================== */
-        /* ESTILOS PARA IMPRESIÓN - COMO EL FORMATO DE imprimir.html */
+        /* ESTILOS PARA IMPRESIÓN - EXACTAMENTE COMO LA IMAGEN */
         /* ======================================== */
         @media print {
             /* Ocultar elementos que no deben imprimirse */
@@ -340,13 +340,13 @@
             }
             .container { 
                 box-shadow: none !important; 
-                border: 1px solid #ddd !important; 
-                padding: 25px 30px !important;
+                border: none !important; 
+                padding: 20px !important;
                 max-width: 100% !important;
                 border-radius: 0 !important;
             }
             
-            /* Encabezado - igual que imprimir.html */
+            /* Encabezado - exactamente como en la imagen */
             .header-superior {
                 display: flex !important;
                 justify-content: space-between !important;
@@ -392,7 +392,7 @@
                 color: #1a3a5c !important;
             }
             
-            /* Reloj en impresión - igual que imprimir.html */
+            /* Reloj en impresión */
             .reloj-moderno {
                 text-align: right !important;
                 font-size: 13px !important;
@@ -404,7 +404,7 @@
                 min-width: auto !important;
             }
             .reloj-moderno .fecha {
-                font-size: 13px !important;
+                font-size: 12px !important;
                 color: #6c757d !important;
                 display: block !important;
             }
@@ -415,23 +415,23 @@
                 display: block !important;
             }
             
-            /* Título - igual que imprimir.html */
+            /* Título - exactamente como en la imagen */
             .header-titulo {
                 text-align: center !important;
                 margin-bottom: 20px !important;
             }
             .titulo-gestion {
-                font-size: 24px !important;
+                font-size: 22px !important;
                 color: #1a3a5c !important;
                 border-bottom: 2px solid #1a3a5c !important;
                 padding-bottom: 8px !important;
                 display: inline-block !important;
             }
             
-            /* Tabla en impresión - igual que imprimir.html */
+            /* Tabla en impresión - exactamente como en la imagen */
             .table-responsive {
-                border: 1px solid #e6eaef !important;
-                border-radius: 6px !important;
+                border: 1px solid #ddd !important;
+                border-radius: 0 !important;
                 margin-top: 12px !important;
             }
             table {
@@ -500,12 +500,6 @@
             }
             tbody tr td::before {
                 display: none !important;
-            }
-            
-            /* Badges en impresión */
-            .badge {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
             }
         }
     </style>
