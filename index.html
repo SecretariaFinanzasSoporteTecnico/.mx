@@ -326,7 +326,7 @@
         .cargando { text-align: center; padding: 35px; color: #999; font-size: 15px; }
 
         /* ======================================== */
-        /* ESTILOS PARA IMPRESIÓN - EXACTAMENTE COMO LA IMAGEN */
+        /* ESTILOS PARA IMPRESIÓN - CON LOGO Y FECHA, TABLA COMO EN LA IMAGEN */
         /* ======================================== */
         @media print {
             /* Ocultar elementos que no deben imprimirse */
@@ -347,9 +347,77 @@
                 border-radius: 0 !important;
             }
             
-            /* Ocultar el encabezado superior (logo y fecha) */
+            /* Encabezado - CON LOGO Y FECHA (como en la imagen que te gustó) */
             .header-superior {
-                display: none !important;
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                padding-bottom: 15px !important;
+                border-bottom: 3px solid #1a3a5c !important;
+                margin-bottom: 25px !important;
+                border-top: none !important;
+            }
+            .header-superior .logo-izquierda {
+                display: flex !important;
+                align-items: center !important;
+                gap: 15px !important;
+            }
+            .header-superior .logo-izquierda .logo-img {
+                height: 60px !important;
+                width: auto !important;
+                object-fit: contain !important;
+            }
+            .header-superior .logo-izquierda .textos-logo {
+                display: flex !important;
+                flex-direction: column !important;
+                line-height: 1.15 !important;
+            }
+            .header-superior .logo-izquierda .textos-logo .humanismo {
+                font-size: 13px !important;
+                font-weight: 700 !important;
+                color: #1a3a5c !important;
+                letter-spacing: 1px !important;
+            }
+            .header-superior .logo-izquierda .textos-logo .secret {
+                font-size: 17px !important;
+                font-weight: 800 !important;
+                color: #b8860b !important;
+            }
+            .header-superior .logo-izquierda .textos-logo .gobierno {
+                font-size: 13px !important;
+                font-weight: 600 !important;
+                color: #1a3a5c !important;
+            }
+            .header-superior .logo-izquierda .textos-logo .periodo {
+                font-size: 12px !important;
+                font-weight: 600 !important;
+                color: #1a3a5c !important;
+            }
+            
+            /* Reloj en impresión - fecha y hora */
+            .reloj-moderno {
+                text-align: right !important;
+                font-weight: 600 !important;
+                background: none !important;
+                border: none !important;
+                padding: 0 !important;
+                min-width: auto !important;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+            }
+            .reloj-moderno .fecha {
+                font-size: 15px !important;
+                color: #1a3a5c !important;
+                display: block !important;
+                font-weight: 600 !important;
+                letter-spacing: 0.5px !important;
+            }
+            .reloj-moderno .hora {
+                font-size: 18px !important;
+                font-weight: 700 !important;
+                color: #1a3a5c !important;
+                display: block !important;
+                letter-spacing: 1px !important;
+                margin-top: 2px !important;
             }
             
             /* Título - exactamente como en la imagen */
@@ -451,6 +519,14 @@
             /* Nombre en negrita como en la imagen */
             td:nth-child(2) {
                 font-weight: 600 !important;
+            }
+            
+            /* Asegurar que los textos del logo se vean bien */
+            .header-superior .logo-izquierda .textos-logo .humanismo,
+            .header-superior .logo-izquierda .textos-logo .secret,
+            .header-superior .logo-izquierda .textos-logo .gobierno,
+            .header-superior .logo-izquierda .textos-logo .periodo {
+                display: block !important;
             }
         }
     </style>
