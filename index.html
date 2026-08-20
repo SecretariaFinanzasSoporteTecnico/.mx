@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Gestión de Usuario</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            padding: clamp(15px, 2.5vw, 30px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+        .header-superior {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #1a3a5c;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .header-superior .logo-izquierda {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .header-superior .logo-izquierda .logo-img {
+            height: clamp(50px, 8vw, 75px);
+            width: auto;
+            object-fit: contain;
+        }
+        .header-superior .logo-izquierda .textos-logo {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+        .header-superior .logo-izquierda .textos-logo .humanismo {
+            font-size: clamp(11px, 1.5vw, 15px);
+            font-weight: 700;
+            color: #1a3a5c;
+            letter-spacing: 1px;
+        }
+        .header-superior .logo-izquierda .textos-logo .secret {
+            font-size: clamp(13px, 1.8vw, 17px);
+            font-weight: 800;
+            color: #b8860b;
+            letter-spacing: 0.5px;
+        }
+        .header-superior .logo-izquierda .textos-logo .gobierno {
+            font-size: clamp(11px, 1.5vw, 15px);
+            font-weight: 600;
+            color: #1a3a5c;
+        }
+        .header-superior .logo-izquierda .textos-logo .periodo {
+            font-size: clamp(10px, 1.2vw, 14px);
+            font-weight: 600;
+            color: #1a3a5c;
+        }
+        .reloj-moderno {
+            font-size: clamp(14px, 1.5vw, 18px);
+            font-weight: 700;
+            color: #1a3a5c;
+            background: #f8f9fa;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            min-width: 100px;
+        }
+        .reloj-moderno .fecha {
+            font-size: clamp(10px, 1vw, 13px);
+            color: #6c757d;
+            font-weight: 600;
+            display: block;
+        }
+        .reloj-moderno .hora {
+            font-size: clamp(16px, 1.8vw, 22px);
+            display: block;
+        }
+        .header-titulo { text-align: center; margin-bottom: 25px; }
+        .titulo-gestion {
+            font-size: clamp(22px, 4vw, 32px);
+            font-weight: 700;
+            color: #1a3a5c;
+            display: inline-block;
+            padding: 0 5px;
+            border-bottom: 3px solid #1a3a5c;
+        }
+        .header-actions { display: flex; justify-content: center; margin-bottom: 25px; }
+        .header-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+        }
+        .btn {
+            padding: clamp(10px, 1.5vw, 16px) clamp(18px, 2.5vw, 30px);
+            border: none;
+            border-radius: 8px;
+            font-size: clamp(13px, 1.2vw, 16px);
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .btn-agregar { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: #fff; }
+        .btn-blanco { background: #6c757d; color: #fff; }
+        .btn-imprimir { background: #1a3a5c; color: #fff; }
+        .btn-faltas { background: #17a2b8; color: #fff; }
+        .btn-incidencias { background: #6f42c1; color: #fff; }
+        @media (max-width: 768px) {
+            .btn { width: 100%; white-space: normal; padding: 14px 20px; font-size: 16px; }
+            .header-buttons { flex-direction: column; width: 100%; }
+        }
+
+        .buscador-moderno {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .buscador-moderno input {
+            flex: 1;
+            min-width: 200px;
+            max-width: 500px;
+            padding: clamp(10px, 1.5vw, 14px) 15px;
+            border: 1px solid #dce1e8;
+            border-radius: 8px;
+            font-size: clamp(14px, 1.2vw, 17px);
+            transition: 0.3s;
+            background: #f8f9fa;
+        }
+        .buscador-moderno input:focus {
+            border-color: #1a3a5c;
+            outline: none;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(26, 58, 92, 0.1);
+        }
+        .btn-buscar {
+            background: #1a3a5c; color: #fff;
+            padding: clamp(10px, 1.5vw, 14px) clamp(20px, 2.5vw, 30px);
+            border: none;
+            border-radius: 8px;
+            font-size: clamp(14px, 1.2vw, 17px);
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-limpiar {
+            background: #dc3545; color: #fff;
+            padding: clamp(10px, 1.5vw, 14px) clamp(20px, 2.5vw, 30px);
+            border: none;
+            border-radius: 8px;
+            font-size: clamp(14px, 1.2vw, 17px);
+            font-weight: 600;
+            cursor: pointer;
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .buscador-moderno { flex-direction: column; align-items: stretch; }
+            .buscador-moderno input { max-width: 100%; width: 100%; }
+            .buscador-moderno .btn-buscar,
+            .buscador-moderno .btn-limpiar { width: 100%; text-align: center; }
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 15px;
+            border-radius: 8px;
+            border: 1px solid #e6eaef;
+            -webkit-overflow-scrolling: touch;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1vw, 15px);
+            min-width: 600px;
+        }
+        thead { background: #1a3a5c; color: #fff; }
+        th { padding: clamp(8px, 1vw, 14px) clamp(10px, 1.2vw, 18px); text-align: left; font-weight: 600; }
+        td { padding: clamp(8px, 1vw, 14px) clamp(10px, 1.2vw, 18px); border-bottom: 1px solid #e6eaef; vertical-align: middle; }
+        tbody tr:hover { background: #f5f8fc; }
+        .btn-small {
+            font-size: clamp(11px, 0.9vw, 13px);
+            padding: 5px 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-warning-small { background: #ffc107; color: #1e2a3a; }
+        .btn-danger-small { background: #dc3545; color: #fff; }
+        .btn-secondary-small { background: #6c757d; color: #fff; }
+        .btn-warning-small:hover { background: #e0a800; }
+        .btn-danger-small:hover { background: #c82333; }
+        .btn-secondary-small:hover { background: #5a6268; }
+        .acciones { display: flex; gap: 6px; flex-wrap: wrap; }
+
+        @media (max-width: 768px) {
+            table, thead, tbody, th, td, tr { display: block; }
+            thead { display: none; }
+            tbody tr {
+                display: block;
+                border: 1px solid #e6eaef;
+                border-radius: 8px;
+                margin-bottom: 15px;
+                padding: 15px;
+                background: #fff;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            }
+            tbody tr td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px 5px;
+                border-bottom: 1px solid #f0f0f0;
+            }
+            tbody tr td:last-child { border-bottom: none; }
+            tbody tr td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: #1a3a5c;
+                font-size: 11px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                flex: 0 0 40%;
+            }
+            .acciones { flex-wrap: wrap; gap: 8px; }
+            .acciones .btn-small { flex: 1; min-width: 80px; text-align: center; font-size: 13px; padding: 8px 12px; }
+            .sin-permisos { font-size: 13px; padding: 6px 12px; }
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: inherit; opacity: 0.7; }
+        .close-btn:hover { opacity: 1; }
+
+        .btn-volver-menu {
+            background: #6c757d; color: #fff;
+            padding: clamp(10px, 1.5vw, 14px) clamp(20px, 2.5vw, 30px);
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: clamp(14px, 1.2vw, 17px);
+        }
+        .btn-volver-menu:hover { background: #5a6268; transform: translateY(-2px); }
+        @media (max-width: 768px) { .btn-volver-menu { display: block; width: 100%; text-align: center; } }
+
+        .sin-permisos {
+            color: #999;
+            font-size: clamp(11px, 0.9vw, 13px);
+            display: inline-block;
+            background: #f1f1f1;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #1a3a5c;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .cargando { text-align: center; padding: 40px; color: #999; }
+
+        @media print { .no-print { display: none !important; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER SUPERIOR -->
+        <div class="header-superior">
+            <div class="logo-izquierda">
+                <img src="logos/logo_izquierdo.jpg" alt="Logotipo" class="logo-img" onerror="this.style.display='none'">
+                <div class="textos-logo">
+                    <span class="humanismo">HUMANISMO QUE TRANSFORMA</span>
+                    <span class="secret">SECRETARÍA DE FINANZAS</span>
+                    <span class="gobierno">GOBIERNO DE CHIAPAS</span>
+                    <span class="periodo">2024 - 2030</span>
+                </div>
+            </div>
+            <div class="reloj-moderno" id="reloj">
+                <span class="fecha" id="fecha">Cargando...</span>
+                <span class="hora" id="hora">Cargando...</span>
+            </div>
+        </div>
+
+        <!-- TÍTULO -->
+        <div class="header-titulo">
+            <span class="titulo-gestion">📊 Gestión de Usuario</span>
+        </div>
+
+        <!-- BOTONES -->
+        <div class="header-actions">
+            <div class="header-buttons no-print" id="botonesAccion">
+                <a href="agregar.html" class="btn btn-agregar">➕ Agregar Usuario</a>
+                <a href="imprimir_formato_blanco.html" target="_blank" class="btn btn-blanco">📄 Formato en Blanco</a>
+                <button onclick="window.print()" class="btn btn-imprimir">🖨️ Imprimir todo</button>
+            </div>
+        </div>
+
+        <!-- MENSAJES -->
+        <div id="mensajeContainer"></div>
+
+        <!-- BUSCADOR -->
+        <div class="buscador-moderno no-print">
+            <form id="buscarForm" style="display:flex; gap:10px; width:100%; justify-content:center; flex-wrap:wrap;">
+                <input type="text" id="buscarInput" placeholder="🔍 Buscar por nombre o email...">
+                <button type="submit" class="btn-buscar">Buscar</button>
+                <button type="button" id="limpiarBuscar" class="btn-limpiar">✖ Limpiar</button>
+            </form>
+        </div>
+
+        <!-- TABLA -->
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:50px;">#</th>
+                        <th>Nombre</th>
+                        <th>Área</th>
+                        <th>Puesto</th>
+                        <th>Fecha Registro</th>
+                        <th class="no-print" style="width:250px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaBody">
+                    <tr><td colspan="6" class="cargando"><span class="spinner"></span> Cargando usuarios...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- VOLVER AL MENÚ -->
+        <div style="text-align:left; margin-top:20px;" class="no-print">
+            <a href="menu.html" class="btn-volver-menu">⬅ Volver al Menú</a>
+        </div>
+    </div>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-app.js"></script>
+    
+    <script>
+        let usuarioActual = null;
+        let usuarios = [];
+
+        function escapeHtml(texto) {
+            if (!texto) return '';
+            const div = document.createElement('div');
+            div.textContent = texto;
+            return div.innerHTML;
+        }
+
+        function mostrarMensaje(texto, tipo) {
+            const container = document.getElementById('mensajeContainer');
+            container.innerHTML = `
+                <div class="alert alert-${tipo}">
+                    ${texto}
+                    <button class="close-btn" onclick="this.parentElement.style.display='none'">✕</button>
+                </div>
+            `;
+            setTimeout(() => {
+                const alert = container.querySelector('.alert');
+                if (alert) alert.style.display = 'none';
+            }, 5000);
+        }
+
+        function formatearFechaHora(fecha) {
+            if (!fecha) return '--';
+            const d = new Date(fecha);
+            return d.toLocaleString('es-MX', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function actualizarReloj() {
+            const ahora = new Date();
+            const fecha = ahora.toLocaleDateString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit' });
+            const hora = ahora.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById('fecha').textContent = '📅 ' + fecha;
+            document.getElementById('hora').textContent = '🕐 ' + hora;
+        }
+        setInterval(actualizarReloj, 1000);
+        actualizarReloj();
+
+        async function cargarDatos() {
+            const usuarioStr = localStorage.getItem('sg_usuario_actual');
+            if (!usuarioStr) {
+                window.location.href = 'login.html';
+                return;
+            }
+            usuarioActual = JSON.parse(usuarioStr);
+
+            const botonesDiv = document.getElementById('botonesAccion');
+            if (usuarioActual.rol === 'admin') {
+                botonesDiv.innerHTML = `
+                    <a href="agregar.html" class="btn btn-agregar">➕ Agregar Usuario</a>
+                    <a href="imprimir_formato_blanco.html" target="_blank" class="btn btn-blanco">📄 Formato en Blanco</a>
+                    <button onclick="window.print()" class="btn btn-imprimir">🖨️ Imprimir todo</button>
+                `;
+            } else {
+                botonesDiv.innerHTML = `
+                    <a href="imprimir_formato_blanco.html" target="_blank" class="btn btn-blanco">📄 Formato en Blanco</a>
+                    <button onclick="window.print()" class="btn btn-imprimir">🖨️ Imprimir todo</button>
+                `;
+            }
+
+            await cargarUsuarios();
+        }
+
+        async function cargarUsuarios() {
+            const tbody = document.getElementById('tablaBody');
+            tbody.innerHTML = `<tr><td colspan="6" class="cargando"><span class="spinner"></span> Cargando usuarios...</td></tr>`;
+
+            const resultado = await window.firebaseApp.obtenerUsuariosFirebase();
+            
+            if (resultado.success) {
+                usuarios = resultado.data;
+                renderizarTabla(usuarios);
+            } else {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:#999;">❌ Error al cargar usuarios: ${resultado.error}</td></tr>`;
+            }
+        }
+
+        function renderizarTabla(lista) {
+            const tbody = document.getElementById('tablaBody');
+            
+            if (!lista || lista.length === 0) {
+                tbody.innerHTML = `
+                    <tr><td colspan="6" style="text-align: center; padding: 40px; color: #999;">📭 No hay usuarios registrados</td></tr>
+                `;
+                return;
+            }
+
+            let html = '';
+            lista.forEach((usuario, index) => {
+                const fechaRegistro = usuario.fecha_registro ? formatearFechaHora(usuario.fecha_registro) : '--';
+
+                html += `
+                    <tr>
+                        <td data-label="#">${index + 1}</td>
+                        <td data-label="Nombre"><strong>${escapeHtml(usuario.nombre)}</strong></td>
+                        <td data-label="Área">${escapeHtml(usuario.area || '')}</td>
+                        <td data-label="Puesto">${escapeHtml(usuario.puesto || '')}</td>
+                        <td data-label="Fecha Registro" style="font-size: 13px; color: #555;">${fechaRegistro}</td>
+                        <td data-label="Acciones" class="no-print">
+                            <div class="acciones">
+                                ${usuarioActual && usuarioActual.rol === 'admin' ? `
+                                    <a href="editar.html?uid=${usuario.uid}" class="btn btn-warning-small btn-small">✏️ Editar</a>
+                                    <button onclick="eliminarUsuario('${usuario.uid}')" class="btn btn-danger-small btn-small">🗑️ Eliminar</button>
+                                ` : `
+                                    <span class="sin-permisos">🔒 Sin permisos</span>
+                                `}
+                                <a href="faltas.html?usuario_id=${usuario.uid}" class="btn btn-faltas btn-small">📋 Faltas</a>
+                                <a href="ver_incidencia.html?usuario_id=${usuario.uid}" class="btn btn-incidencias btn-small">📄 Incidencias</a>
+                                <a href="imprimir_usuario.html?uid=${usuario.uid}" target="_blank" class="btn btn-secondary-small btn-small">🖨️ Imprimir</a>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        async function eliminarUsuario(uid) {
+            if (!confirm('¿Estás seguro de eliminar este usuario?')) return;
+            if (usuarioActual && usuarioActual.uid === uid) {
+                mostrarMensaje('No puedes eliminar tu propio usuario.', 'danger');
+                return;
+            }
+            const resultado = await window.firebaseApp.eliminarUsuarioFirebase(uid);
+            if (resultado.success) {
+                mostrarMensaje('Usuario eliminado correctamente.', 'success');
+                await cargarUsuarios();
+            } else {
+                mostrarMensaje('❌ Error al eliminar: ' + resultado.error, 'danger');
+            }
+        }
+
+        function buscarUsuarios(termino) {
+            if (!termino.trim()) {
+                renderizarTabla(usuarios);
+                document.getElementById('limpiarBuscar').style.display = 'none';
+                return;
+            }
+            const filtrados = usuarios.filter(u => 
+                u.nombre.toLowerCase().includes(termino.toLowerCase())
+            );
+            renderizarTabla(filtrados);
+            document.getElementById('limpiarBuscar').style.display = 'inline-block';
+        }
+
+        document.addEventListener('DOMContentLoaded', cargarDatos);
+
+        document.getElementById('buscarForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const termino = document.getElementById('buscarInput').value;
+            buscarUsuarios(termino);
+        });
+
+        document.getElementById('limpiarBuscar').addEventListener('click', function() {
+            document.getElementById('buscarInput').value = '';
+            buscarUsuarios('');
+        });
+
+        document.getElementById('buscarInput').addEventListener('input', function() {
+            const termino = this.value;
+            if (termino.length >= 2 || termino.length === 0) {
+                buscarUsuarios(termino);
+            }
+        });
+
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            const mensaje = params.get('mensaje');
+            const error = params.get('error');
+            if (mensaje) mostrarMensaje(mensaje, 'success');
+            if (error) mostrarMensaje(error, 'danger');
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Ver Incidencias</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            padding: clamp(15px, 2.5vw, 30px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+        .header-incidencias {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #1a3a5c;
+            padding-bottom: 15px;
+        }
+        .header-incidencias h2 { color: #1a3a5c; font-size: clamp(18px, 2.5vw, 24px); }
+        .header-incidencias .botones { display:flex; gap:10px; flex-wrap:wrap; }
+        @media (max-width: 768px) {
+            .header-incidencias { flex-direction: column; align-items: stretch; gap: 10px; }
+            .header-incidencias h2 { font-size: 18px; text-align: center; }
+            .header-incidencias .botones { justify-content: center; }
+            .header-incidencias .botones .btn { width: 100%; text-align: center; }
+        }
+        .btn {
+            padding: clamp(8px, 1.2vw, 12px) clamp(15px, 2vw, 25px);
+            border: none;
+            border-radius: 8px;
+            font-size: clamp(13px, 1.2vw, 15px);
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .btn-registrar { background: #28a745; color: #fff; }
+        .btn-registrar:hover { background: #218838; }
+        .btn-imprimir-todo { background: #17a2b8; color: #fff; }
+        .btn-imprimir-todo:hover { background: #138496; }
+        .btn-volver { background: #6c757d; color: #fff; }
+        .btn-volver:hover { background: #5a6268; }
+        .btn-justificar-incidencia {
+            background: linear-gradient(135deg,#fd7e14 0%,#e06b0a 100%);
+            color: white;
+            padding: clamp(4px, 0.8vw, 8px) clamp(8px, 1vw, 12px);
+            border: none;
+            border-radius: 6px;
+            font-size: clamp(11px, 0.9vw, 13px);
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        .btn-justificar-incidencia:hover { background: #e06b0a; transform: translateY(-2px); }
+        .btn-justificado {
+            background: #28a745;
+            color: white;
+            padding: clamp(4px, 0.8vw, 8px) clamp(8px, 1vw, 12px);
+            border: none;
+            border-radius: 6px;
+            font-size: clamp(11px, 0.9vw, 13px);
+            font-weight: 600;
+            cursor: default;
+            display: inline-block;
+        }
+        .btn-imprimir-directo {
+            background: #17a2b8;
+            color: #fff;
+            padding: clamp(4px, 0.8vw, 8px) clamp(8px, 1vw, 12px);
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            font-size: clamp(11px, 0.9vw, 13px);
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-imprimir-directo:hover { background: #138496; transform: translateY(-2px); }
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: inherit; opacity: 0.7; }
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: clamp(11px, 0.9vw, 13px);
+            font-weight: 600;
+        }
+        .badge-vacaciones { background: #d4edda; color: #155724; }
+        .badge-comision { background: #d1ecf1; color: #0c5460; }
+        .badge-permiso { background: #fff3cd; color: #856404; }
+        .badge-omision { background: #f8d7da; color: #721c24; }
+        .badge-cumpleanos { background: #e8d4f8; color: #4a148c; }
+        .badge-otra { background: #e9ecef; color: #495057; }
+        .badge-justificada { background: #d4edda; color: #155724; }
+        .badge-pendiente { background: #f8d7da; color: #721c24; }
+        .table-responsive { overflow-x: auto; margin-top: 10px; -webkit-overflow-scrolling: touch; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1vw, 15px);
+            min-width: 800px;
+        }
+        thead { background: #1a3a5c; color: #fff; }
+        th { padding: clamp(8px, 1vw, 14px) clamp(10px, 1.2vw, 18px); text-align: left; white-space: nowrap; font-weight: 600; }
+        td { padding: clamp(8px, 1vw, 14px) clamp(10px, 1.2vw, 18px); border-bottom: 1px solid #e6eaef; vertical-align: middle; }
+        tbody tr:hover { background: #f5f8fc; }
+        .acciones-incidencia { display: flex; gap: 5px; flex-wrap: wrap; }
+        .sin-incidencias { text-align: center; padding: 60px 20px; color: #999; }
+        .sin-incidencias .icono { font-size: clamp(48px, 8vw, 60px); margin-bottom: 15px; }
+        .sin-incidencias h3 { color: #555; font-size: clamp(18px, 2vw, 22px); }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #1a3a5c;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .cargando { text-align: center; padding: 40px; color: #999; }
+        @media (max-width: 768px) {
+            table, thead, tbody, th, td, tr { display: block; }
+            thead { display: none; }
+            tbody tr {
+                display: block;
+                border: 1px solid #e6eaef;
+                border-radius: 8px;
+                margin-bottom: 15px;
+                padding: 15px;
+                background: #fff;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            }
+            tbody tr td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px 5px;
+                border-bottom: 1px solid #f0f0f0;
+                flex-wrap: wrap;
+            }
+            tbody tr td:last-child { border-bottom: none; }
+            tbody tr td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: #1a3a5c;
+                font-size: 11px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                flex: 0 0 40%;
+            }
+            .acciones-incidencia { flex-direction: column; width: 100%; }
+            .acciones-incidencia .btn { width: 100%; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-incidencias">
+            <h2 id="tituloUsuario">📋 Incidencias</h2>
+            <div class="botones">
+                <a href="agregar_justificacion.html?usuario_id=" id="btnAgregarIncidencia" class="btn btn-registrar">➕ Registrar Nueva Incidencia</a>
+                <a href="#" id="btnImprimirTodo" class="btn btn-imprimir-todo">🖨️ Imprimir incidencias</a>
+                <a href="index.html" class="btn btn-volver">⬅ Volver al Inicio</a>
+            </div>
+        </div>
+        <div id="mensajeContainer"></div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th><th>Tipo</th><th>Fecha Inicio</th><th>Días</th><th>Motivo</th>
+                        <th>Observaciones</th><th>Estado</th><th>Registro</th><th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaIncidencias">
+                    <tr><td colspan="9" class="cargando"><span class="spinner"></span> Cargando incidencias...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-app.js"></script>
+    <script>
+        let usuarioId=null, usuarioNombre='', incidencias=[], contador=0;
+        function escapeHtml(t){ if(!t) return ''; const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+        function mostrarMensaje(texto,tipo){
+            const c=document.getElementById('mensajeContainer');
+            c.innerHTML=`<div class="alert alert-${tipo}">${texto}<button class="close-btn" onclick="this.parentElement.style.display='none'">✕</button></div>`;
+            setTimeout(()=>{ const a=c.querySelector('.alert'); if(a) a.style.display='none'; },5000);
+        }
+        function formatearFecha(f){ if(!f) return '--'; const d=new Date(f); return d.toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'}); }
+        function formatearFechaHora(f){ if(!f) return '--'; const d=new Date(f); return d.toLocaleString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+        function calcularDias(inicio,fin){ if(!inicio||!fin)return 0; const d1=new Date(inicio),d2=new Date(fin); const diff=Math.abs(d2-d1); return Math.ceil(diff/(1000*60*60*24))+1; }
+        async function init(){
+            const u=localStorage.getItem('sg_usuario_actual');
+            if(!u){ window.location.href='login.html'; return; }
+            const p=new URLSearchParams(window.location.search);
+            usuarioId=p.get('usuario_id');
+            if(!usuarioId){ mostrarMensaje('Usuario no válido','danger'); return; }
+            document.getElementById('btnAgregarIncidencia').href=`agregar_justificacion.html?usuario_id=${usuarioId}`;
+            document.getElementById('btnImprimirTodo').href=`imprimir.html?usuario_id=${usuarioId}`;
+            const r=await window.firebaseApp.obtenerUsuarioPorIdFirebase(usuarioId);
+            if(r.success){ usuarioNombre=r.data.nombre; document.getElementById('tituloUsuario').textContent=`📋 Incidencias de ${usuarioNombre}`; }
+            else { mostrarMensaje('Usuario no encontrado','danger'); return; }
+            await cargarIncidencias();
+        }
+        async function cargarIncidencias(){
+            const t=document.getElementById('tablaIncidencias');
+            t.innerHTML=`<tr><td colspan="9" class="cargando"><span class="spinner"></span> Cargando incidencias...</td></tr>`;
+            const r=await window.firebaseApp.obtenerIncidenciasFirebase(usuarioId);
+            if(r.success){ incidencias=r.data; renderizarTabla(incidencias); }
+            else { t.innerHTML=`<tr><td colspan="9" style="text-align:center;padding:40px;color:#999;">❌ Error: ${r.error}</td></tr>`; }
+        }
+        function renderizarTabla(lista){
+            const t=document.getElementById('tablaIncidencias');
+            if(lista.length===0){ t.innerHTML=`<tr><td colspan="9" style="text-align:center;padding:40px;color:#999;">📭 No hay incidencias registradas</td></tr>`; return; }
+            let html=''; contador=0;
+            lista.forEach((inc)=>{
+                contador++;
+                let bc='badge-otra'; const tipo=inc.tipo_incidencia||'Otra';
+                if(tipo==='Vacaciones')bc='badge-vacaciones'; else if(tipo==='Comisión')bc='badge-comision'; else if(tipo==='Permiso Económico')bc='badge-permiso'; else if(tipo.includes('Omisión'))bc='badge-omision'; else if(tipo==='Cumpleaños Confianza')bc='badge-cumpleanos';
+                const just=inc.justificada||false, estado=just?'Justificada':'Pendiente', be=just?'badge-justificada':'badge-pendiente', dias=calcularDias(inc.fecha_inicio,inc.fecha_fin);
+                html+=`<tr>
+                    <td data-label="#">${contador}</td>
+                    <td data-label="Tipo"><span class="badge ${bc}">${escapeHtml(tipo)}</span></td>
+                    <td data-label="Fecha Inicio">${formatearFecha(inc.fecha_inicio)}</td>
+                    <td data-label="Días">${dias}</td>
+                    <td data-label="Motivo">${escapeHtml(inc.motivo||'--')}</td>
+                    <td data-label="Observaciones">${escapeHtml(inc.observaciones||'--')}</td>
+                    <td data-label="Estado"><span class="badge ${be}">${estado}</span></td>
+                    <td data-label="Registro">${formatearFechaHora(inc.fecha_registro)}</td>
+                    <td data-label="Acciones"><div class="acciones-incidencia">${!just?`<a href="justificar_incidencia.html?usuario_id=${usuarioId}&incidencia_id=${inc.id}" class="btn-justificar-incidencia">📝 Justificar</a>`:`<span class="btn-justificado">✅ Justificada</span>`}<a href="imprimir.html?usuario_id=${usuarioId}&incidencia_id=${inc.id}&num_incidencia=${contador}" target="_blank" class="btn-imprimir-directo">🖨️ Imprimir</a></div></td>
+                </tr>`;
+            });
+            t.innerHTML=html;
+        }
+        document.addEventListener('DOMContentLoaded',init);
+    </script>
+</body>
+</html>

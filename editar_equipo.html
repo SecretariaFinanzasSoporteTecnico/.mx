@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Equipo</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            padding: 25px 30px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+        .header-form {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 3px solid #ffc107;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        .header-form h1 { color: #ffc107; }
+        .btn-volver {
+            background: #6c757d; color: #fff; padding: 10px 25px; border-radius: 8px;
+            text-decoration: none; font-weight: 600; transition: all 0.3s;
+        }
+        .btn-volver:hover { background: #5a6268; transform: translateY(-2px); }
+        .seccion-form {
+            background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 4px solid #ffc107;
+        }
+        .seccion-form h3 { color: #ffc107; margin-bottom: 15px; font-size: 18px; border-bottom: 1px solid #e6eaef; padding-bottom: 10px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 25px; }
+        .form-grid .campo-full { grid-column: 1 / -1; }
+        .campo { display: flex; flex-direction: column; gap: 4px; }
+        .campo label { font-weight: 600; font-size: 14px; color: #2c3e50; }
+        .campo label .obligatorio { color: #dc3545; font-weight: 700; }
+        .campo input, .campo select {
+            padding: 10px 12px; border: 2px solid #dce1e8; border-radius: 8px; font-size: 14px;
+            transition: 0.3s; font-family: inherit; width: 100%; box-sizing: border-box;
+        }
+        .campo input:focus, .campo select:focus { border-color: #ffc107; outline: none; box-shadow: 0 0 0 3px rgba(255,193,7,0.1); }
+        .tabla-equipos { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 14px; }
+        .tabla-equipos thead { background: #ffc107; color: #fff; }
+        .tabla-equipos th { padding: 10px; text-align: left; font-weight: 600; }
+        .tabla-equipos td { padding: 8px 10px; border-bottom: 1px solid #e6eaef; }
+        .tabla-equipos select, .tabla-equipos input { width: 100%; padding: 8px; border: 2px solid #dce1e8; border-radius: 6px; font-size: 13px; box-sizing: border-box; }
+        .tabla-equipos select:focus, .tabla-equipos input:focus { border-color: #ffc107; outline: none; }
+        .acciones-form {
+            display: flex; gap: 15px; margin-top: 25px; padding-top: 20px; border-top: 2px solid #e6eaef; justify-content: flex-end;
+        }
+        .btn {
+            padding: 10px 25px; border: none; border-radius: 8px; font-size: 15px;
+            font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.3s;
+        }
+        .btn-guardar { background: #ffc107; color: #fff; }
+        .btn-guardar:hover { background: #e0a800; transform: translateY(-2px); }
+        .btn-guardar:disabled { opacity:0.6; cursor:not-allowed; }
+        .btn-cancelar { background: #e9edf2; color: #3d4f62; }
+        .btn-cancelar:hover { background: #d5dce6; }
+        .alert {
+            padding:15px 20px; border-radius:8px; margin-bottom:20px; display:flex;
+            justify-content:space-between; align-items:center; font-weight:500;
+        }
+        .alert-success { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
+        .alert-danger { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
+        .close-btn { background:none; border:none; font-size:20px; cursor:pointer; color:inherit; opacity:0.7; }
+        .close-btn:hover { opacity:1; }
+        .spinner {
+            display:inline-block; width:16px; height:16px; border:2px solid #fff;
+            border-radius:50%; border-top-color:transparent; animation:spin 0.8s linear infinite;
+            vertical-align:middle; margin-right:8px;
+        }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        .cargando { text-align:center; padding:40px; color:#999; }
+        @media (max-width:768px){ .container{padding:15px;} .header-form{flex-direction:column; align-items:stretch; text-align:center;} .form-grid{grid-template-columns:1fr;} .acciones-form{flex-direction:column;} .acciones-form .btn{width:100%; text-align:center;} }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-form">
+            <h1>✏️ Editar Equipo</h1>
+            <a href="inventario.html" class="btn-volver">⬅ Volver al Inventario</a>
+        </div>
+        <div id="mensajeContainer"></div>
+        <div id="contenidoForm"><div class="cargando"><span class="spinner"></span> Cargando equipo...</div></div>
+    </div>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-app.js"></script>
+    <script>
+        let equipoId=null;
+        function mostrarMensaje(texto,tipo){
+            const c=document.getElementById('mensajeContainer');
+            c.innerHTML=`<div class="alert alert-${tipo}">${texto}<button class="close-btn" onclick="this.parentElement.style.display='none'">✕</button></div>`;
+            setTimeout(()=>{ const a=c.querySelector('.alert'); if(a) a.style.display='none'; },5000);
+        }
+        function escapeHtml(t){ if(!t)return''; const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+        async function cargarDatos(){
+            const u=localStorage.getItem('sg_usuario_actual');
+            if(!u){ window.location.href='login.html'; return; }
+            const p=new URLSearchParams(window.location.search);
+            equipoId=p.get('id');
+            if(!equipoId){ mostrarMensaje('ID no válido','danger'); return; }
+            const r=await window.firebaseApp.obtenerServicioPorIdFirebase(equipoId);
+            if(!r.success){ document.getElementById('contenidoForm').innerHTML=`<div style="text-align:center;padding:40px;color:#999;">❌ ${r.error}</div>`; return; }
+            const e=r.data;
+            document.getElementById('contenidoForm').innerHTML=`
+                <form id="formEditar">
+                    <div class="seccion-form">
+                        <h3>💻 Datos del Equipo</h3>
+                        <table class="tabla-equipos">
+                            <thead><tr><th>DESCRIPCIÓN</th><th>MARCA</th><th>MODELO</th><th>SERIE</th><th>N° INVENTARIO</th></tr></thead>
+                            <tbody><tr>
+                                <td><select id="descripcion"><option value="">Selecciona un Equipo</option><option value="Computadora" ${e.descripcion_equipo==='Computadora'?'selected':''}>Computadora</option><option value="Laptop" ${e.descripcion_equipo==='Laptop'?'selected':''}>Laptop</option><option value="Impresora" ${e.descripcion_equipo==='Impresora'?'selected':''}>Impresora</option><option value="Monitor" ${e.descripcion_equipo==='Monitor'?'selected':''}>Monitor</option><option value="Servidor" ${e.descripcion_equipo==='Servidor'?'selected':''}>Servidor</option><option value="Switch" ${e.descripcion_equipo==='Switch'?'selected':''}>Switch</option><option value="Router" ${e.descripcion_equipo==='Router'?'selected':''}>Router</option><option value="Teléfono" ${e.descripcion_equipo==='Teléfono'?'selected':''}>Teléfono</option><option value="Proyector" ${e.descripcion_equipo==='Proyector'?'selected':''}>Proyector</option><option value="Escáner" ${e.descripcion_equipo==='Escáner'?'selected':''}>Escáner</option></select></td>
+                                <td><select id="marca"><option value="">Selecciona una Marca</option><option value="HP" ${e.marca==='HP'?'selected':''}>HP</option><option value="Dell" ${e.marca==='Dell'?'selected':''}>Dell</option><option value="Lenovo" ${e.marca==='Lenovo'?'selected':''}>Lenovo</option><option value="Apple" ${e.marca==='Apple'?'selected':''}>Apple</option><option value="Samsung" ${e.marca==='Samsung'?'selected':''}>Samsung</option><option value="Epson" ${e.marca==='Epson'?'selected':''}>Epson</option><option value="Brother" ${e.marca==='Brother'?'selected':''}>Brother</option><option value="Cisco" ${e.marca==='Cisco'?'selected':''}>Cisco</option></select></td>
+                                <td><select id="modelo"><option value="">Selecciona un Modelo</option><option value="OptiPlex" ${e.modelo==='OptiPlex'?'selected':''}>OptiPlex</option><option value="Latitude" ${e.modelo==='Latitude'?'selected':''}>Latitude</option><option value="ThinkPad" ${e.modelo==='ThinkPad'?'selected':''}>ThinkPad</option><option value="MacBook" ${e.modelo==='MacBook'?'selected':''}>MacBook</option><option value="ProBook" ${e.modelo==='ProBook'?'selected':''}>ProBook</option><option value="PowerEdge" ${e.modelo==='PowerEdge'?'selected':''}>PowerEdge</option></select></td>
+                                <td><input type="text" id="serie" value="${escapeHtml(e.serie||'')}" placeholder="Número de serie"></td>
+                                <td><input type="text" id="numero_inventario" value="${escapeHtml(e.numero_inventario||'')}" placeholder="Ej: P-211111..." style="width:140px;"></td>
+                            </tr></tbody>
+                        </table>
+                        <div style="margin-top:20px; display:flex; gap:20px; flex-wrap:wrap; align-items:center;">
+                            <div style="flex:1; min-width:200px;">
+                                <label style="font-weight:600; display:block; margin-bottom:5px; font-size:14px;">📅 Fecha de Registro:</label>
+                                <input type="date" id="fecha_registro" value="${e.fecha_registro?e.fecha_registro.split('T')[0]:''}" style="padding:10px; border:2px solid #dce1e8; border-radius:8px; font-size:14px; width:100%;">
+                            </div>
+                        </div>
+                        <div style="margin-top:15px;">
+                            <h4 style="color:#ffc107; margin-bottom:10px; border-top:1px solid #e6eaef; padding-top:15px;">🏛️ Datos de la Dependencia</h4>
+                            <div class="form-grid">
+                                <div class="campo"><label for="subsecretaria">Subsecretaría</label><select id="subsecretaria"><option value="">Selecciona una Subsecretaría</option><option value="Subsecretaría de Administración" ${e.subsecretaria==='Subsecretaría de Administración'?'selected':''}>Subsecretaría de Administración</option><option value="Subsecretaría de Ingresos" ${e.subsecretaria==='Subsecretaría de Ingresos'?'selected':''}>Subsecretaría de Ingresos</option><option value="Subsecretaría de Egresos" ${e.subsecretaria==='Subsecretaría de Egresos'?'selected':''}>Subsecretaría de Egresos</option><option value="Subsecretaría de Planeación" ${e.subsecretaria==='Subsecretaría de Planeación'?'selected':''}>Subsecretaría de Planeación</option></select></div>
+                                <div class="campo"><label for="direccion">Dirección</label><select id="direccion"><option value="">Selecciona una Dirección</option><option value="Dirección de Tecnologías" ${e.direccion==='Dirección de Tecnologías'?'selected':''}>Dirección de Tecnologías</option><option value="Dirección de Recursos Humanos" ${e.direccion==='Dirección de Recursos Humanos'?'selected':''}>Dirección de Recursos Humanos</option><option value="Dirección de Finanzas" ${e.direccion==='Dirección de Finanzas'?'selected':''}>Dirección de Finanzas</option><option value="Dirección de Administración" ${e.direccion==='Dirección de Administración'?'selected':''}>Dirección de Administración</option></select></div>
+                                <div class="campo campo-full"><label for="departamento">Departamento/Área</label><select id="departamento"><option value="">Selecciona un Departamento</option><option value="Soporte Técnico" ${e.departamento==='Soporte Técnico'?'selected':''}>Soporte Técnico</option><option value="Redes y Telecomunicaciones" ${e.departamento==='Redes y Telecomunicaciones'?'selected':''}>Redes y Telecomunicaciones</option><option value="Desarrollo de Software" ${e.departamento==='Desarrollo de Software'?'selected':''}>Desarrollo de Software</option><option value="Infraestructura" ${e.departamento==='Infraestructura'?'selected':''}>Infraestructura</option><option value="Seguridad Informática" ${e.departamento==='Seguridad Informática'?'selected':''}>Seguridad Informática</option></select></div>
+                            </div>
+                        </div>
+                        <div style="margin-top:15px;">
+                            <div class="campo campo-full">
+                                <label for="nombre_solicitante">Nombre del Responsable <span class="obligatorio">*</span></label>
+                                <input type="text" id="nombre_solicitante" value="${escapeHtml(e.nombre_solicitante||'')}" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="acciones-form">
+                        <a href="inventario.html" class="btn btn-cancelar">✕ Cancelar</a>
+                        <button type="submit" class="btn btn-guardar" id="btnGuardar">💾 Guardar Cambios</button>
+                    </div>
+                </form>
+            `;
+            document.getElementById('formEditar').addEventListener('submit',guardarEquipo);
+        }
+        async function guardarEquipo(e){
+            e.preventDefault();
+            const nombre_solicitante=document.getElementById('nombre_solicitante').value.trim();
+            const btn=document.getElementById('btnGuardar');
+            if(!nombre_solicitante){ mostrarMensaje('El nombre del responsable es obligatorio.','danger'); return; }
+            btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
+            const datos={nombre_solicitante,subsecretaria:document.getElementById('subsecretaria').value,direccion:document.getElementById('direccion').value,departamento:document.getElementById('departamento').value,descripcion_equipo:document.getElementById('descripcion').value,marca:document.getElementById('marca').value,modelo:document.getElementById('modelo').value,serie:document.getElementById('serie').value,numero_inventario:document.getElementById('numero_inventario').value,fecha_registro:document.getElementById('fecha_registro').value};
+            const r=await window.firebaseApp.actualizarServicioFirebase(equipoId,datos);
+            if(r.success){ mostrarMensaje('✅ Equipo actualizado.','success'); btn.innerHTML='✅ ¡Guardado!'; setTimeout(()=>{ window.location.href='inventario.html?mensaje=Equipo actualizado'; },1500); }
+            else { mostrarMensaje('❌ Error: '+r.error,'danger'); btn.disabled=false; btn.innerHTML='💾 Guardar Cambios'; }
+        }
+        document.addEventListener('DOMContentLoaded',cargarDatos);
+    </script>
+</body>
+</html>

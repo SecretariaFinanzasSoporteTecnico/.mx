@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Gestión de Servicios</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            padding: clamp(15px, 2.5vw, 30px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+        .header-superior {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #1a3a5c;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .header-superior .logo-izquierda {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .header-superior .logo-izquierda .logo-img {
+            height: clamp(50px, 8vw, 75px);
+            width: auto;
+            object-fit: contain;
+        }
+        .header-superior .logo-izquierda .textos-logo {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+        .header-superior .logo-izquierda .textos-logo .humanismo {
+            font-size: clamp(11px, 1.5vw, 15px);
+            font-weight: 700;
+            color: #1a3a5c;
+            letter-spacing: 1px;
+        }
+        .header-superior .logo-izquierda .textos-logo .secret {
+            font-size: clamp(13px, 1.8vw, 17px);
+            font-weight: 800;
+            color: #b8860b;
+            letter-spacing: 0.5px;
+        }
+        .header-superior .logo-izquierda .textos-logo .gobierno {
+            font-size: clamp(11px, 1.5vw, 15px);
+            font-weight: 600;
+            color: #1a3a5c;
+        }
+        .header-superior .logo-izquierda .textos-logo .periodo {
+            font-size: clamp(10px, 1.2vw, 14px);
+            font-weight: 600;
+            color: #1a3a5c;
+        }
+        .reloj {
+            font-size: clamp(14px, 1.5vw, 18px);
+            font-weight: 700;
+            color: #1a3a5c;
+            background: #f5f7fa;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 2px solid #b8860b;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            min-width: 100px;
+        }
+        .reloj .fecha {
+            font-size: clamp(10px, 1vw, 13px);
+            font-weight: 600;
+            color: #6c757d;
+            display: block;
+        }
+        .reloj .hora {
+            display: block;
+            font-size: clamp(16px, 1.8vw, 22px);
+        }
+        .header-titulo {
+            text-align: center;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            margin-top: 5px;
+        }
+        .titulo-gestion {
+            font-size: clamp(20px, 3.5vw, 30px);
+            font-weight: 700;
+            color: #1a3a5c;
+            display: inline-block;
+            padding: clamp(8px, 1vw, 14px) clamp(20px, 3vw, 35px);
+            background: #f5f7fa;
+            border-radius: 8px;
+            border-left: 4px solid #b8860b;
+            border-right: 4px solid #b8860b;
+        }
+        .header-botones {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 25px;
+            width: 100%;
+        }
+        .btn {
+            padding: clamp(10px, 1.5vw, 14px) clamp(18px, 2vw, 28px);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            font-size: clamp(13px, 1.2vw, 16px);
+            text-align: center;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .btn-success { background: #28a745; color: #fff; }
+        .btn-historico { background: #6f42c1; color: #fff; }
+        .btn-historico:hover { background: #5a32a3; }
+        .btn-inventario { background: #20c997; color: #fff; }
+        .btn-inventario:hover { background: #1aa179; }
+        .btn-volver { background: #6c757d; color: #fff; }
+        .btn-pendiente { background: #ffc107; color: #fff; }
+        .btn-resuelto { background: #28a745; color: #fff; }
+        .btn-danger { background: #dc3545; color: #fff; }
+        .btn-warning { background: #ffc107; color: #1e2a3a; }
+        .btn-small {
+            font-size: clamp(11px, 0.9vw, 13px);
+            padding: 5px 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-small:hover { transform: translateY(-2px); }
+
+        @media (max-width: 768px) {
+            .header-botones .btn {
+                width: 100%;
+                text-align: center;
+                padding: 14px 20px;
+                font-size: 16px;
+            }
+            .header-botones { flex-direction: column; width: 100%; }
+        }
+
+        .cards-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .card {
+            flex: 1;
+            min-width: 150px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .card h2 {
+            font-size: clamp(28px, 4vw, 40px);
+            margin-bottom: 5px;
+        }
+        .card p {
+            color: #666;
+            font-weight: 600;
+            font-size: clamp(12px, 1vw, 15px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .card-total h2 { color: #1a3a5c; }
+        .card-pendientes h2 { color: #dc3545; }
+        .card-resueltos h2 { color: #28a745; }
+        @media (max-width: 768px) { .cards-container { flex-direction: column; } .card { min-width: 100%; } }
+
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 15px;
+            -webkit-overflow-scrolling: touch;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1vw, 15px);
+            min-width: 600px;
+        }
+        thead { background: #1a3a5c; color: #fff; }
+        th { padding: clamp(8px, 1vw, 14px) clamp(10px, 1.2vw, 18px); text-align: left; font-weight: 600; }
+        td { padding: clamp(8px, 1vw, 14px) clamp(10px, 1.2vw, 18px); border-bottom: 1px solid #e6eaef; vertical-align: middle; }
+        tbody tr:hover { background: #f5f8fc; }
+        .badge {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: clamp(11px, 0.9vw, 13px);
+            font-weight: 600;
+        }
+        .badge-pendiente { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        .badge-resuelto { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .acciones { display: flex; gap: 6px; flex-wrap: wrap; }
+
+        @media (max-width: 768px) {
+            table, thead, tbody, th, td, tr { display: block; }
+            thead { display: none; }
+            tbody tr {
+                display: block;
+                border: 1px solid #e6eaef;
+                border-radius: 8px;
+                margin-bottom: 15px;
+                padding: 15px;
+                background: #fff;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            }
+            tbody tr td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px 5px;
+                border-bottom: 1px solid #f0f0f0;
+                flex-wrap: wrap;
+            }
+            tbody tr td:last-child { border-bottom: none; }
+            tbody tr td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: #1a3a5c;
+                font-size: 11px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                flex: 0 0 40%;
+            }
+            .acciones { flex-direction: column; width: 100%; }
+            .acciones .btn-small { width: 100%; text-align: center; padding: 10px; font-size: 14px; }
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: inherit; opacity: 0.7; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+            padding: 20px;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: #fff;
+            border-radius: 20px;
+            padding: clamp(20px, 3vw, 40px);
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .modal-content h2 {
+            color: #1a3a5c;
+            font-size: clamp(20px, 2.5vw, 28px);
+            margin-bottom: 8px;
+            border-bottom: 3px solid #1a3a5c;
+            padding-bottom: 12px;
+        }
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+            background: none;
+            border: none;
+        }
+        .modal-close:hover { color: #333; }
+        .year-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .year-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 10px;
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            border-radius: 14px;
+            text-decoration: none;
+            color: #1a3a5c;
+            font-weight: 700;
+            font-size: clamp(18px, 2vw, 24px);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            cursor: pointer;
+            min-height: 80px;
+            position: relative;
+            overflow: hidden;
+        }
+        .year-card:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(26,58,92,0.25);
+            border-color: #1a3a5c;
+        }
+        .year-card .year-number {
+            font-size: clamp(22px, 2.5vw, 32px);
+            font-weight: 800;
+            color: #1a3a5c;
+            position: relative;
+            z-index: 1;
+        }
+        .year-card .year-label {
+            font-size: clamp(11px, 1vw, 13px);
+            font-weight: 600;
+            color: #6c757d;
+            position: relative;
+            z-index: 1;
+        }
+        .year-card .year-count {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: #dc3545;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 20px;
+            z-index: 2;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #1a3a5c;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .cargando { text-align: center; padding: 40px; color: #999; }
+        .mensaje-vacio {
+            grid-column: span 3;
+            text-align: center;
+            padding: 30px;
+            color: #999;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 2px dashed #dee2e6;
+        }
+        .mensaje-vacio .icono { font-size: 48px; display: block; margin-bottom: 10px; }
+        .mensaje-vacio .texto { font-size: 16px; font-weight: 600; }
+        .mensaje-vacio .subtexto { font-size: 13px; color: #adb5bd; margin-top: 5px; }
+
+        @media print { .no-print { display: none !important; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER SUPERIOR -->
+        <div class="header-superior">
+            <div class="logo-izquierda">
+                <img src="logos/logo_izquierdo.jpg" alt="Logotipo" class="logo-img" onerror="this.style.display='none'">
+                <div class="textos-logo">
+                    <span class="humanismo">HUMANISMO QUE TRANSFORMA</span>
+                    <span class="secret">SECRETARÍA DE FINANZAS</span>
+                    <span class="gobierno">GOBIERNO DE CHIAPAS</span>
+                    <span class="periodo">2024 - 2030</span>
+                </div>
+            </div>
+            <div class="reloj" id="reloj">
+                <span class="fecha" id="fecha">Cargando...</span>
+                <span class="hora" id="hora">Cargando...</span>
+            </div>
+        </div>
+
+        <!-- TÍTULO -->
+        <div class="header-titulo">
+            <span class="titulo-gestion">📋 Gestión de Servicios</span>
+        </div>
+
+        <!-- BOTONES -->
+        <div class="header-botones no-print">
+            <a href="nuevo_servicio.html" class="btn btn-success">➕ Nuevo Servicio</a>
+            <a href="inventario.html" class="btn btn-inventario">📦 Inventario</a>
+            <button onclick="abrirHistorico()" class="btn btn-historico">📜 Histórico</button>
+            <a href="menu.html" class="btn btn-volver">⬅ Volver</a>
+        </div>
+
+        <!-- TARJETAS -->
+        <div class="cards-container">
+            <div class="card card-total"><h2 id="totalServicios">0</h2><p>📊 Total Servicios</p></div>
+            <div class="card card-pendientes"><h2 id="pendientesServicios">0</h2><p>⏳ Pendientes</p></div>
+            <div class="card card-resueltos"><h2 id="resueltosServicios">0</h2><p>✅ Resueltos</p></div>
+        </div>
+
+        <!-- MENSAJES -->
+        <div id="mensajeContainer"></div>
+
+        <!-- TABLA -->
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Folio</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                        <th class="no-print">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaServicios">
+                    <tr><td colspan="7" class="cargando"><span class="spinner"></span> Cargando servicios...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MODAL HISTÓRICO -->
+    <div id="modalHistorico" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="cerrarHistorico()">&times;</button>
+            <h2>📜 Histórico de Servicios</h2>
+            <p style="color:#6c757d; font-size:clamp(13px,1.2vw,15px); margin-bottom:15px;">Selecciona un año para ver los servicios de ese período</p>
+            <div id="yearGrid" class="year-grid">
+                <div class="cargando" style="grid-column: span 3;"><span class="spinner"></span> Cargando años...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-app.js"></script>
+    
+    <script>
+        let servicios = [];
+        let usuarioActual = null;
+
+        function escapeHtml(texto) {
+            if (!texto) return '';
+            const div = document.createElement('div');
+            div.textContent = texto;
+            return div.innerHTML;
+        }
+
+        function mostrarMensaje(texto, tipo) {
+            const container = document.getElementById('mensajeContainer');
+            container.innerHTML = `
+                <div class="alert alert-${tipo}">
+                    ${texto}
+                    <button class="close-btn" onclick="this.parentElement.style.display='none'">✕</button>
+                </div>
+            `;
+            setTimeout(() => {
+                const alert = container.querySelector('.alert');
+                if (alert) alert.style.display = 'none';
+            }, 5000);
+        }
+
+        function formatearFecha(fecha) {
+            if (!fecha) return '--';
+            const d = new Date(fecha);
+            return d.toLocaleDateString('es-MX', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        function actualizarReloj() {
+            const ahora = new Date();
+            const fecha = ahora.toLocaleDateString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit' });
+            const hora = ahora.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById('fecha').textContent = '📅 ' + fecha;
+            document.getElementById('hora').textContent = '🕐 ' + hora;
+        }
+        setInterval(actualizarReloj, 1000);
+        actualizarReloj();
+
+        async function cargarDatos() {
+            const usuarioStr = localStorage.getItem('sg_usuario_actual');
+            if (!usuarioStr) {
+                window.location.href = 'login.html';
+                return;
+            }
+            usuarioActual = JSON.parse(usuarioStr);
+            await cargarServicios();
+        }
+
+        async function cargarServicios() {
+            const tbody = document.getElementById('tablaServicios');
+            tbody.innerHTML = `<tr><td colspan="7" class="cargando"><span class="spinner"></span> Cargando servicios...</td></tr>`;
+
+            const resultado = await window.firebaseApp.obtenerServiciosFirebase(true);
+            
+            if (resultado.success) {
+                servicios = resultado.data;
+                renderizarTabla(servicios);
+                actualizarContadores(servicios);
+            } else {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:40px; color:#999;">❌ Error al cargar servicios: ${resultado.error}</td></tr>`;
+            }
+        }
+
+        function renderizarTabla(lista) {
+            const tbody = document.getElementById('tablaServicios');
+            
+            if (!lista || lista.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 40px; color: #999;">📭 No hay servicios activos</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            lista.forEach((servicio, index) => {
+                const resuelto = servicio.resuelto || 0;
+                const estado = resuelto === 1 ? 'Resuelto' : 'Pendiente';
+                const badgeClass = resuelto === 1 ? 'badge-resuelto' : 'badge-pendiente';
+                const fecha = formatearFecha(servicio.fecha_registro);
+                const folio = servicio.folio || 'SIN FOLIO';
+
+                html += `
+                    <tr>
+                        <td data-label="ID">${index + 1}</td>
+                        <td data-label="Folio"><strong>${escapeHtml(folio)}</strong></td>
+                        <td data-label="Nombre">${escapeHtml(servicio.nombre_solicitante || '')}</td>
+                        <td data-label="Descripción">${escapeHtml(servicio.descripcion_equipo || '')}</td>
+                        <td data-label="Estado"><span class="badge ${badgeClass}">${estado}</span></td>
+                        <td data-label="Fecha">${fecha}</td>
+                        <td data-label="Acciones" class="no-print">
+                            <div class="acciones">
+                                <a href="ver_servicio.html?id=${servicio.id}" class="btn btn-small btn-warning">📄 Ver</a>
+                                <a href="editar_servicio.html?id=${servicio.id}" class="btn btn-small btn-warning">✏️ Editar</a>
+                                ${resuelto === 1 ? `
+                                    <button onclick="cambiarEstado('${servicio.id}', 0)" class="btn btn-small btn-pendiente">⏳ Pendiente</button>
+                                ` : `
+                                    <button onclick="cambiarEstado('${servicio.id}', 1)" class="btn btn-small btn-resuelto">✅ Resolver</button>
+                                `}
+                                <button onclick="archivarServicio('${servicio.id}')" class="btn btn-small btn-historico">📦 Archivar</button>
+                                <button onclick="eliminarServicio('${servicio.id}')" class="btn btn-small btn-danger">🗑️ Eliminar</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function actualizarContadores(lista) {
+            const total = lista.length;
+            const pendientes = lista.filter(s => (s.resuelto || 0) === 0).length;
+            const resueltos = lista.filter(s => (s.resuelto || 0) === 1).length;
+            document.getElementById('totalServicios').textContent = total;
+            document.getElementById('pendientesServicios').textContent = pendientes;
+            document.getElementById('resueltosServicios').textContent = resueltos;
+        }
+
+        async function cambiarEstado(id, resuelto) {
+            const msg = resuelto === 1 ? '¿Marcar como resuelto?' : '¿Marcar como pendiente?';
+            if (!confirm(msg)) return;
+            const resultado = await window.firebaseApp.cambiarEstadoServicioFirebase(id, resuelto);
+            if (resultado.success) {
+                mostrarMensaje('✅ Estado actualizado correctamente.', 'success');
+                await cargarServicios();
+            } else {
+                mostrarMensaje('❌ Error al actualizar: ' + resultado.error, 'danger');
+            }
+        }
+
+        async function archivarServicio(id) {
+            const anio = prompt('¿En qué año quieres archivar este servicio?', new Date().getFullYear());
+            if (!anio) return;
+            if (!confirm(`¿Archivar este servicio en el año ${anio}?`)) return;
+            const resultado = await window.firebaseApp.archivarServicioFirebase(id, parseInt(anio));
+            if (resultado.success) {
+                mostrarMensaje(`✅ Servicio archivado en ${anio} correctamente.`, 'success');
+                await cargarServicios();
+            } else {
+                mostrarMensaje('❌ Error al archivar: ' + resultado.error, 'danger');
+            }
+        }
+
+        async function eliminarServicio(id) {
+            if (!confirm('¿Eliminar este servicio permanentemente?')) return;
+            const resultado = await window.firebaseApp.eliminarServicioFirebase(id);
+            if (resultado.success) {
+                mostrarMensaje('✅ Servicio eliminado correctamente.', 'success');
+                await cargarServicios();
+            } else {
+                mostrarMensaje('❌ Error al eliminar: ' + resultado.error, 'danger');
+            }
+        }
+
+        async function cargarAniosHistoricos() {
+            const grid = document.getElementById('yearGrid');
+            grid.innerHTML = `<div class="cargando" style="grid-column: span 3;"><span class="spinner"></span> Cargando años...</div>`;
+
+            try {
+                const resultado = await window.firebaseApp.obtenerServiciosArchivadosFirebase();
+                if (resultado.success && resultado.data && resultado.data.length > 0) {
+                    const conteoPorAnio = {};
+                    resultado.data.forEach(s => {
+                        const anio = s.anio_archivado;
+                        if (anio) {
+                            conteoPorAnio[anio] = (conteoPorAnio[anio] || 0) + 1;
+                        }
+                    });
+                    const anios = Object.keys(conteoPorAnio).map(Number).sort((a, b) => b - a);
+                    if (anios.length > 0) {
+                        grid.innerHTML = anios.map(anio => {
+                            const count = conteoPorAnio[anio] || 0;
+                            return `
+                                <a href="historico_servicios.html?year=${anio}" class="year-card">
+                                    <span class="year-count">${count}</span>
+                                    <span class="year-number">${anio}</span>
+                                    <span class="year-label">${count} servicio${count !== 1 ? 's' : ''}</span>
+                                </a>
+                            `;
+                        }).join('');
+                    } else {
+                        grid.innerHTML = `
+                            <div class="mensaje-vacio">
+                                <span class="icono">📭</span>
+                                <span class="texto">No hay servicios archivados</span>
+                                <span class="subtexto">Archiva un servicio para que aparezca aquí</span>
+                            </div>
+                        `;
+                    }
+                } else {
+                    grid.innerHTML = `
+                        <div class="mensaje-vacio">
+                            <span class="icono">📭</span>
+                            <span class="texto">No hay servicios archivados</span>
+                            <span class="subtexto">Archiva un servicio para que aparezca aquí</span>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                grid.innerHTML = `
+                    <div class="mensaje-vacio" style="border-color: #f5c6cb; color: #721c24; background: #f8d7da;">
+                        <span class="icono">❌</span>
+                        <span class="texto">Error al cargar los años</span>
+                        <span class="subtexto">${error.message}</span>
+                    </div>
+                `;
+            }
+        }
+
+        function abrirHistorico() {
+            document.getElementById('modalHistorico').classList.add('active');
+            cargarAniosHistoricos();
+        }
+
+        function cerrarHistorico() {
+            document.getElementById('modalHistorico').classList.remove('active');
+        }
+
+        document.getElementById('modalHistorico').addEventListener('click', function(e) {
+            if (e.target === this) cerrarHistorico();
+        });
+
+        document.addEventListener('DOMContentLoaded', cargarDatos);
+
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            const mensaje = params.get('mensaje');
+            const error = params.get('error');
+            if (mensaje) mostrarMensaje(mensaje, 'success');
+            if (error) mostrarMensaje(error, 'danger');
+        })();
+    </script>
+</body>
+</html>

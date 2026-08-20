@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Nuevo Servicio</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            padding: clamp(15px, 2.5vw, 30px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+        .header-form {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 3px solid #28a745;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        .header-form h1 { color: #28a745; font-size: clamp(22px, 3vw, 28px); }
+        .btn-volver {
+            background: #6c757d;
+            color: #fff;
+            padding: clamp(8px, 1.2vw, 12px) clamp(15px, 2vw, 25px);
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: clamp(13px, 1.2vw, 15px);
+            text-align: center;
+        }
+        .btn-volver:hover { background: #5a6268; transform: translateY(-2px); }
+        @media (max-width: 768px) {
+            .header-form { flex-direction: column; align-items: stretch; text-align: center; }
+            .btn-volver { width: 100%; text-align: center; }
+        }
+        .seccion-form {
+            background: #f8f9fa;
+            padding: clamp(15px, 2vw, 20px);
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 4px solid #28a745;
+        }
+        .seccion-form h3 {
+            color: #28a745;
+            margin-bottom: 15px;
+            font-size: clamp(16px, 1.8vw, 20px);
+            border-bottom: 1px solid #e6eaef;
+            padding-bottom: 10px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px 25px;
+        }
+        .form-grid .campo-full { grid-column: 1 / -1; }
+        .campo {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .campo label {
+            font-weight: 600;
+            font-size: clamp(13px, 1.2vw, 15px);
+            color: #2c3e50;
+        }
+        .campo label .obligatorio { color: #dc3545; font-weight: 700; }
+        .campo input, .campo select, .campo textarea {
+            padding: clamp(8px, 1.2vw, 12px) 12px;
+            border: 2px solid #dce1e8;
+            border-radius: 8px;
+            font-size: clamp(13px, 1.2vw, 15px);
+            transition: 0.3s;
+            font-family: inherit;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .campo input:focus, .campo select:focus, .campo textarea:focus {
+            border-color: #28a745;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+        }
+        .campo textarea { resize: vertical; min-height: 80px; }
+        .grupo-checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 10px 0;
+        }
+        .grupo-checkboxes label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            font-size: clamp(13px, 1.2vw, 15px);
+            cursor: pointer;
+        }
+        .grupo-checkboxes input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #28a745;
+            cursor: pointer;
+        }
+        .tabla-equipos {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: clamp(12px, 1vw, 14px);
+        }
+        .tabla-equipos thead {
+            background: #28a745;
+            color: #fff;
+        }
+        .tabla-equipos th {
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+        }
+        .tabla-equipos td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #e6eaef;
+        }
+        .tabla-equipos select, .tabla-equipos input {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #dce1e8;
+            border-radius: 6px;
+            font-size: clamp(12px, 1vw, 14px);
+            box-sizing: border-box;
+        }
+        .tabla-equipos select:focus, .tabla-equipos input:focus {
+            border-color: #28a745;
+            outline: none;
+        }
+        @media (max-width: 768px) {
+            .tabla-equipos { display: block; overflow-x: auto; }
+            .tabla-equipos thead, .tabla-equipos tbody, .tabla-equipos tr, .tabla-equipos td, .tabla-equipos th { display: block; }
+            .tabla-equipos tr { margin-bottom: 10px; border: 1px solid #e6eaef; border-radius: 8px; padding: 10px; }
+            .tabla-equipos td { display: flex; justify-content: space-between; align-items: center; padding: 5px; border-bottom: 1px solid #f0f0f0; }
+            .tabla-equipos td:last-child { border-bottom: none; }
+            .tabla-equipos td::before { content: attr(data-label); font-weight: 600; color: #1a3a5c; font-size: 11px; flex: 0 0 40%; }
+            .tabla-equipos thead { display: none; }
+        }
+        @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
+        .acciones-form {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #e6eaef;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: clamp(10px, 1.5vw, 14px) clamp(20px, 2.5vw, 35px);
+            border: none;
+            border-radius: 8px;
+            font-size: clamp(14px, 1.4vw, 17px);
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .btn-guardar {
+            background: #28a745;
+            color: #fff;
+        }
+        .btn-guardar:hover { background: #218838; transform: translateY(-2px); }
+        .btn-guardar:disabled { opacity:0.6; cursor:not-allowed; }
+        .btn-cancelar {
+            background: #e9edf2;
+            color: #3d4f62;
+        }
+        .btn-cancelar:hover { background: #d5dce6; }
+        @media (max-width: 768px) {
+            .acciones-form { flex-direction: column; }
+            .btn { width: 100%; text-align: center; }
+        }
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: inherit; opacity: 0.7; }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #panelJustificacionTemporal {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+        }
+        #panelJustificacionTemporal h4 {
+            color: #856404;
+            margin-top: 0;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: clamp(16px, 1.6vw, 18px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-form">
+            <h1>➕ Nuevo Servicio</h1>
+            <a href="gestion_servicio.html" class="btn-volver">⬅ Volver al Listado</a>
+        </div>
+        <div id="mensajeContainer"></div>
+        <form id="formServicio">
+            <div class="seccion-form">
+                <h3>📋 Datos Generales</h3>
+                <div class="form-grid">
+                    <div class="campo">
+                        <label>No. de Folio</label>
+                        <input type="text" id="folio" readonly style="background:#f1f3f5; font-weight:bold;">
+                    </div>
+                    <div class="campo">
+                        <label for="fecha_solicitud">Fecha de solicitud</label>
+                        <input type="date" id="fecha_solicitud">
+                    </div>
+                    <div class="campo campo-full">
+                        <label for="nombre_solicitante">Nombre del Solicitante <span class="obligatorio">*</span></label>
+                        <input type="text" id="nombre_solicitante" required>
+                    </div>
+                    <div class="campo">
+                        <label for="subsecretaria">Subsecretaría</label>
+                        <select id="subsecretaria">
+                            <option value="">Selecciona una Subsecretaría</option>
+                            <option value="Subsecretaría de Administración">Subsecretaría de Administración</option>
+                            <option value="Subsecretaría de Ingresos">Subsecretaría de Ingresos</option>
+                            <option value="Subsecretaría de Egresos">Subsecretaría de Egresos</option>
+                            <option value="Subsecretaría de Planeación">Subsecretaría de Planeación</option>
+                        </select>
+                    </div>
+                    <div class="campo">
+                        <label for="direccion">Dirección</label>
+                        <select id="direccion">
+                            <option value="">Selecciona una Dirección</option>
+                            <option value="Dirección de Tecnologías">Dirección de Tecnologías</option>
+                            <option value="Dirección de Recursos Humanos">Dirección de Recursos Humanos</option>
+                            <option value="Dirección de Finanzas">Dirección de Finanzas</option>
+                            <option value="Dirección de Administración">Dirección de Administración</option>
+                        </select>
+                    </div>
+                    <div class="campo campo-full">
+                        <label for="departamento">Departamento/Área</label>
+                        <select id="departamento">
+                            <option value="">Selecciona un Departamento</option>
+                            <option value="Soporte Técnico">Soporte Técnico</option>
+                            <option value="Redes y Telecomunicaciones">Redes y Telecomunicaciones</option>
+                            <option value="Desarrollo de Software">Desarrollo de Software</option>
+                            <option value="Infraestructura">Infraestructura</option>
+                            <option value="Seguridad Informática">Seguridad Informática</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="seccion-form">
+                <h3>💻 Datos del Equipo</h3>
+                <table class="tabla-equipos">
+                    <thead>
+                        <tr>
+                            <th>DESCRIPCIÓN</th>
+                            <th>MARCA</th>
+                            <th>MODELO</th>
+                            <th>SERIE</th>
+                            <th>N° INVENTARIO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td data-label="DESCRIPCIÓN">
+                                <select id="descripcion">
+                                    <option value="">Selecciona un Equipo</option>
+                                    <option value="Computadora">Computadora</option>
+                                    <option value="Laptop">Laptop</option>
+                                    <option value="Impresora">Impresora</option>
+                                    <option value="Monitor">Monitor</option>
+                                    <option value="Servidor">Servidor</option>
+                                    <option value="Switch">Switch</option>
+                                    <option value="Router">Router</option>
+                                    <option value="Teléfono">Teléfono</option>
+                                    <option value="Proyector">Proyector</option>
+                                    <option value="Escáner">Escáner</option>
+                                </select>
+                            </td>
+                            <td data-label="MARCA">
+                                <select id="marca">
+                                    <option value="">Selecciona una Marca</option>
+                                    <option value="HP">HP</option>
+                                    <option value="Dell">Dell</option>
+                                    <option value="Lenovo">Lenovo</option>
+                                    <option value="Apple">Apple</option>
+                                    <option value="Samsung">Samsung</option>
+                                    <option value="Epson">Epson</option>
+                                    <option value="Brother">Brother</option>
+                                    <option value="Cisco">Cisco</option>
+                                </select>
+                            </td>
+                            <td data-label="MODELO">
+                                <select id="modelo">
+                                    <option value="">Selecciona un Modelo</option>
+                                    <option value="OptiPlex">OptiPlex</option>
+                                    <option value="Latitude">Latitude</option>
+                                    <option value="ThinkPad">ThinkPad</option>
+                                    <option value="MacBook">MacBook</option>
+                                    <option value="ProBook">ProBook</option>
+                                    <option value="PowerEdge">PowerEdge</option>
+                                </select>
+                            </td>
+                            <td data-label="SERIE">
+                                <input type="text" id="serie" placeholder="Número de serie">
+                            </td>
+                            <td data-label="N° INVENTARIO">
+                                <input type="text" id="numero_inventario" placeholder="Ej: P-211111..." style="width:140px;">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="campo campo-full" style="margin-top:15px;">
+                    <label for="falla_reportada">Falla reportada y/o servicio solicitado <span class="obligatorio">*</span></label>
+                    <textarea id="falla_reportada" rows="3" required></textarea>
+                </div>
+            </div>
+            <div class="seccion-form">
+                <h3>🔧 Datos de Soporte</h3>
+                <div class="form-grid">
+                    <div class="campo">
+                        <label for="nombre_entrega">Nombre de quién entrega el equipo</label>
+                        <input type="text" id="nombre_entrega" placeholder="Nombre de quién entrega el equipo">
+                    </div>
+                    <div class="campo">
+                        <label for="soporte_recibe">Soporte Técnico quién recibe la solicitud</label>
+                        <select id="soporte_recibe">
+                            <option value="">Selecciona el personal</option>
+                            <option value="Ana María Pérez">Ana María Pérez</option>
+                            <option value="Carlos Eduardo Ramírez">Carlos Eduardo Ramírez</option>
+                            <option value="Laura Gutiérrez Ortiz">Laura Gutiérrez Ortiz</option>
+                            <option value="Jorge Luis Sánchez">Jorge Luis Sánchez</option>
+                        </select>
+                    </div>
+                    <div class="campo campo-full">
+                        <label for="accion_realizada">Acción realizada</label>
+                        <textarea id="accion_realizada" rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="seccion-form">
+                <h3>📌 SITUACIÓN FINAL DEL SERVICIO</h3>
+                <div class="campo campo-full" style="margin-bottom:15px;">
+                    <div style="display:flex; flex-wrap:wrap; align-items:center; gap:20px;">
+                        <label style="font-weight:600; display:flex; align-items:center; gap:5px; cursor:pointer;">
+                            <input type="radio" name="estatus" value="Falla corregida"> Falla corregida
+                        </label>
+                        <label style="font-weight:600; display:flex; align-items:center; gap:5px; cursor:pointer;">
+                            <input type="radio" name="estatus" value="Falla NO corregida" checked> Falla NO corregida
+                        </label>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="campo campo-full">
+                        <label>Modalidad de la reparación</label>
+                        <div class="grupo-checkboxes">
+                            <label><input type="radio" name="modalidad" value="Definitiva" checked> Definitiva</label>
+                            <label><input type="radio" name="modalidad" value="Temporal"> Temporal</label>
+                        </div>
+                    </div>
+                    <div class="campo">
+                        <label for="fecha_realizacion">Fecha de realización</label>
+                        <input type="date" id="fecha_realizacion">
+                    </div>
+                    <div class="campo">
+                        <label for="hora_conclusion">Hora de conclusión</label>
+                        <input type="time" id="hora_conclusion">
+                    </div>
+                </div>
+                <div id="panelJustificacionTemporal">
+                    <h4>⏳ Justificación de reparación temporal</h4>
+                    <div style="margin-bottom:10px;">
+                        <label style="font-weight:600; display:block; margin-bottom:8px; color:#856404;">Selecciona el motivo principal:</label>
+                        <div style="display:flex; flex-wrap:wrap; gap:15px; align-items:center;">
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-weight:500; color:#856404;">
+                                <input type="radio" name="motivo_temporal" value="Falta de piezas"> 🔧 Falta de piezas
+                            </label>
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-weight:500; color:#856404;">
+                                <input type="radio" name="motivo_temporal" value="Equipo ya no funciona"> ⚠️ Equipo ya no funciona
+                            </label>
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-weight:500; color:#856404;">
+                                <input type="radio" name="motivo_temporal" value="Se necesitan REFACCIONES para una reparación DEFINITIVA"> ⚙️ Se necesitan REFACCIONES
+                            </label>
+                        </div>
+                    </div>
+                    <hr style="border:0; border-top:1px solid #e0b574; margin:15px 0;">
+                    <div>
+                        <label style="font-weight:600; display:block; margin-bottom:8px; color:#856404;">Observaciones adicionales (opcional):</label>
+                        <textarea name="obs_temporal" rows="3" style="width:100%; padding:10px; border:2px solid #dce1e8; border-radius:8px; font-size:clamp(13px,1.2vw,15px); font-family:inherit; resize:vertical; background:#fff; box-sizing:border-box;" placeholder="Detalla cualquier información adicional sobre la reparación temporal..."></textarea>
+                    </div>
+                </div>
+                <div class="form-grid" style="margin-top:20px;">
+                    <div class="campo">
+                        <label for="nombre_recibe">Nombre de quién recibe el equipo</label>
+                        <input type="text" id="nombre_recibe" placeholder="Nombre de quién recibe el equipo">
+                    </div>
+                    <div class="campo">
+                        <label for="soporte_entrega">Soporte Técnico quién entrega el equipo</label>
+                        <select id="soporte_entrega">
+                            <option value="">Selecciona el personal</option>
+                            <option value="Ana María Pérez">Ana María Pérez</option>
+                            <option value="Carlos Eduardo Ramírez">Carlos Eduardo Ramírez</option>
+                            <option value="Laura Gutiérrez Ortiz">Laura Gutiérrez Ortiz</option>
+                            <option value="Jorge Luis Sánchez">Jorge Luis Sánchez</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="acciones-form">
+                <a href="gestion_servicio.html" class="btn btn-cancelar">✕ Cancelar</a>
+                <button type="submit" class="btn btn-guardar" id="btnGuardar">💾 Guardar Servicio</button>
+            </div>
+        </form>
+    </div>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-app.js"></script>
+    <script>
+        function mostrarMensaje(texto,tipo){
+            const c=document.getElementById('mensajeContainer');
+            c.innerHTML=`<div class="alert alert-${tipo}">${texto}<button class="close-btn" onclick="this.parentElement.style.display='none'">✕</button></div>`;
+            setTimeout(()=>{ const a=c.querySelector('.alert'); if(a) a.style.display='none'; },5000);
+        }
+        document.addEventListener('DOMContentLoaded',function(){
+            const u=localStorage.getItem('sg_usuario_actual');
+            if(!u){ window.location.href='login.html'; return; }
+            document.getElementById('fecha_solicitud').value=new Date().toISOString().split('T')[0];
+            const anio=new Date().getFullYear();
+            document.getElementById('folio').value=`SERV-${anio}-####`;
+            const radiosModalidad=document.querySelectorAll('input[name="modalidad"]');
+            const panelJustificacion=document.getElementById('panelJustificacionTemporal');
+            radiosModalidad.forEach(radio=>{
+                radio.addEventListener('change',function(){
+                    panelJustificacion.style.display=this.value==='Temporal'?'block':'none';
+                });
+            });
+        });
+        document.getElementById('formServicio').addEventListener('submit', async function(e){
+            e.preventDefault();
+            const nombre_solicitante=document.getElementById('nombre_solicitante').value.trim();
+            const falla_reportada=document.getElementById('falla_reportada').value.trim();
+            const btn=document.getElementById('btnGuardar');
+            if(!nombre_solicitante||!falla_reportada){ mostrarMensaje('Los campos obligatorios no pueden estar vacíos.','danger'); return; }
+            btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
+            const datos={fecha_solicitud:document.getElementById('fecha_solicitud').value,nombre_solicitante,subsecretaria:document.getElementById('subsecretaria').value,direccion:document.getElementById('direccion').value,departamento:document.getElementById('departamento').value,descripcion:document.getElementById('descripcion').value,marca:document.getElementById('marca').value,modelo:document.getElementById('modelo').value,serie:document.getElementById('serie').value,numero_inventario:document.getElementById('numero_inventario').value,falla_reportada,nombre_entrega:document.getElementById('nombre_entrega').value,soporte_recibe:document.getElementById('soporte_recibe').value,accion_realizada:document.getElementById('accion_realizada').value,estatus:document.querySelector('input[name="estatus"]:checked')?.value||'Falla NO corregida',modalidad:document.querySelector('input[name="modalidad"]:checked')?.value||'Definitiva',fecha_realizacion:document.getElementById('fecha_realizacion').value,hora_conclusion:document.getElementById('hora_conclusion').value,nombre_recibe:document.getElementById('nombre_recibe').value,soporte_entrega:document.getElementById('soporte_entrega').value};
+            const r=await window.firebaseApp.agregarServicioFirebase(datos);
+            if(r.success){ mostrarMensaje('✅ Servicio creado correctamente.','success'); btn.innerHTML='✅ ¡Guardado!'; setTimeout(()=>{ window.location.href=`ver_servicio.html?id=${r.id}&mensaje=Servicio creado correctamente`; },1500); }
+            else { mostrarMensaje('❌ Error: '+r.error,'danger'); btn.disabled=false; btn.innerHTML='💾 Guardar Servicio'; }
+        });
+    </script>
+</body>
+</html>

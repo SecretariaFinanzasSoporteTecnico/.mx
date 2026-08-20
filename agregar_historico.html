@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Agregar al Histórico</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            padding: clamp(15px, 2.5vw, 30px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+        .header-form {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 3px solid #28a745;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        .header-form h1 { color: #28a745; font-size: clamp(22px, 3vw, 28px); }
+        .btn-volver {
+            background: #6c757d;
+            color: #fff;
+            padding: clamp(8px, 1.2vw, 12px) clamp(15px, 2vw, 25px);
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: clamp(13px, 1.2vw, 15px);
+            text-align: center;
+        }
+        .btn-volver:hover { background: #5a6268; transform: translateY(-2px); }
+        @media (max-width: 768px) {
+            .header-form { flex-direction: column; align-items: stretch; text-align: center; }
+            .btn-volver { width: 100%; text-align: center; }
+        }
+        .seccion-form {
+            background: #f8f9fa;
+            padding: clamp(15px, 2vw, 20px);
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 4px solid #28a745;
+        }
+        .seccion-form h3 {
+            color: #28a745;
+            margin-bottom: 15px;
+            font-size: clamp(16px, 1.8vw, 20px);
+            border-bottom: 1px solid #e6eaef;
+            padding-bottom: 10px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px 25px;
+        }
+        .form-grid .campo-full { grid-column: 1 / -1; }
+        .campo {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .campo label {
+            font-weight: 600;
+            font-size: clamp(13px, 1.2vw, 15px);
+            color: #2c3e50;
+        }
+        .campo label .obligatorio { color: #dc3545; font-weight: 700; }
+        .campo input, .campo select, .campo textarea {
+            padding: clamp(8px, 1.2vw, 12px) 12px;
+            border: 2px solid #dce1e8;
+            border-radius: 8px;
+            font-size: clamp(13px, 1.2vw, 15px);
+            transition: 0.3s;
+            font-family: inherit;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .campo input:focus, .campo select:focus, .campo textarea:focus {
+            border-color: #28a745;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+        }
+        .campo textarea { resize: vertical; min-height: 80px; }
+        @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
+        .acciones-form {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #e6eaef;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: clamp(10px, 1.5vw, 14px) clamp(20px, 2.5vw, 35px);
+            border: none;
+            border-radius: 8px;
+            font-size: clamp(14px, 1.4vw, 17px);
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .btn-guardar {
+            background: #28a745;
+            color: #fff;
+        }
+        .btn-guardar:hover { background: #218838; transform: translateY(-2px); }
+        .btn-guardar:disabled { opacity:0.6; cursor:not-allowed; }
+        .btn-cancelar {
+            background: #e9edf2;
+            color: #3d4f62;
+        }
+        .btn-cancelar:hover { background: #d5dce6; }
+        @media (max-width: 768px) {
+            .acciones-form { flex-direction: column; }
+            .btn { width: 100%; text-align: center; }
+        }
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: inherit; opacity: 0.7; }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-form">
+            <h1>📜 Agregar al Histórico</h1>
+            <a href="gestion_servicio.html" class="btn-volver">⬅ Volver</a>
+        </div>
+        <div id="mensajeContainer"></div>
+        <form id="formHistorico">
+            <div class="seccion-form">
+                <h3>📋 Datos Generales</h3>
+                <div class="form-grid">
+                    <div class="campo">
+                        <label>No. de Folio</label>
+                        <input type="text" id="folio" readonly style="background:#f1f3f5; font-weight:bold;">
+                    </div>
+                    <div class="campo">
+                        <label for="fecha_solicitud">Fecha de solicitud</label>
+                        <input type="date" id="fecha_solicitud">
+                    </div>
+                    <div class="campo">
+                        <label for="anio_archivado">📅 Año a Archivar <span class="obligatorio">*</span></label>
+                        <select id="anio_archivado" required>
+                            <option value="">Selecciona el año</option>
+                            <option value="2030">2030</option>
+                            <option value="2029">2029</option>
+                            <option value="2028">2028</option>
+                            <option value="2027">2027</option>
+                            <option value="2026" selected>2026</option>
+                            <option value="2025">2025</option>
+                            <option value="2024">2024</option>
+                            <option value="2023">2023</option>
+                            <option value="2022">2022</option>
+                            <option value="2021">2021</option>
+                            <option value="2020">2020</option>
+                            <option value="2019">2019</option>
+                        </select>
+                    </div>
+                    <div class="campo campo-full">
+                        <label for="nombre_solicitante">Nombre del Solicitante <span class="obligatorio">*</span></label>
+                        <input type="text" id="nombre_solicitante" required>
+                    </div>
+                    <div class="campo">
+                        <label for="subsecretaria">Subsecretaría</label>
+                        <select id="subsecretaria">
+                            <option value="">Selecciona una Subsecretaría</option>
+                            <option value="Subsecretaría de Administración">Subsecretaría de Administración</option>
+                            <option value="Subsecretaría de Ingresos">Subsecretaría de Ingresos</option>
+                            <option value="Subsecretaría de Egresos">Subsecretaría de Egresos</option>
+                            <option value="Subsecretaría de Planeación">Subsecretaría de Planeación</option>
+                        </select>
+                    </div>
+                    <div class="campo">
+                        <label for="direccion">Dirección</label>
+                        <select id="direccion">
+                            <option value="">Selecciona una Dirección</option>
+                            <option value="Dirección de Tecnologías">Dirección de Tecnologías</option>
+                            <option value="Dirección de Recursos Humanos">Dirección de Recursos Humanos</option>
+                            <option value="Dirección de Finanzas">Dirección de Finanzas</option>
+                            <option value="Dirección de Administración">Dirección de Administración</option>
+                        </select>
+                    </div>
+                    <div class="campo campo-full">
+                        <label for="departamento">Departamento/Área</label>
+                        <select id="departamento">
+                            <option value="">Selecciona un Departamento</option>
+                            <option value="Soporte Técnico">Soporte Técnico</option>
+                            <option value="Redes y Telecomunicaciones">Redes y Telecomunicaciones</option>
+                            <option value="Desarrollo de Software">Desarrollo de Software</option>
+                            <option value="Infraestructura">Infraestructura</option>
+                            <option value="Seguridad Informática">Seguridad Informática</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="seccion-form">
+                <h3>💻 Datos del Equipo</h3>
+                <div class="form-grid">
+                    <div class="campo">
+                        <label for="descripcion">Descripción</label>
+                        <input type="text" id="descripcion">
+                    </div>
+                    <div class="campo">
+                        <label for="marca">Marca</label>
+                        <input type="text" id="marca">
+                    </div>
+                    <div class="campo">
+                        <label for="modelo">Modelo</label>
+                        <input type="text" id="modelo">
+                    </div>
+                    <div class="campo">
+                        <label for="serie">Serie</label>
+                        <input type="text" id="serie">
+                    </div>
+                    <div class="campo campo-full">
+                        <label for="falla_reportada">Falla reportada <span class="obligatorio">*</span></label>
+                        <textarea id="falla_reportada" rows="3" required></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="seccion-form">
+                <h3>🔧 Datos de Soporte</h3>
+                <div class="form-grid">
+                    <div class="campo">
+                        <label for="nombre_entrega">Nombre de quién entrega</label>
+                        <input type="text" id="nombre_entrega">
+                    </div>
+                    <div class="campo">
+                        <label for="soporte_recibe">Soporte quién recibe</label>
+                        <select id="soporte_recibe">
+                            <option value="">Selecciona el personal</option>
+                            <option value="Ana María Pérez">Ana María Pérez</option>
+                            <option value="Carlos Eduardo Ramírez">Carlos Eduardo Ramírez</option>
+                            <option value="Laura Gutiérrez Ortiz">Laura Gutiérrez Ortiz</option>
+                            <option value="Jorge Luis Sánchez">Jorge Luis Sánchez</option>
+                        </select>
+                    </div>
+                    <div class="campo campo-full">
+                        <label for="accion_realizada">Acción realizada</label>
+                        <textarea id="accion_realizada" rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="seccion-form">
+                <h3>📌 Situación Final</h3>
+                <div class="form-grid">
+                    <div class="campo">
+                        <label for="estatus">Estatus</label>
+                        <select id="estatus">
+                            <option value="Falla corregida">Falla corregida</option>
+                            <option value="Falla NO corregida" selected>Falla NO corregida</option>
+                        </select>
+                    </div>
+                    <div class="campo">
+                        <label for="modalidad">Modalidad</label>
+                        <select id="modalidad">
+                            <option value="Definitiva">Definitiva</option>
+                            <option value="Temporal">Temporal</option>
+                        </select>
+                    </div>
+                    <div class="campo">
+                        <label for="fecha_realizacion">Fecha de realización</label>
+                        <input type="date" id="fecha_realizacion">
+                    </div>
+                    <div class="campo">
+                        <label for="hora_conclusion">Hora de conclusión</label>
+                        <input type="time" id="hora_conclusion">
+                    </div>
+                </div>
+            </div>
+            <div class="acciones-form">
+                <a href="gestion_servicio.html" class="btn btn-cancelar">✕ Cancelar</a>
+                <button type="submit" class="btn btn-guardar" id="btnGuardar">📜 Agregar al Histórico</button>
+            </div>
+        </form>
+    </div>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-app.js"></script>
+    <script>
+        function mostrarMensaje(texto,tipo){
+            const c=document.getElementById('mensajeContainer');
+            c.innerHTML=`<div class="alert alert-${tipo}">${texto}<button class="close-btn" onclick="this.parentElement.style.display='none'">✕</button></div>`;
+            setTimeout(()=>{ const a=c.querySelector('.alert'); if(a) a.style.display='none'; },5000);
+        }
+        document.addEventListener('DOMContentLoaded',function(){
+            const u=localStorage.getItem('sg_usuario_actual');
+            if(!u){ window.location.href='login.html'; return; }
+            document.getElementById('fecha_solicitud').value=new Date().toISOString().split('T')[0];
+            const anio=new Date().getFullYear();
+            document.getElementById('folio').value=`HIST-${anio}-${String(Math.floor(Math.random()*9999)+1).padStart(4,'0')}`;
+        });
+        document.getElementById('formHistorico').addEventListener('submit', async function(e){
+            e.preventDefault();
+            const nombre_solicitante=document.getElementById('nombre_solicitante').value.trim();
+            const falla_reportada=document.getElementById('falla_reportada').value.trim();
+            const anio_archivado=document.getElementById('anio_archivado').value;
+            const btn=document.getElementById('btnGuardar');
+            if(!nombre_solicitante||!falla_reportada||!anio_archivado){ mostrarMensaje('Los campos obligatorios no pueden estar vacíos.','danger'); return; }
+            btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
+            const datos={fecha_solicitud:document.getElementById('fecha_solicitud').value,nombre_solicitante,subsecretaria:document.getElementById('subsecretaria').value,direccion:document.getElementById('direccion').value,departamento:document.getElementById('departamento').value,descripcion:document.getElementById('descripcion').value,marca:document.getElementById('marca').value,modelo:document.getElementById('modelo').value,serie:document.getElementById('serie').value,falla_reportada,nombre_entrega:document.getElementById('nombre_entrega').value,soporte_recibe:document.getElementById('soporte_recibe').value,accion_realizada:document.getElementById('accion_realizada').value,estatus:document.getElementById('estatus').value,modalidad:document.getElementById('modalidad').value,fecha_realizacion:document.getElementById('fecha_realizacion').value,hora_conclusion:document.getElementById('hora_conclusion').value,anio_archivado:parseInt(anio_archivado)};
+            const r=await window.firebaseApp.agregarServicioFirebase(datos);
+            if(r.success){ mostrarMensaje('✅ Servicio agregado al histórico.','success'); btn.innerHTML='✅ ¡Guardado!'; setTimeout(()=>{ window.location.href=`historico_servicios.html?year=${anio_archivado}&mensaje=Servicio agregado al histórico`; },1500); }
+            else { mostrarMensaje('❌ Error: '+r.error,'danger'); btn.disabled=false; btn.innerHTML='📜 Agregar al Histórico'; }
+        });
+    </script>
+</body>
+</html>

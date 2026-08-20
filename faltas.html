@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Gestión de Faltas</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            padding: clamp(15px, 2.5vw, 30px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+        .header-faltas {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #1a3a5c;
+            padding-bottom: 15px;
+        }
+        .header-faltas h2 { color: #1a3a5c; font-size: clamp(18px, 2.5vw, 24px); }
+        .btn-volver {
+            background: #6c757d;
+            color: #fff;
+            padding: clamp(8px, 1.2vw, 12px) clamp(15px, 2vw, 25px);
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: clamp(13px, 1.2vw, 15px);
+            text-align: center;
+        }
+        .btn-volver:hover { background: #5a6268; transform: translateY(-2px); }
+        @media (max-width: 768px) {
+            .header-faltas { flex-direction: column; align-items: stretch; gap: 10px; }
+            .header-faltas h2 { font-size: 18px; text-align: center; }
+            .btn-volver { width: 100%; text-align: center; }
+        }
+        .form-agregar {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e6eaef;
+            margin-bottom: 25px;
+        }
+        .form-agregar h3 { color: #1a3a5c; margin-bottom: 15px; font-size: clamp(16px, 1.8vw, 20px); }
+        .form-agregar .form-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+        .form-agregar .form-row .campo {
+            flex: 1;
+            min-width: 150px;
+        }
+        .form-agregar .form-row .campo label {
+            display: block;
+            font-weight: 600;
+            font-size: clamp(12px, 1.2vw, 14px);
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+        .form-agregar .form-row .campo input,
+        .form-agregar .form-row .campo select {
+            width: 100%;
+            padding: clamp(8px, 1.2vw, 12px) 12px;
+            border: 2px solid #dce1e8;
+            border-radius: 6px;
+            font-size: clamp(13px, 1.2vw, 15px);
+            box-sizing: border-box;
+        }
+        .form-agregar .form-row .campo input:focus,
+        .form-agregar .form-row .campo select:focus {
+            border-color: #1a3a5c;
+            outline: none;
+        }
+        @media (max-width: 768px) { .form-agregar .form-row { flex-direction: column; } .form-agregar .form-row .campo { min-width: 100%; } }
+        .btn-agregar-falta {
+            background: #28a745;
+            color: #fff;
+            padding: clamp(8px, 1.2vw, 12px) clamp(15px, 2vw, 25px);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            height: clamp(38px, 5vw, 48px);
+            font-size: clamp(13px, 1.2vw, 15px);
+        }
+        .btn-agregar-falta:hover { background: #218838; transform: translateY(-2px); }
+        .btn-agregar-falta:disabled { opacity:0.6; cursor:not-allowed; }
+        @media (max-width: 768px) { .btn-agregar-falta { width: 100%; } }
+        .contadores {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0 30px;
+        }
+        .contador-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e6eaef;
+        }
+        .contador-card .numero {
+            font-size: clamp(28px, 4vw, 36px);
+            font-weight: 700;
+            color: #1a3a5c;
+            display: block;
+        }
+        .contador-card .etiqueta {
+            font-size: clamp(11px, 1vw, 13px);
+            color: #6c757d;
+            font-weight: 500;
+            margin-top: 5px;
+        }
+        .contador-card.total .numero { color: #1a3a5c; }
+        .contador-card.pendientes .numero { color: #dc3545; }
+        .contador-card.justificadas .numero { color: #28a745; }
+
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 20px;
+            -webkit-overflow-scrolling: touch;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1vw, 15px);
+            min-width: 500px;
+        }
+        thead { background: #1a3a5c; color: #fff; }
+        th { padding: clamp(8px, 1vw, 14px) clamp(10px, 1.2vw, 18px); text-align: left; font-weight: 600; }
+        td { padding: clamp(8px, 1vw, 14px) clamp(10px, 1.2vw, 18px); border-bottom: 1px solid #e6eaef; vertical-align: middle; }
+        tbody tr:hover { background: #f5f8fc; }
+        .badge {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: clamp(11px, 0.9vw, 13px);
+            font-weight: 600;
+        }
+        .badge-justificada { background: #d4edda; color: #155724; }
+        .badge-pendiente { background: #f8d7da; color: #721c24; }
+        .btn-accion {
+            padding: clamp(5px, 0.8vw, 8px) clamp(8px, 1vw, 12px);
+            border: none;
+            border-radius: 6px;
+            font-size: clamp(11px, 0.9vw, 13px);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-editar { background: #ffc107; color: #1e2a3a; }
+        .btn-editar:hover { background: #e0a800; }
+        .btn-eliminar { background: #dc3545; color: #fff; }
+        .btn-eliminar:hover { background: #c82333; }
+
+        .modal-justificar {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        .modal-justificar.active { display: flex; }
+        .modal-content {
+            background: #fff;
+            padding: clamp(20px, 3vw, 30px);
+            border-radius: 12px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-content h3 {
+            color: #1a3a5c;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e6eaef;
+            padding-bottom: 10px;
+            font-size: clamp(18px, 2vw, 22px);
+        }
+        .modal-content .campo { margin-bottom: 15px; }
+        .modal-content .campo label {
+            display: block;
+            font-weight: 600;
+            font-size: clamp(13px, 1.2vw, 15px);
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+        .modal-content .campo textarea {
+            width: 100%;
+            padding: clamp(8px, 1.2vw, 12px);
+            border: 2px solid #dce1e8;
+            border-radius: 8px;
+            font-size: clamp(13px, 1.2vw, 15px);
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+        .modal-content .campo textarea:focus {
+            border-color: #1a3a5c;
+            outline: none;
+        }
+        .modal-content .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+        }
+        .modal-content .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #28a745;
+            cursor: pointer;
+        }
+        .modal-content .checkbox-group label {
+            font-weight: 600;
+            font-size: clamp(13px, 1.2vw, 15px);
+            color: #2c3e50;
+            cursor: pointer;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
+            border-top: 1px solid #e6eaef;
+            padding-top: 15px;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 768px) {
+            .modal-actions { flex-direction: column; }
+            .modal-actions .btn { width: 100%; text-align: center; }
+        }
+        .btn-modal-guardar {
+            background: #28a745;
+            color: #fff;
+            padding: clamp(8px, 1.2vw, 12px) clamp(15px, 2vw, 25px);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-modal-guardar:hover { background: #218838; }
+        .btn-modal-cancelar {
+            background: #e9edf2;
+            color: #3d4f62;
+            padding: clamp(8px, 1.2vw, 12px) clamp(15px, 2vw, 25px);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-modal-cancelar:hover { background: #d5dce6; }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: inherit; opacity: 0.7; }
+        .close-btn:hover { opacity: 1; }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #1a3a5c;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .cargando { text-align: center; padding: 40px; color: #999; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-faltas">
+            <h2 id="tituloUsuario">📋 Gestión de Faltas</h2>
+            <a href="index.html" class="btn-volver">⬅ Volver al Inicio</a>
+        </div>
+        <div class="form-agregar">
+            <h3>➕ Agregar Nueva Falta</h3>
+            <form id="formAgregarFalta">
+                <div class="form-row">
+                    <div class="campo">
+                        <label for="fecha">📅 Fecha</label>
+                        <input type="date" id="fecha" required>
+                    </div>
+                    <div class="campo">
+                        <label for="tipo">📌 Tipo de Falta</label>
+                        <select id="tipo" required>
+                            <option value="">Selecciona...</option>
+                            <option value="Ausencia">Ausencia</option>
+                            <option value="Retardo">Retardo</option>
+                            <option value="Salida Temprano">Salida Temprano</option>
+                            <option value="Inasistencia">Inasistencia</option>
+                            <option value="Otra">Otra</option>
+                        </select>
+                    </div>
+                    <div class="campo" style="min-width:120px;">
+                        <button type="submit" class="btn-agregar-falta" id="btnAgregarFalta">➕ Agregar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="contadores">
+            <div class="contador-card total"><span class="numero" id="totalFaltas">0</span><span class="etiqueta">📊 Total Faltas</span></div>
+            <div class="contador-card pendientes"><span class="numero" id="pendientesFaltas">0</span><span class="etiqueta">⏳ Pendientes</span></div>
+            <div class="contador-card justificadas"><span class="numero" id="justificadasFaltas">0</span><span class="etiqueta">✅ Justificadas</span></div>
+        </div>
+        <div id="mensajeContainer"></div>
+        <div class="table-responsive">
+            <table>
+                <thead><tr><th>#</th><th>Fecha</th><th>Tipo</th><th>Estado</th><th>Motivo</th><th>Acciones</th></tr></thead>
+                <tbody id="tablaFaltas"><tr><td colspan="6" class="cargando"><span class="spinner"></span> Cargando faltas...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+    <div class="modal-justificar" id="modalJustificar">
+        <div class="modal-content">
+            <h3>✏️ Editar / Justificar Falta</h3>
+            <form id="formJustificar">
+                <input type="hidden" id="faltaId" value="">
+                <div class="campo"><label for="motivo">📝 Motivo de la falta</label><textarea id="motivo" required placeholder="Describe el motivo..."></textarea></div>
+                <div class="checkbox-group"><input type="checkbox" id="justificadaCheck" value="1"><label for="justificadaCheck">✅ Falta Justificada</label></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-modal-cancelar" onclick="cerrarModal()">✕ Cancelar</button>
+                    <button type="submit" class="btn-modal-guardar">💾 Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-app.js"></script>
+    <script>
+        let usuarioId=null, usuarioNombre='', faltas=[];
+        function escapeHtml(t){ if(!t) return ''; const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+        function mostrarMensaje(texto,tipo){
+            const c=document.getElementById('mensajeContainer');
+            c.innerHTML=`<div class="alert alert-${tipo}">${texto}<button class="close-btn" onclick="this.parentElement.style.display='none'">✕</button></div>`;
+            setTimeout(()=>{ const a=c.querySelector('.alert'); if(a) a.style.display='none'; },5000);
+        }
+        function formatearFecha(f){ if(!f) return '--'; const d=new Date(f); return d.toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'}); }
+        async function init(){
+            const u=localStorage.getItem('sg_usuario_actual');
+            if(!u){ window.location.href='login.html'; return; }
+            const p=new URLSearchParams(window.location.search);
+            usuarioId=p.get('usuario_id');
+            if(!usuarioId){ mostrarMensaje('Usuario no válido','danger'); return; }
+            const r=await window.firebaseApp.obtenerUsuarioPorIdFirebase(usuarioId);
+            if(r.success){ usuarioNombre=r.data.nombre; document.getElementById('tituloUsuario').textContent=`📋 Gestión de Faltas - ${usuarioNombre}`; }
+            else { mostrarMensaje('Usuario no encontrado','danger'); return; }
+            document.getElementById('fecha').value=new Date().toISOString().split('T')[0];
+            await cargarFaltas();
+        }
+        async function cargarFaltas(){
+            const t=document.getElementById('tablaFaltas');
+            t.innerHTML=`<tr><td colspan="6" class="cargando"><span class="spinner"></span> Cargando faltas...</td></tr>`;
+            const r=await window.firebaseApp.obtenerFaltasFirebase(usuarioId);
+            if(r.success){ faltas=r.data; renderizarTabla(faltas); actualizarContadores(faltas); }
+            else { t.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:40px;color:#999;">❌ Error: ${r.error}</td></tr>`; }
+        }
+        function renderizarTabla(lista){
+            const t=document.getElementById('tablaFaltas');
+            if(lista.length===0){ t.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:40px;color:#999;">📭 No hay faltas registradas</td></tr>`; return; }
+            let html='';
+            lista.forEach((f,i)=>{
+                const fecha=formatearFecha(f.fecha_falta), estado=f.justificada?'Justificada':'Pendiente', bc=f.justificada?'badge-justificada':'badge-pendiente', motivo=f.motivo||'--';
+                html+=`<tr><td>${i+1}</td><td>${fecha}</td><td>${escapeHtml(f.tipo)}</td><td><span class="badge ${bc}">${estado}</span></td><td>${escapeHtml(motivo)}</td><td><button class="btn-accion btn-editar" onclick="abrirModal('${f.id}',${f.justificada},'${escapeHtml(f.motivo||'')}')">✏️ Editar</button><button class="btn-accion btn-eliminar" onclick="eliminarFalta('${f.id}')">🗑️ Eliminar</button></td></tr>`;
+            });
+            t.innerHTML=html;
+        }
+        function actualizarContadores(lista){ const total=lista.length, pendientes=lista.filter(f=>!f.justificada).length, justificadas=lista.filter(f=>f.justificada).length; document.getElementById('totalFaltas').textContent=total; document.getElementById('pendientesFaltas').textContent=pendientes; document.getElementById('justificadasFaltas').textContent=justificadas; }
+        document.getElementById('formAgregarFalta').addEventListener('submit', async function(e){ e.preventDefault(); const fecha=document.getElementById('fecha').value, tipo=document.getElementById('tipo').value, btn=document.getElementById('btnAgregarFalta'); if(!fecha||!tipo){ mostrarMensaje('Todos los campos son obligatorios.','danger'); return; } btn.disabled=true; btn.textContent='⏳ Agregando...'; const r=await window.firebaseApp.agregarFaltaFirebase(usuarioId,fecha,tipo); if(r.success){ mostrarMensaje('✅ Falta registrada.','success'); await cargarFaltas(); document.getElementById('tipo').value=''; } else { mostrarMensaje('❌ Error: '+r.error,'danger'); } btn.disabled=false; btn.textContent='➕ Agregar'; });
+        async function eliminarFalta(id){ if(!confirm('¿Eliminar esta falta?')) return; const r=await window.firebaseApp.eliminarFaltaFirebase(id); if(r.success){ mostrarMensaje('✅ Falta eliminada.','success'); await cargarFaltas(); } else { mostrarMensaje('❌ Error: '+r.error,'danger'); } }
+        function abrirModal(faltaId,justificada,motivo){ document.getElementById('faltaId').value=faltaId; document.getElementById('motivo').value=motivo; document.getElementById('justificadaCheck').checked=justificada; document.getElementById('modalJustificar').classList.add('active'); }
+        function cerrarModal(){ document.getElementById('modalJustificar').classList.remove('active'); }
+        document.getElementById('formJustificar').addEventListener('submit', async function(e){ e.preventDefault(); const faltaId=document.getElementById('faltaId').value, motivo=document.getElementById('motivo').value.trim(), justificada=document.getElementById('justificadaCheck').checked; if(!motivo){ mostrarMensaje('Debes escribir un motivo.','danger'); return; } const r=await window.firebaseApp.justificarFaltaFirebase(faltaId,motivo,justificada); if(r.success){ mostrarMensaje('✅ Falta actualizada.','success'); cerrarModal(); await cargarFaltas(); } else { mostrarMensaje('❌ Error: '+r.error,'danger'); } });
+        document.getElementById('modalJustificar').addEventListener('click',function(e){ if(e.target===this)cerrarModal(); });
+        document.addEventListener('DOMContentLoaded',init);
+    </script>
+</body>
+</html>

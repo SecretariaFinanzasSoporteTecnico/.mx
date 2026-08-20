@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imprimir Inventario</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+        .header-reporte {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #1a3a5c;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        .header-reporte .logo-img {
+            max-height: 70px;
+            width: auto;
+        }
+        .header-reporte .textos-derecha {
+            text-align: right;
+            line-height: 1.2;
+        }
+        .header-reporte .textos-derecha .humanismo {
+            display: block;
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a3a5c;
+            letter-spacing: 1px;
+        }
+        .header-reporte .textos-derecha .secret {
+            display: block;
+            font-size: 22px;
+            font-weight: 800;
+            color: #b8860b;
+        }
+        .header-reporte .textos-derecha .gobierno-periodo {
+            display: block;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a3a5c;
+        }
+        h1 {
+            text-align: center;
+            color: #1a3a5c;
+            border-bottom: 2px solid #1a3a5c;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        .fecha-reporte {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+        .table-responsive { overflow-x: auto; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        thead {
+            background: #1a3a5c;
+            color: #fff;
+        }
+        th {
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #e6eaef;
+            vertical-align: middle;
+        }
+        tbody tr:hover { background: #f5f8fc; }
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-activo { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .badge-archivado { background: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
+        .etiqueta-inventario {
+            font-family: monospace;
+            background: #f1f2f6;
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px dashed #8395a7;
+            font-size: 12px;
+            color: #2f3542;
+            letter-spacing: 0.5px;
+        }
+        .footer-pagina {
+            margin-top: 40px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+        }
+        .no-print {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        .btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        .btn-imprimir { background: #17a2b8; color: #fff; }
+        .btn-imprimir:hover { background: #138496; transform: translateY(-2px); }
+        .btn-volver { background: #6c757d; color: #fff; }
+        .btn-volver:hover { background: #5a6268; transform: translateY(-2px); }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #1a3a5c;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media print {
+            body { padding: 0; background: white; }
+            .container { box-shadow: none; border: none; padding: 20px; max-width: 100%; border-radius: 0; }
+            .no-print { display: none !important; }
+            .header-reporte { border-bottom-color: #000; margin-bottom: 15px; }
+            .header-reporte .logo-img { max-height: 60px; }
+            .header-reporte .textos-derecha .humanismo { font-size: 12px; }
+            .header-reporte .textos-derecha .secret { font-size: 16px; }
+            .header-reporte .textos-derecha .gobierno-periodo { font-size: 11px; }
+            h1 { font-size: 16px; margin-bottom: 5px; border-bottom-color: #000; padding-bottom: 10px; }
+            .fecha-reporte { font-size: 11px; margin-bottom: 10px; }
+            table { font-size: 10px; }
+            th, td { padding: 4px 6px; }
+            .badge { font-size: 9px; padding: 1px 6px; }
+            .footer-pagina { margin-top: 15px; padding-top: 8px; font-size: 9px; }
+            thead { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .etiqueta-inventario { border: 1px solid #ccc; background: #f9f9f9; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="no-print">
+            <button onclick="window.print()" class="btn btn-imprimir">🖨️ Imprimir Reporte</button>
+            <button onclick="window.close()" class="btn btn-volver">❌ Cerrar</button>
+        </div>
+
+        <div class="header-reporte">
+            <img src="logos/logo_izquierdo.jpg" alt="Logotipo" class="logo-img" onerror="this.style.display='none'">
+            <div class="textos-derecha">
+                <span class="humanismo">HUMANISMO QUE TRANSFORMA</span>
+                <span class="secret">SECRETARÍA DE FINANZAS</span>
+                <span class="gobierno-periodo">GOBIERNO DE CHIAPAS 2024 - 2030</span>
+            </div>
+        </div>
+
+        <h1>📦 Inventario de Equipos</h1>
+        <p class="fecha-reporte" id="fechaReporte">Reporte generado el ...</p>
+
+        <div id="contenidoTabla">
+            <div style="text-align:center; padding:40px; color:#999;">
+                <span class="spinner"></span> Cargando inventario...
+            </div>
+        </div>
+
+        <div class="footer-pagina">
+            <p>Este documento es una constancia oficial del inventario.</p>
+            <p style="font-size: 10px;">Página 1 de 1 | Generado automáticamente por el Sistema de Gestión</p>
+        </div>
+    </div>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-app.js"></script>
+    
+    <script>
+        function escapeHtml(texto) {
+            if (!texto) return '';
+            const div = document.createElement('div');
+            div.textContent = texto;
+            return div.innerHTML;
+        }
+
+        function formatearFecha(fecha) {
+            if (!fecha) return '--';
+            const d = new Date(fecha);
+            return d.toLocaleDateString('es-MX', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        async function cargarDatos() {
+            const usuarioStr = localStorage.getItem('sg_usuario_actual');
+            if (!usuarioStr) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const ahora = new Date();
+            document.getElementById('fechaReporte').textContent =
+                `Reporte generado el ${ahora.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' })} a las ${ahora.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}`;
+
+            const contenedor = document.getElementById('contenidoTabla');
+            const resultado = await window.firebaseApp.obtenerServiciosFirebase(true);
+
+            if (resultado.success && resultado.data && resultado.data.length > 0) {
+                const equipos = resultado.data.filter(s => s.es_equipo === 1);
+                
+                if (equipos.length > 0) {
+                    let html = `<div class="table-responsive"><table><thead><tr><th>#</th><th>N° Inventario</th><th>Responsable</th><th>Descripción</th><th>Estado</th><th>Fecha Registro</th></tr></thead><tbody>`;
+
+                    equipos.forEach((equipo, index) => {
+                        const estado = equipo.anio_archivado ? 'Archivado' : 'Activo';
+                        const badgeClass = equipo.anio_archivado ? 'badge-archivado' : 'badge-activo';
+
+                        html += `
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${equipo.numero_inventario ? `<span class="etiqueta-inventario">${escapeHtml(equipo.numero_inventario)}</span>` : '<span style="color:#999;font-size:12px;">Sin etiqueta</span>'}</td>
+                                <td>${escapeHtml(equipo.nombre_solicitante || 'Sin responsable')}</td>
+                                <td>${escapeHtml(equipo.descripcion_equipo || 'Sin equipo')}</td>
+                                <td><span class="badge ${badgeClass}">${estado}</span></td>
+                                <td>${formatearFecha(equipo.fecha_registro)}</td>
+                            </tr>
+                        `;
+                    });
+
+                    html += `</tbody></table></div>`;
+                    contenedor.innerHTML = html;
+                } else {
+                    contenedor.innerHTML = `<div style="text-align:center; padding:60px 20px; color:#999;"><div style="font-size:60px; margin-bottom:15px;">📭</div><h3 style="color:#555;">No hay equipos registrados en el inventario</h3></div>`;
+                }
+            } else {
+                contenedor.innerHTML = `<div style="text-align:center; padding:60px 20px; color:#999;"><div style="font-size:60px; margin-bottom:15px;">❌</div><h3 style="color:#555;">Error al cargar el inventario</h3><p>${resultado.error || 'Error desconocido'}</p></div>`;
+            }
+
+            setTimeout(() => { window.print(); }, 1000);
+        }
+
+        document.addEventListener('DOMContentLoaded', cargarDatos);
+    </script>
+</body>
+</html>

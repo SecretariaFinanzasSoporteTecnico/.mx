@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Menú Principal</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e8edf5 0%, #d5dce6 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: #fff;
+            border-radius: 20px;
+            padding: clamp(25px, 4vw, 45px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+        .user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 12px 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 1px solid #e8edf5;
+        }
+        .user-info { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .avatar {
+            width: clamp(40px, 6vw, 50px);
+            height: clamp(40px, 6vw, 50px);
+            background: #1a3a5c;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: clamp(16px, 2vw, 20px);
+            flex-shrink: 0;
+        }
+        .user-name {
+            font-weight: 600;
+            color: #1a3a5c;
+            font-size: clamp(14px, 1.6vw, 18px);
+        }
+        .user-email {
+            font-size: clamp(12px, 1.2vw, 14px);
+            color: #6c757d;
+        }
+        .badge-rol {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: clamp(11px, 1vw, 13px);
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        .rol-admin { background: #cce5ff; color: #004085; border: 1px solid #b8daff; }
+        .rol-usuario { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .btn-logout {
+            background: #dc3545;
+            color: #fff;
+            padding: clamp(10px, 1.5vw, 14px) clamp(20px, 2.5vw, 30px);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: clamp(13px, 1.2vw, 15px);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .btn-logout:hover { background: #c82333; transform: translateY(-2px); }
+        .header-logo {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #1a3a5c;
+        }
+        .header-logo img {
+            height: clamp(60px, 10vw, 90px);
+            width: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        .titulo-menu {
+            font-size: clamp(24px, 4vw, 36px);
+            font-weight: 700;
+            color: #1a3a5c;
+            margin-bottom: 10px;
+        }
+        .subtitulo-menu {
+            font-size: clamp(14px, 1.6vw, 18px);
+            color: #6c757d;
+            margin-bottom: 40px;
+        }
+        .menu-botones {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-top: 20px;
+        }
+        .btn-menu {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(30px, 4vw, 50px) 20px;
+            border-radius: 16px;
+            text-decoration: none;
+            transition: all 0.4s ease;
+            border: 2px solid #e6eaef;
+            background: #f8f9fa;
+            min-height: clamp(150px, 20vw, 220px);
+            cursor: pointer;
+        }
+        .btn-menu:hover { transform: translateY(-8px); box-shadow: 0 12px 40px rgba(0,0,0,0.15); }
+        .btn-menu .icono { font-size: clamp(48px, 8vw, 72px); margin-bottom: 15px; }
+        .btn-menu .titulo-btn { font-size: clamp(18px, 2.2vw, 26px); font-weight: 700; color: #1a3a5c; }
+        .btn-menu .descripcion-btn { font-size: clamp(12px, 1.2vw, 15px); color: #6c757d; margin-top: 5px; }
+        .btn-usuario {
+            background: linear-gradient(135deg, #e8f0fe 0%, #d4e2f7 100%);
+            border-color: #1a3a5c;
+        }
+        .btn-usuario:hover {
+            background: linear-gradient(135deg, #1a3a5c 0%, #0f2a44 100%);
+            border-color: #1a3a5c;
+        }
+        .btn-usuario:hover .titulo-btn,
+        .btn-usuario:hover .descripcion-btn { color: #fff; }
+        .btn-servicio {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-color: #2e7d32;
+        }
+        .btn-servicio:hover {
+            background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+            border-color: #2e7d32;
+        }
+        .btn-servicio:hover .titulo-btn,
+        .btn-servicio:hover .descripcion-btn { color: #fff; }
+        .footer-menu {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e6eaef;
+            color: #999;
+            font-size: clamp(12px, 1.2vw, 14px);
+        }
+        @media (max-width: 768px) {
+            .container { padding: 20px; }
+            .user-header { flex-direction: column; text-align: center; }
+            .user-info { flex-direction: column; text-align: center; }
+            .menu-botones { grid-template-columns: 1fr; gap: 15px; }
+            .btn-menu { min-height: 120px; padding: 25px 20px; }
+            .btn-menu .icono { font-size: 40px; }
+        }
+        @media (max-width: 480px) {
+            .container { padding: 15px; border-radius: 12px; }
+            .btn-logout { width: 100%; text-align: center; }
+            .btn-menu { padding: 20px; min-height: 100px; }
+            .btn-menu .icono { font-size: 32px; }
+            .btn-menu .titulo-btn { font-size: 16px; }
+            .btn-menu .descripcion-btn { font-size: 11px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="app">
+        <div class="user-header">
+            <div class="user-info">
+                <div class="avatar" id="avatar">U</div>
+                <div>
+                    <div class="user-name" id="userName">
+                        👤 Usuario
+                        <span class="badge-rol rol-usuario" id="userRol">usuario</span>
+                    </div>
+                    <div class="user-email" id="userEmail">📧 usuario@email.com</div>
+                </div>
+            </div>
+            <button class="btn-logout" onclick="cerrarSesion()">🚪 Cerrar Sesión</button>
+        </div>
+
+        <div class="header-logo">
+            <img src="logos/logo_izquierdo.jpg" alt="Logotipo" onerror="this.style.display='none'">
+        </div>
+
+        <h1 class="titulo-menu">📋 Menú Principal</h1>
+        <p class="subtitulo-menu">Selecciona una opción para continuar</p>
+
+        <div class="menu-botones">
+            <a href="index.html" class="btn-menu btn-usuario">
+                <span class="icono">👤</span>
+                <span class="titulo-btn">📊 Gestión de Usuario</span>
+                <span class="descripcion-btn">Administrar usuarios, faltas e incidencias</span>
+            </a>
+            <a href="gestion_servicio.html" class="btn-menu btn-servicio">
+                <span class="icono">🛠️</span>
+                <span class="titulo-btn">📋 Gestión de Servicio</span>
+                <span class="descripcion-btn">Administrar servicios y solicitudes</span>
+            </a>
+        </div>
+
+        <div class="footer-menu">
+            <p>Sistema de Gestión - Secretaría de Finanzas de Chiapas</p>
+            <p style="margin-top:5px; font-size:clamp(11px, 1vw, 13px);" id="fechaHora"></p>
+        </div>
+    </div>
+
+    <script>
+        function cargarUsuario() {
+            const usuarioStr = localStorage.getItem('sg_usuario_actual');
+            if (!usuarioStr) { window.location.href = 'login.html'; return; }
+            try {
+                const usuario = JSON.parse(usuarioStr);
+                if (!usuario || !usuario.nombre) { window.location.href = 'login.html'; return; }
+                document.getElementById('avatar').textContent = usuario.nombre.charAt(0).toUpperCase();
+                document.getElementById('userName').innerHTML = `
+                    👤 ${usuario.nombre}
+                    <span class="badge-rol ${usuario.rol === 'admin' ? 'rol-admin' : 'rol-usuario'}">${usuario.rol || 'usuario'}</span>
+                `;
+                document.getElementById('userEmail').textContent = `📧 ${usuario.email || 'usuario@email.com'}`;
+            } catch (error) { window.location.href = 'login.html'; }
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem('sg_usuario_actual');
+            window.location.href = 'login.html';
+        }
+
+        function actualizarReloj() {
+            const ahora = new Date();
+            const opciones = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+            document.getElementById('fechaHora').textContent = ahora.toLocaleDateString('es-MX', opciones);
+        }
+
+        const usuarioStr = localStorage.getItem('sg_usuario_actual');
+        if (!usuarioStr) { window.location.href = 'login.html'; }
+
+        cargarUsuario();
+        actualizarReloj();
+        setInterval(actualizarReloj, 1000);
+    </script>
+</body>
+</html>

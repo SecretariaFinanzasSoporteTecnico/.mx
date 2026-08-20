@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Detalle del Servicio</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            padding: clamp(15px, 2.5vw, 30px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+        .header-detalle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 3px solid #2e7d32;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        .header-detalle h1 { color: #2e7d32; font-size: clamp(20px, 2.8vw, 26px); }
+        .header-detalle .folio-badge {
+            background: #2e7d32;
+            color: #fff;
+            padding: clamp(6px, 1vw, 10px) clamp(15px, 2vw, 25px);
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: clamp(14px, 1.6vw, 18px);
+        }
+        .btn-volver {
+            background: #6c757d;
+            color: #fff;
+            padding: clamp(8px, 1.2vw, 12px) clamp(15px, 2vw, 25px);
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: clamp(13px, 1.2vw, 15px);
+            text-align: center;
+        }
+        .btn-volver:hover { background: #5a6268; transform: translateY(-2px); }
+        @media (max-width: 768px) {
+            .header-detalle { flex-direction: column; text-align: center; }
+            .header-detalle h1 { font-size: 20px; }
+            .btn-volver { width: 100%; text-align: center; }
+        }
+        .seccion-detalle {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: clamp(15px, 2vw, 20px);
+            margin-bottom: 20px;
+            border-left: 4px solid #2e7d32;
+        }
+        .seccion-detalle h3 {
+            color: #2e7d32;
+            font-size: clamp(15px, 1.6vw, 18px);
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e6eaef;
+            padding-bottom: 10px;
+        }
+        .grid-datos {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 25px;
+        }
+        .grid-datos .dato { display: flex; flex-direction: column; }
+        .grid-datos .dato .etiqueta {
+            font-size: clamp(11px, 1vw, 13px);
+            font-weight: 600;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .grid-datos .dato .valor {
+            font-size: clamp(14px, 1.4vw, 16px);
+            font-weight: 600;
+            color: #1e2a3a;
+            margin-top: 2px;
+        }
+        .grid-datos .dato-full { grid-column: 1 / -1; }
+        .grid-datos .dato-full .valor {
+            background: #fff;
+            padding: clamp(8px, 1vw, 12px);
+            border-radius: 6px;
+            border: 1px solid #e6eaef;
+            font-weight: 400;
+        }
+        @media (max-width: 768px) { .grid-datos { grid-template-columns: 1fr; } }
+        .badge-estado {
+            display: inline-block;
+            padding: clamp(3px, 0.5vw, 6px) clamp(10px, 1.2vw, 15px);
+            border-radius: 20px;
+            font-size: clamp(12px, 1.1vw, 14px);
+            font-weight: 600;
+        }
+        .badge-resuelto { background: #d4edda; color: #155724; }
+        .badge-pendiente { background: #f8d7da; color: #721c24; }
+        .badge-definitiva { background: #d1ecf1; color: #0c5460; }
+        .badge-temporal { background: #fff3cd; color: #856404; }
+        .btn {
+            padding: clamp(10px, 1.5vw, 14px) clamp(20px, 2.5vw, 35px);
+            border: none;
+            border-radius: 8px;
+            font-size: clamp(13px, 1.2vw, 15px);
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .btn-editar { background: #ffc107; color: #1e2a3a; }
+        .btn-editar:hover { background: #e0a800; transform: translateY(-2px); }
+        .btn-imprimir { background: #17a2b8; color: #fff; }
+        .btn-imprimir:hover { background: #138496; transform: translateY(-2px); }
+        .btn-volver2 { background: #6c757d; color: #fff; }
+        .btn-volver2:hover { background: #5a6268; transform: translateY(-2px); }
+        .acciones-botones {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        @media (max-width: 768px) {
+            .acciones-botones { flex-direction: column; width: 100%; }
+            .acciones-botones .btn { width: 100%; text-align: center; }
+        }
+        .footer-detalle {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e6eaef;
+            text-align: center;
+            color: #999;
+            font-size: clamp(12px, 1.1vw, 14px);
+        }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #1a3a5c;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .cargando { text-align: center; padding: 40px; color: #999; }
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: inherit; opacity: 0.7; }
+        @media print {
+            body { background: white; padding: 10px; }
+            .container { box-shadow: none; border: 1px solid #ddd; padding: 20px; }
+            .no-print { display: none !important; }
+            .seccion-detalle { background: #f8f9fa !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .badge-estado { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-detalle">
+            <div><h1>📋 Detalle del Servicio</h1></div>
+            <div class="folio-badge" id="folioBadge">Folio: Cargando...</div>
+        </div>
+        <div id="mensajeContainer"></div>
+        <div id="contenidoDetalle">
+            <div class="cargando"><span class="spinner"></span> Cargando servicio...</div>
+        </div>
+        <div class="footer-detalle">
+            <p>Reporte generado el <span id="fechaReporte"></span> - Sistema de Gestión de Servicios</p>
+            <p style="margin-top:5px; font-size:clamp(11px, 1vw, 13px);">Secretaría de Finanzas de Chiapas - 2024-2030</p>
+        </div>
+    </div>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-app.js"></script>
+    <script>
+        let servicioId=null;
+        function escapeHtml(t){ if(!t) return ''; const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+        function formatearFecha(f){ if(!f) return '--'; const d=new Date(f); return d.toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'}); }
+        function formatearFechaHora(f){ if(!f) return '--'; const d=new Date(f); return d.toLocaleString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+        function mostrarMensaje(texto,tipo){
+            const c=document.getElementById('mensajeContainer');
+            c.innerHTML=`<div class="alert alert-${tipo}">${texto}<button class="close-btn" onclick="this.parentElement.style.display='none'">✕</button></div>`;
+            setTimeout(()=>{ const a=c.querySelector('.alert'); if(a) a.style.display='none'; },5000);
+        }
+        async function cargarDatos(){
+            const u=localStorage.getItem('sg_usuario_actual');
+            if(!u){ window.location.href='login.html'; return; }
+            const p=new URLSearchParams(window.location.search);
+            servicioId=p.get('id');
+            if(!servicioId){ mostrarMensaje('ID de servicio no válido','danger'); return; }
+            await cargarServicio();
+            document.getElementById('fechaReporte').textContent=formatearFechaHora(new Date());
+        }
+        async function cargarServicio(){
+            const contenedor=document.getElementById('contenidoDetalle');
+            contenedor.innerHTML=`<div class="cargando"><span class="spinner"></span> Cargando servicio...</div>`;
+            const r=await window.firebaseApp.obtenerServicioPorIdFirebase(servicioId);
+            if(!r.success){ contenedor.innerHTML=`<div style="text-align:center;padding:40px;color:#999;">❌ ${r.error}</div>`; return; }
+            const servicio=r.data;
+            const folio=servicio.folio||'SIN FOLIO';
+            document.getElementById('folioBadge').textContent=`Folio: ${folio}`;
+            const resuelto=servicio.resuelto||0;
+            const estado=resuelto===1?'Resuelto':'Pendiente';
+            const badgeEstado=resuelto===1?'badge-resuelto':'badge-pendiente';
+            const badgeModalidad=servicio.modalidad==='Definitiva'?'badge-definitiva':'badge-temporal';
+            contenedor.innerHTML=`
+                <div class="seccion-detalle">
+                    <h3>📋 Datos Generales</h3>
+                    <div class="grid-datos">
+                        <div class="dato"><span class="etiqueta">ID</span><span class="valor">#${servicioId}</span></div>
+                        <div class="dato"><span class="etiqueta">Fecha de solicitud</span><span class="valor">${formatearFecha(servicio.fecha_solicitud)}</span></div>
+                        <div class="dato dato-full"><span class="etiqueta">Nombre del solicitante</span><span class="valor">${escapeHtml(servicio.nombre_solicitante)}</span></div>
+                        <div class="dato"><span class="etiqueta">Subsecretaría</span><span class="valor">${escapeHtml(servicio.subsecretaria)}</span></div>
+                        <div class="dato"><span class="etiqueta">Dirección</span><span class="valor">${escapeHtml(servicio.direccion)}</span></div>
+                        <div class="dato dato-full"><span class="etiqueta">Departamento/Área</span><span class="valor">${escapeHtml(servicio.departamento)}</span></div>
+                    </div>
+                </div>
+                <div class="seccion-detalle">
+                    <h3>💻 Datos del Equipo</h3>
+                    <div class="grid-datos">
+                        <div class="dato"><span class="etiqueta">Descripción</span><span class="valor">${escapeHtml(servicio.descripcion_equipo)}</span></div>
+                        <div class="dato"><span class="etiqueta">Marca</span><span class="valor">${escapeHtml(servicio.marca)}</span></div>
+                        <div class="dato"><span class="etiqueta">Modelo</span><span class="valor">${escapeHtml(servicio.modelo)}</span></div>
+                        <div class="dato"><span class="etiqueta">Serie</span><span class="valor">${escapeHtml(servicio.serie)}</span></div>
+                        <div class="dato dato-full"><span class="etiqueta">Falla reportada</span><span class="valor">${escapeHtml(servicio.falla_reportada)}</span></div>
+                    </div>
+                </div>
+                <div class="seccion-detalle">
+                    <h3>🔧 Datos de Soporte</h3>
+                    <div class="grid-datos">
+                        <div class="dato"><span class="etiqueta">Nombre de quién entrega</span><span class="valor">${escapeHtml(servicio.nombre_entrega)}</span></div>
+                        <div class="dato"><span class="etiqueta">Soporte quién recibe</span><span class="valor">${escapeHtml(servicio.soporte_recibe)}</span></div>
+                        <div class="dato dato-full"><span class="etiqueta">Acción realizada</span><span class="valor">${escapeHtml(servicio.accion_realizada)}</span></div>
+                        <div class="dato"><span class="etiqueta">Estatus</span><span class="valor"><span class="badge-estado ${badgeEstado}">${estado}</span></span></div>
+                        <div class="dato"><span class="etiqueta">Modalidad</span><span class="valor"><span class="badge-estado ${badgeModalidad}">${servicio.modalidad||'Definitiva'}</span></span></div>
+                    </div>
+                </div>
+                <div class="seccion-detalle">
+                    <h3>📌 Situación Final</h3>
+                    <div class="grid-datos">
+                        <div class="dato"><span class="etiqueta">Fecha de realización</span><span class="valor">${formatearFecha(servicio.fecha_realizacion)}</span></div>
+                        <div class="dato"><span class="etiqueta">Hora de conclusión</span><span class="valor">${servicio.hora_conclusion||'--'}</span></div>
+                        <div class="dato"><span class="etiqueta">Nombre de quién recibe</span><span class="valor">${escapeHtml(servicio.nombre_recibe)}</span></div>
+                        <div class="dato"><span class="etiqueta">Soporte quién entrega</span><span class="valor">${escapeHtml(servicio.soporte_entrega)}</span></div>
+                    </div>
+                </div>
+                <div class="acciones-botones no-print">
+                    <a href="editar_servicio.html?id=${servicioId}" class="btn btn-editar">✏️ Editar</a>
+                    <button onclick="window.print()" class="btn btn-imprimir">🖨️ Imprimir</button>
+                    <a href="gestion_servicio.html" class="btn btn-volver2">⬅ Volver al Listado</a>
+                </div>
+            `;
+        }
+        document.addEventListener('DOMContentLoaded',cargarDatos);
+        (function(){ const p=new URLSearchParams(window.location.search); const m=p.get('mensaje'),e=p.get('error'); if(m)mostrarMensaje(m,'success'); if(e)mostrarMensaje(e,'danger'); })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histórico de Inventario</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            padding: 25px 30px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+            border-bottom: 3px solid #1a3a5c;
+            padding-bottom: 15px;
+        }
+        .header h1 { color: #1a3a5c; }
+        .header .logo-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .header .logo-header img {
+            height: 60px;
+            width: auto;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .btn-volver { background: #6c757d; color: #fff; }
+        .btn-inventario { background: #20c997; color: #fff; }
+        .btn-inventario:hover { background: #1aa179; }
+        .btn-imprimir { background: #17a2b8; color: #fff; }
+        .btn-imprimir:hover { background: #138496; }
+        .btn-buscar { background: #1a3a5c; color: #fff; }
+        .btn-buscar:hover { background: #2c5f7c; }
+        .btn-limpiar { background: #6c757d; color: #fff; }
+        .btn-desarchivar {
+            background: #fd7e14;
+            color: #fff;
+            font-size: 12px;
+            padding: 5px 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-desarchivar:hover {
+            background: #e06b0a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(253, 126, 20, 0.3);
+        }
+        .buscador-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+            flex-wrap: wrap;
+        }
+        .buscador-container input {
+            flex: 1;
+            max-width: 400px;
+            padding: 10px 15px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            transition: border 0.3s;
+            box-sizing: border-box;
+        }
+        .buscador-container input:focus { border-color: #1a3a5c; }
+
+        /* ========================================
+           TARJETAS DE AÑOS - ESTILO MEJORADO
+           ======================================== */
+        .year-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 10px;
+            margin-bottom: 25px;
+        }
+        .year-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 10px;
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            border-radius: 14px;
+            text-decoration: none;
+            color: #1a3a5c;
+            font-weight: 700;
+            font-size: 22px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            cursor: pointer;
+            min-height: 80px;
+            position: relative;
+            overflow: hidden;
+        }
+        .year-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #1a3a5c, #2c5f7c);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 14px;
+        }
+        .year-card:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(26, 58, 92, 0.25);
+            border-color: #1a3a5c;
+        }
+        .year-card:hover::before { opacity: 1; }
+        .year-card:hover .year-number,
+        .year-card:hover .year-label {
+            color: #fff;
+            position: relative;
+            z-index: 1;
+        }
+        .year-card:hover .year-icon { position: relative; z-index: 1; }
+        .year-card .year-number {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1a3a5c;
+            transition: color 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+        .year-card .year-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6c757d;
+            transition: color 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+        .year-card .year-icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+            position: relative;
+            z-index: 1;
+        }
+        .year-card .year-count {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: #dc3545;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 20px;
+            z-index: 2;
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+        }
+        .mensaje-vacio {
+            grid-column: span 3;
+            text-align: center;
+            padding: 30px;
+            color: #999;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 2px dashed #dee2e6;
+        }
+        .mensaje-vacio .icono {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .mensaje-vacio .texto {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .mensaje-vacio .subtexto {
+            font-size: 13px;
+            color: #adb5bd;
+            margin-top: 5px;
+        }
+
+        .table-responsive { overflow-x: auto; margin-top: 15px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        thead {
+            background: #1a3a5c;
+            color: #fff;
+        }
+        th {
+            padding: 12px 15px;
+            text-align: left;
+            white-space: nowrap;
+        }
+        td {
+            padding: 10px 15px;
+            border-bottom: 1px solid #e6eaef;
+            vertical-align: middle;
+        }
+        tbody tr:hover { background: #f5f8fc; }
+        .badge {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-archivado {
+            background: #e2e3e5;
+            color: #383d41;
+            border: 1px solid #d6d8db;
+        }
+        .etiqueta-inventario {
+            font-family: monospace;
+            background: #f1f2f6;
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px dashed #8395a7;
+            font-size: 13px;
+            color: #2f3542;
+            letter-spacing: 0.5px;
+        }
+        .acciones {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #1a3a5c;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .cargando { text-align: center; padding: 40px; color: #999; }
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+        }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: inherit;
+            opacity: 0.7;
+        }
+        .close-btn:hover { opacity: 1; }
+        @media (max-width: 768px) {
+            .header { flex-direction: column; align-items: stretch; }
+            .header .btn { width: 100%; text-align: center; }
+            .buscador-container { flex-direction: column; align-items: center; }
+            .buscador-container input { width: 100%; max-width: 100%; }
+            .buscador-container .btn { width: 100%; text-align: center; }
+            .year-grid { grid-template-columns: repeat(2, 1fr); }
+            .acciones { flex-direction: column; }
+            .acciones .btn { width: 100%; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo-header">
+                <img src="logos/logo_izquierdo.jpg" alt="Logotipo" onerror="this.style.display='none'">
+                <h1>📦 Histórico de Inventario</h1>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button onclick="window.print()" class="btn btn-imprimir">🖨️ Imprimir</button>
+                <a href="inventario.html" class="btn btn-inventario">⬅ Volver a Inventario</a>
+            </div>
+        </div>
+
+        <!-- ========================================
+             TARJETAS DE AÑOS
+             ======================================== -->
+        <div id="yearGrid" class="year-grid">
+            <div class="cargando" style="grid-column: span 3;">
+                <span class="spinner"></span> Cargando años...
+            </div>
+        </div>
+
+        <form id="buscarForm" class="buscador-container">
+            <input type="text" id="buscarInput" placeholder="🔍 Buscar por número de inventario, nombre o equipo...">
+            <button type="submit" class="btn btn-buscar">🔍 Buscar</button>
+            <button type="button" id="limpiarBuscar" class="btn btn-limpiar" style="display:none;">✖ Limpiar</button>
+        </form>
+
+        <div id="mensajeContainer"></div>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>N° Inventario</th>
+                        <th>Responsable</th>
+                        <th>Descripción</th>
+                        <th>Estado</th>
+                        <th>Fecha Registro</th>
+                        <th>Año Archivado</th>
+                        <th class="no-print">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaHistorico">
+                    <tr>
+                        <td colspan="8" class="cargando">
+                            <span class="spinner"></span> Cargando histórico de inventario...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-app.js"></script>
+    
+    <script>
+        let busquedaActiva = '';
+        let usuarioActual = null;
+        let anioSeleccionado = null;
+
+        function escapeHtml(texto) {
+            if (!texto) return '';
+            const div = document.createElement('div');
+            div.textContent = texto;
+            return div.innerHTML;
+        }
+
+        function mostrarMensaje(texto, tipo) {
+            const container = document.getElementById('mensajeContainer');
+            container.innerHTML = `
+                <div class="alert alert-${tipo}">
+                    ${texto}
+                    <button class="close-btn" onclick="this.parentElement.style.display='none'">✕</button>
+                </div>
+            `;
+            setTimeout(() => {
+                const alert = container.querySelector('.alert');
+                if (alert) alert.style.display = 'none';
+            }, 5000);
+        }
+
+        function formatearFecha(fecha) {
+            if (!fecha) return '--';
+            const d = new Date(fecha);
+            return d.toLocaleDateString('es-MX', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        async function cargarDatos() {
+            const usuarioStr = localStorage.getItem('sg_usuario_actual');
+            if (!usuarioStr) {
+                window.location.href = 'login.html';
+                return;
+            }
+            usuarioActual = JSON.parse(usuarioStr);
+            await cargarAnios();
+            await cargarHistorico();
+        }
+
+        // ========================================
+        // CARGAR AÑOS CON TARJETAS
+        // ========================================
+        async function cargarAnios() {
+            const grid = document.getElementById('yearGrid');
+            grid.innerHTML = `<div class="cargando" style="grid-column: span 3;">
+                <span class="spinner"></span> Cargando años...
+            </div>`;
+
+            try {
+                const resultado = await window.firebaseApp.obtenerServiciosArchivadosFirebase();
+                
+                if (resultado.success && resultado.data && resultado.data.length > 0) {
+                    // Filtrar solo equipos (es_equipo = 1)
+                    const equipos = resultado.data.filter(s => s.es_equipo === 1);
+                    
+                    if (equipos.length > 0) {
+                        const conteoPorAnio = {};
+                        equipos.forEach(s => {
+                            const anio = s.anio_archivado;
+                            if (anio) {
+                                conteoPorAnio[anio] = (conteoPorAnio[anio] || 0) + 1;
+                            }
+                        });
+                        
+                        const anios = Object.keys(conteoPorAnio).map(Number).sort((a, b) => b - a);
+                        
+                        if (anios.length > 0) {
+                            grid.innerHTML = anios.map(anio => {
+                                const count = conteoPorAnio[anio] || 0;
+                                return `
+                                    <div class="year-card" onclick="seleccionarAnio(${anio})">
+                                        <span class="year-count">${count}</span>
+                                        <span class="year-icon">📦</span>
+                                        <span class="year-number">${anio}</span>
+                                        <span class="year-label">${count} equipo${count !== 1 ? 's' : ''}</span>
+                                    </div>
+                                `;
+                            }).join('');
+                        } else {
+                            grid.innerHTML = `
+                                <div class="mensaje-vacio">
+                                    <span class="icono">📭</span>
+                                    <span class="texto">No hay equipos archivados</span>
+                                    <span class="subtexto">Archiva un equipo para que aparezca aquí</span>
+                                </div>
+                            `;
+                        }
+                    } else {
+                        grid.innerHTML = `
+                            <div class="mensaje-vacio">
+                                <span class="icono">📭</span>
+                                <span class="texto">No hay equipos archivados</span>
+                                <span class="subtexto">Archiva un equipo para que aparezca aquí</span>
+                            </div>
+                        `;
+                    }
+                } else {
+                    grid.innerHTML = `
+                        <div class="mensaje-vacio">
+                            <span class="icono">📭</span>
+                            <span class="texto">No hay equipos archivados</span>
+                            <span class="subtexto">Archiva un equipo para que aparezca aquí</span>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('❌ Error al cargar años:', error);
+                grid.innerHTML = `
+                    <div class="mensaje-vacio" style="border-color: #f5c6cb; color: #721c24; background: #f8d7da;">
+                        <span class="icono">❌</span>
+                        <span class="texto">Error al cargar los años</span>
+                        <span class="subtexto">${error.message}</span>
+                    </div>
+                `;
+            }
+        }
+
+        // ========================================
+        // SELECCIONAR AÑO
+        // ========================================
+        function seleccionarAnio(anio) {
+            anioSeleccionado = anio;
+            // Resaltar la tarjeta seleccionada
+            document.querySelectorAll('.year-card').forEach(card => {
+                card.style.borderColor = 'transparent';
+                card.style.background = 'linear-gradient(145deg, #f8f9fa, #e9ecef)';
+            });
+            // Resaltar la seleccionada
+            const cards = document.querySelectorAll('.year-card');
+            cards.forEach(card => {
+                if (card.textContent.includes(anio)) {
+                    card.style.borderColor = '#1a3a5c';
+                    card.style.background = 'linear-gradient(145deg, #1a3a5c, #2c5f7c)';
+                    card.style.color = '#fff';
+                    card.querySelector('.year-number').style.color = '#fff';
+                    card.querySelector('.year-label').style.color = '#fff';
+                }
+            });
+            
+            document.getElementById('buscarInput').value = '';
+            cargarHistorico('', anio);
+        }
+
+        // ========================================
+        // CARGAR HISTÓRICO
+        // ========================================
+        async function cargarHistorico(busqueda = '', anio = null) {
+            const tbody = document.getElementById('tablaHistorico');
+            tbody.innerHTML = `<tr><td colspan="8" class="cargando"><span class="spinner"></span> Cargando histórico de inventario...</td></tr>`;
+
+            try {
+                const resultado = await window.firebaseApp.obtenerServiciosArchivadosFirebase();
+                
+                if (resultado.success && resultado.data && resultado.data.length > 0) {
+                    let datos = resultado.data.filter(s => s.es_equipo === 1);
+                    
+                    // Filtrar por año seleccionado
+                    if (anio) {
+                        datos = datos.filter(s => s.anio_archivado === anio);
+                    }
+                    
+                    if (busqueda.trim()) {
+                        const term = busqueda.toLowerCase().trim();
+                        datos = datos.filter(s => 
+                            (s.numero_inventario && s.numero_inventario.toLowerCase().includes(term)) ||
+                            (s.nombre_solicitante && s.nombre_solicitante.toLowerCase().includes(term)) ||
+                            (s.descripcion_equipo && s.descripcion_equipo.toLowerCase().includes(term))
+                        );
+                    }
+                    
+                    if (datos.length > 0) {
+                        renderizarTabla(datos);
+                    } else {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="8" style="text-align: center; padding: 40px; color: #999;">
+                                    📭 No hay equipos archivados que coincidan con tu búsqueda.
+                                </td>
+                            </tr>
+                        `;
+                    }
+                } else {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 40px; color: #999;">
+                                📭 No hay equipos archivados.
+                            </td>
+                        </tr>
+                    `;
+                }
+            } catch (error) {
+                console.error('❌ Error al cargar histórico:', error);
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align:center; padding:40px; color:#999;">
+                            ❌ Error al cargar el histórico: ${error.message}
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // ========================================
+        // RENDERIZAR TABLA
+        // ========================================
+        function renderizarTabla(lista) {
+            const tbody = document.getElementById('tablaHistorico');
+            
+            let html = '';
+            lista.forEach((equipo, index) => {
+                const numInventario = equipo.numero_inventario || 'Sin etiqueta';
+                const fecha = formatearFecha(equipo.fecha_registro);
+                const anio = equipo.anio_archivado || '--';
+
+                html += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>
+                            ${equipo.numero_inventario ? `<span class="etiqueta-inventario">${escapeHtml(equipo.numero_inventario)}</span>` : '<span style="color:#999; font-size:12px;">Sin etiqueta</span>'}
+                        </td>
+                        <td>${escapeHtml(equipo.nombre_solicitante || 'Sin responsable')}</td>
+                        <td>${escapeHtml(equipo.descripcion_equipo || 'Sin equipo')}</td>
+                        <td><span class="badge badge-archivado">📦 Archivado</span></td>
+                        <td>${fecha}</td>
+                        <td><strong>${anio}</strong></td>
+                        <td class="no-print">
+                            <div class="acciones">
+                                <button onclick="desarchivarEquipo('${equipo.id}')" class="btn-desarchivar">
+                                    🔄 Desarchivar
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        // ========================================
+        // DESARCHIVAR EQUIPO
+        // ========================================
+        async function desarchivarEquipo(id) {
+            if (!confirm('¿Estás seguro de que quieres desarchivar este equipo? Volverá a aparecer en el inventario activo.')) return;
+
+            try {
+                const resultado = await window.firebaseApp.actualizarServicioFirebase(id, {
+                    anio_archivado: null
+                });
+
+                if (resultado.success) {
+                    mostrarMensaje('✅ Equipo desarchivado correctamente.', 'success');
+                    await cargarAnios();
+                    await cargarHistorico(busquedaActiva, anioSeleccionado);
+                } else {
+                    mostrarMensaje('❌ Error al desarchivar: ' + resultado.error, 'danger');
+                }
+            } catch (error) {
+                console.error('❌ Error:', error);
+                mostrarMensaje('❌ Error al desarchivar: ' + error.message, 'danger');
+            }
+        }
+
+        // ========================================
+        // BUSCADOR
+        // ========================================
+        document.getElementById('buscarForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const termino = document.getElementById('buscarInput').value;
+            busquedaActiva = termino;
+            document.getElementById('limpiarBuscar').style.display = termino.trim() ? 'inline-block' : 'none';
+            cargarHistorico(termino, anioSeleccionado);
+        });
+
+        document.getElementById('limpiarBuscar').addEventListener('click', function() {
+            document.getElementById('buscarInput').value = '';
+            this.style.display = 'none';
+            busquedaActiva = '';
+            cargarHistorico('', anioSeleccionado);
+        });
+
+        document.getElementById('buscarInput').addEventListener('input', function() {
+            if (this.value.length >= 2 || this.value.length === 0) {
+                busquedaActiva = this.value;
+                document.getElementById('limpiarBuscar').style.display = this.value.trim() ? 'inline-block' : 'none';
+                cargarHistorico(this.value, anioSeleccionado);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', cargarDatos);
+    </script>
+</body>
+</html>

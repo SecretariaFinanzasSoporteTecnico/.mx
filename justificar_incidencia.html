@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Justificar Incidencia</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            padding: clamp(15px, 2.5vw, 30px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+        .header-form {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 3px solid #1a3a5c;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        .header-form h2 { color:#1a3a5c; font-size: clamp(20px, 2.8vw, 28px); }
+        .header-form .id-justificacion {
+            background:#f8f9fa; padding:8px 20px; border-radius:8px;
+            border-left:4px solid #b8860b; font-weight:700; color:#1a3a5c; font-size:clamp(14px, 1.4vw, 18px);
+        }
+        .btn-volver {
+            background:#6c757d; color:#fff; padding: clamp(8px, 1.2vw, 12px) clamp(15px, 2vw, 25px);
+            border-radius:8px; text-decoration:none; font-weight:600; transition:all 0.3s;
+            font-size: clamp(13px, 1.2vw, 15px); text-align:center;
+        }
+        .btn-volver:hover { background:#5a6268; transform:translateY(-2px); }
+        @media (max-width: 768px) {
+            .header-form { flex-direction: column; align-items: stretch; text-align: center; }
+            .btn-volver { width: 100%; text-align: center; }
+        }
+        .info-usuario {
+            background:#f8f9fa; padding:15px 20px; border-radius:8px; margin-bottom:25px;
+            display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px;
+        }
+        .info-usuario .campo { display:flex; flex-direction:column; }
+        .info-usuario .campo label { font-size:clamp(10px, 0.9vw, 12px); font-weight:600; color:#6c757d; text-transform:uppercase; }
+        .info-usuario .campo span { font-size:clamp(13px, 1.2vw, 15px); font-weight:600; color:#1a3a5c; }
+        @media (max-width: 768px) { .info-usuario { grid-template-columns:1fr; } }
+        .info-incidencia {
+            background:#fff3cd; padding:15px 20px; border-radius:8px; margin-bottom:25px;
+            border-left:4px solid #ffc107; line-height:1.6; font-size:clamp(13px, 1.2vw, 15px);
+        }
+        .info-incidencia strong { color:#856404; }
+
+        .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px 25px; }
+        .form-grid .campo-full { grid-column:1/-1; }
+        .campo { display:flex; flex-direction:column; gap:4px; }
+        .campo label { font-weight:600; font-size:clamp(13px, 1.2vw, 15px); color:#2c3e50; }
+        .campo label .obligatorio { color:#dc3545; }
+        .campo input, .campo select, .campo textarea {
+            padding:clamp(8px, 1.2vw, 12px) 12px;
+            border:2px solid #dce1e8; border-radius:8px; font-size:clamp(13px, 1.2vw, 15px);
+            transition:0.3s; font-family:inherit; width:100%; box-sizing:border-box;
+        }
+        .campo input:focus, .campo select:focus, .campo textarea:focus {
+            border-color:#1a3a5c; outline:none; box-shadow:0 0 0 3px rgba(26,58,92,0.1);
+        }
+        .campo textarea { resize:vertical; min-height:80px; }
+        .campo .ayuda { font-size:clamp(11px, 1vw, 13px); color:#6c757d; margin-top:3px; }
+        @media (max-width: 768px) { .form-grid { grid-template-columns:1fr; } }
+
+        .acciones-form {
+            display:flex; gap:15px; margin-top:25px; padding-top:20px; border-top:2px solid #e6eaef; justify-content:flex-end; flex-wrap:wrap;
+        }
+        .btn {
+            padding:clamp(10px, 1.5vw, 14px) clamp(20px, 2.5vw, 35px);
+            border:none; border-radius:8px; font-size:clamp(14px, 1.4vw, 17px);
+            font-weight:600; cursor:pointer; text-decoration:none; display:inline-block; transition:all 0.3s; text-align:center;
+        }
+        .btn-guardar { background:#1a3a5c; color:#fff; }
+        .btn-guardar:hover { background:#0f2a44; transform:translateY(-2px); box-shadow:0 5px 15px rgba(26,58,92,0.3); }
+        .btn-guardar:disabled { opacity:0.6; cursor:not-allowed; }
+        .btn-cancelar { background:#e9edf2; color:#3d4f62; }
+        .btn-cancelar:hover { background:#d5dce6; }
+        @media (max-width: 768px) {
+            .acciones-form { flex-direction:column; }
+            .btn { width:100%; text-align:center; }
+        }
+        .alert {
+            padding:15px 20px; border-radius:8px; margin-bottom:20px; display:flex;
+            justify-content:space-between; align-items:center; font-weight:500; flex-wrap:wrap; gap:10px;
+        }
+        .alert-success { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
+        .alert-danger { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
+        .close-btn { background:none; border:none; font-size:20px; cursor:pointer; color:inherit; opacity:0.7; }
+        .spinner {
+            display:inline-block; width:16px; height:16px; border:2px solid #fff;
+            border-radius:50%; border-top-color:transparent; animation:spin 0.8s linear infinite;
+            vertical-align:middle; margin-right:8px;
+        }
+        @keyframes spin { to { transform:rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-form">
+            <h2>📝 Justificar Incidencia</h2>
+            <div class="id-justificacion" id="idJustificacion">📄 INC-2026-001</div>
+        </div>
+        <div class="info-usuario" id="infoUsuario">
+            <div class="campo"><label>👤 Empleado</label><span id="nombreEmpleado">Cargando...</span></div>
+            <div class="campo"><label>📧 Email</label><span id="emailEmpleado">Cargando...</span></div>
+            <div class="campo"><label>🏢 Área</label><span id="areaEmpleado">Cargando...</span></div>
+            <div class="campo"><label>💼 Puesto</label><span id="puestoEmpleado">Cargando...</span></div>
+        </div>
+        <div class="info-incidencia" id="infoIncidencia">
+            <strong>Tipo:</strong> <span id="tipoIncidencia">Cargando...</span>
+            &nbsp;|&nbsp; <strong>Fecha Inicio:</strong> <span id="fechaIncidencia">Cargando...</span>
+            &nbsp;|&nbsp; <strong>Días:</strong> <span id="diasIncidencia">0</span>
+            &nbsp;|&nbsp; <strong>Motivo:</strong> <span id="motivoIncidencia">Cargando...</span>
+        </div>
+        <div id="mensajeContainer"></div>
+        <form id="formJustificar">
+            <div class="form-grid">
+                <div class="campo campo-full">
+                    <label for="titulo">📌 Título de la incidencia <span class="obligatorio">*</span></label>
+                    <input type="text" id="titulo" required placeholder="Ej: Caída del servicio de correo en el área comercial">
+                </div>
+                <div class="campo">
+                    <label for="prioridad">⚡ Prioridad <span class="obligatorio">*</span></label>
+                    <select id="prioridad" required>
+                        <option value="">Selecciona la prioridad</option>
+                        <option value="Crítica">🔴 Crítica</option>
+                        <option value="Alta">🟠 Alta</option>
+                        <option value="Media" selected>🟡 Media</option>
+                        <option value="Baja">🟢 Baja</option>
+                    </select>
+                </div>
+                <div class="campo">
+                    <label for="plazo">⏱️ Plazo de solución</label>
+                    <input type="text" id="plazo" placeholder="Ej: 48 horas">
+                </div>
+                <div class="campo campo-full">
+                    <label for="descripcion">📄 Descripción del problema <span class="obligatorio">*</span></label>
+                    <textarea id="descripcion" rows="4" required placeholder="Describe detalladamente el problema..."></textarea>
+                    <span class="ayuda">💡 Incluye contexto, impacto y detalles relevantes</span>
+                </div>
+                <div class="campo campo-full">
+                    <label for="pasos">🔍 Pasos para reproducir</label>
+                    <textarea id="pasos" rows="3" placeholder="1. Abrir Outlook. 2. Intentar enviar correo..."></textarea>
+                    <span class="ayuda">📋 Enumera los pasos para replicar el problema</span>
+                </div>
+                <div class="campo campo-full">
+                    <label for="evidencia">📎 Evidencia</label>
+                    <textarea id="evidencia" rows="2" placeholder="Adjuntar captura de pantalla del error o enlace al registro"></textarea>
+                    <span class="ayuda">🖼️ Capturas de pantalla, logs, enlaces, etc.</span>
+                </div>
+                <div class="campo campo-full">
+                    <label for="causa_raiz">🔬 Causa raíz</label>
+                    <textarea id="causa_raiz" rows="2" placeholder="El buzón de correo llegó al 100% de su capacidad"></textarea>
+                    <span class="ayuda">🔎 ¿Cuál es la causa principal del problema?</span>
+                </div>
+                <div class="campo campo-full">
+                    <label for="accion_inmediata">⚡ Acción inmediata</label>
+                    <textarea id="accion_inmediata" rows="2" placeholder="Se amplió temporalmente el almacenamiento en la nube"></textarea>
+                    <span class="ayuda">🛠️ ¿Qué se hizo para mitigar el problema?</span>
+                </div>
+                <div class="campo campo-full">
+                    <label for="solucion_definitiva">✅ Solución definitiva</label>
+                    <textarea id="solucion_definitiva" rows="2" placeholder="Implementar política de borrado automático de correos antiguos"></textarea>
+                    <span class="ayuda">🎯 ¿Cuál es la solución permanente?</span>
+                </div>
+            </div>
+            <div class="acciones-form">
+                <a href="#" id="btnCancelar" class="btn btn-cancelar">✕ Cancelar</a>
+                <button type="submit" class="btn btn-guardar" id="btnGuardar">💾 Guardar Justificación</button>
+            </div>
+        </form>
+    </div>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-app.js"></script>
+    <script>
+        let usuarioId=null, incidenciaId=null, datosIncidencia=null;
+        function mostrarMensaje(texto,tipo){
+            const c=document.getElementById('mensajeContainer');
+            c.innerHTML=`<div class="alert alert-${tipo}">${texto}<button class="close-btn" onclick="this.parentElement.style.display='none'">✕</button></div>`;
+            setTimeout(()=>{ const a=c.querySelector('.alert'); if(a) a.style.display='none'; },5000);
+        }
+        function formatearFecha(f){ if(!f)return'--'; const d=new Date(f); return d.toLocaleDateString('es-MX',{day:'2-digit',month:'2-digit',year:'numeric'}); }
+        function calcularDias(inicio,fin){ if(!inicio||!fin)return 0; const d1=new Date(inicio),d2=new Date(fin),diff=Math.abs(d2-d1); return Math.ceil(diff/(1000*60*60*24))+1; }
+        async function init(){
+            const u=localStorage.getItem('sg_usuario_actual');
+            if(!u){ window.location.href='login.html'; return; }
+            const p=new URLSearchParams(window.location.search);
+            usuarioId=p.get('usuario_id'); incidenciaId=p.get('incidencia_id');
+            if(!usuarioId||!incidenciaId){ mostrarMensaje('Datos no válidos','danger'); return; }
+            document.getElementById('btnCancelar').href=`ver_incidencia.html?usuario_id=${usuarioId}`;
+            const rUser=await window.firebaseApp.obtenerUsuarioPorIdFirebase(usuarioId);
+            if(rUser.success){ const u2=rUser.data; document.getElementById('nombreEmpleado').textContent=u2.nombre||'--'; document.getElementById('emailEmpleado').textContent=u2.email||'--'; document.getElementById('areaEmpleado').textContent=u2.area||'--'; document.getElementById('puestoEmpleado').textContent=u2.puesto||'--'; }
+            else { mostrarMensaje('Usuario no encontrado','danger'); return; }
+            const incs=await window.firebaseApp.obtenerIncidenciasFirebase(usuarioId);
+            if(incs.success){
+                datosIncidencia=incs.data.find(i=>i.id===incidenciaId);
+                if(datosIncidencia){
+                    document.getElementById('tipoIncidencia').textContent=datosIncidencia.tipo_incidencia||'--';
+                    document.getElementById('fechaIncidencia').textContent=formatearFecha(datosIncidencia.fecha_inicio);
+                    document.getElementById('diasIncidencia').textContent=calcularDias(datosIncidencia.fecha_inicio,datosIncidencia.fecha_fin);
+                    document.getElementById('motivoIncidencia').textContent=datosIncidencia.motivo||'--';
+                    document.getElementById('idJustificacion').textContent=`📄 INC-${new Date().getFullYear()}-${String(incidenciaId).slice(0,4).toUpperCase()}`;
+                } else { mostrarMensaje('Incidencia no encontrada','danger'); return; }
+            } else { mostrarMensaje('Error al cargar la incidencia','danger'); return; }
+        }
+        document.getElementById('formJustificar').addEventListener('submit', async function(e){
+            e.preventDefault();
+            const titulo=document.getElementById('titulo').value.trim(), prioridad=document.getElementById('prioridad').value, plazo=document.getElementById('plazo').value.trim(), descripcion=document.getElementById('descripcion').value.trim(), pasos=document.getElementById('pasos').value.trim(), evidencia=document.getElementById('evidencia').value.trim(), causa_raiz=document.getElementById('causa_raiz').value.trim(), accion_inmediata=document.getElementById('accion_inmediata').value.trim(), solucion_definitiva=document.getElementById('solucion_definitiva').value.trim(), btn=document.getElementById('btnGuardar');
+            if(!titulo||!prioridad||!descripcion){ mostrarMensaje('Título, Prioridad y Descripción son obligatorios.','danger'); return; }
+            btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
+            const r=await window.firebaseApp.justificarIncidenciaFirebase(incidenciaId,{titulo,prioridad,plazo,descripcion,pasos,evidencia,causa_raiz,accion_inmediata,solucion_definitiva});
+            if(r.success){ mostrarMensaje('✅ Incidencia justificada.','success'); btn.innerHTML='✅ ¡Guardado!'; setTimeout(()=>{ window.location.href=`ver_incidencia.html?usuario_id=${usuarioId}&mensaje=Incidencia justificada`; },1500); }
+            else { mostrarMensaje('❌ Error: '+r.error,'danger'); btn.disabled=false; btn.innerHTML='💾 Guardar Justificación'; }
+        });
+        document.addEventListener('DOMContentLoaded',init);
+    </script>
+</body>
+</html>

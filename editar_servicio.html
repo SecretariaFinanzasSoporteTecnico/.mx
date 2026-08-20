@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Editar Servicio</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            padding: clamp(15px, 2.5vw, 30px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+        .header-form {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 3px solid #ffc107;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        .header-form h1 { color: #ffc107; font-size: clamp(22px, 3vw, 28px); }
+        .btn-volver {
+            background: #6c757d;
+            color: #fff;
+            padding: clamp(8px, 1.2vw, 12px) clamp(15px, 2vw, 25px);
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: clamp(13px, 1.2vw, 15px);
+            text-align: center;
+        }
+        .btn-volver:hover { background: #5a6268; transform: translateY(-2px); }
+        @media (max-width: 768px) {
+            .header-form { flex-direction: column; align-items: stretch; text-align: center; }
+            .btn-volver { width: 100%; text-align: center; }
+        }
+        .seccion-form {
+            background: #f8f9fa;
+            padding: clamp(15px, 2vw, 20px);
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 4px solid #ffc107;
+        }
+        .seccion-form h3 {
+            color: #ffc107;
+            margin-bottom: 15px;
+            font-size: clamp(16px, 1.8vw, 20px);
+            border-bottom: 1px solid #e6eaef;
+            padding-bottom: 10px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px 25px;
+        }
+        .form-grid .campo-full { grid-column: 1 / -1; }
+        .campo {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .campo label {
+            font-weight: 600;
+            font-size: clamp(13px, 1.2vw, 15px);
+            color: #2c3e50;
+        }
+        .campo input, .campo select, .campo textarea {
+            padding: clamp(8px, 1.2vw, 12px) 12px;
+            border: 2px solid #dce1e8;
+            border-radius: 8px;
+            font-size: clamp(13px, 1.2vw, 15px);
+            transition: 0.3s;
+            font-family: inherit;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .campo input:focus, .campo select:focus, .campo textarea:focus {
+            border-color: #ffc107;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
+        }
+        .campo textarea { resize: vertical; min-height: 80px; }
+        .grupo-checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 10px 0;
+        }
+        .grupo-checkboxes label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            font-size: clamp(13px, 1.2vw, 15px);
+            cursor: pointer;
+        }
+        .grupo-checkboxes input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #ffc107;
+            cursor: pointer;
+        }
+        .tabla-equipos {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: clamp(12px, 1vw, 14px);
+        }
+        .tabla-equipos thead {
+            background: #ffc107;
+            color: #fff;
+        }
+        .tabla-equipos th {
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+        }
+        .tabla-equipos td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #e6eaef;
+        }
+        .tabla-equipos select, .tabla-equipos input {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #dce1e8;
+            border-radius: 6px;
+            font-size: clamp(12px, 1vw, 14px);
+            box-sizing: border-box;
+        }
+        .tabla-equipos select:focus, .tabla-equipos input:focus {
+            border-color: #ffc107;
+            outline: none;
+        }
+        @media (max-width: 768px) {
+            .tabla-equipos { display: block; overflow-x: auto; }
+            .tabla-equipos thead, .tabla-equipos tbody, .tabla-equipos tr, .tabla-equipos td, .tabla-equipos th { display: block; }
+            .tabla-equipos tr { margin-bottom: 10px; border: 1px solid #e6eaef; border-radius: 8px; padding: 10px; }
+            .tabla-equipos td { display: flex; justify-content: space-between; align-items: center; padding: 5px; border-bottom: 1px solid #f0f0f0; }
+            .tabla-equipos td:last-child { border-bottom: none; }
+            .tabla-equipos td::before { content: attr(data-label); font-weight: 600; color: #1a3a5c; font-size: 11px; flex: 0 0 40%; }
+            .tabla-equipos thead { display: none; }
+        }
+        @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
+        .acciones-form {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #e6eaef;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: clamp(10px, 1.5vw, 14px) clamp(20px, 2.5vw, 35px);
+            border: none;
+            border-radius: 8px;
+            font-size: clamp(14px, 1.4vw, 17px);
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .btn-guardar {
+            background: #ffc107;
+            color: #fff;
+        }
+        .btn-guardar:hover { background: #e0a800; transform: translateY(-2px); }
+        .btn-guardar:disabled { opacity:0.6; cursor:not-allowed; }
+        .btn-cancelar {
+            background: #e9edf2;
+            color: #3d4f62;
+        }
+        .btn-cancelar:hover { background: #d5dce6; }
+        @media (max-width: 768px) {
+            .acciones-form { flex-direction: column; }
+            .btn { width: 100%; text-align: center; }
+        }
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: inherit; opacity: 0.7; }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .cargando { text-align: center; padding: 40px; color: #999; }
+        #panelJustificacionTemporal {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+        }
+        #panelJustificacionTemporal h4 {
+            color: #856404;
+            margin-top: 0;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: clamp(16px, 1.6vw, 18px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-form">
+            <h1>✏️ Editar Servicio</h1>
+            <a href="gestion_servicio.html" class="btn-volver">⬅ Volver al Listado</a>
+        </div>
+        <div id="mensajeContainer"></div>
+        <div id="contenidoFormulario">
+            <div class="cargando"><span class="spinner"></span> Cargando servicio...</div>
+        </div>
+    </div>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-app.js"></script>
+    <script>
+        let servicioId=null, servicioData=null;
+        function escapeHtml(t){ if(!t) return ''; const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+        function mostrarMensaje(texto,tipo){
+            const c=document.getElementById('mensajeContainer');
+            c.innerHTML=`<div class="alert alert-${tipo}">${texto}<button class="close-btn" onclick="this.parentElement.style.display='none'">✕</button></div>`;
+            setTimeout(()=>{ const a=c.querySelector('.alert'); if(a) a.style.display='none'; },5000);
+        }
+        async function cargarDatos(){
+            const u=localStorage.getItem('sg_usuario_actual');
+            if(!u){ window.location.href='login.html'; return; }
+            const p=new URLSearchParams(window.location.search);
+            servicioId=p.get('id');
+            if(!servicioId){ mostrarMensaje('ID de servicio no válido','danger'); return; }
+            await cargarServicio();
+        }
+        async function cargarServicio(){
+            const contenedor=document.getElementById('contenidoFormulario');
+            contenedor.innerHTML=`<div class="cargando"><span class="spinner"></span> Cargando servicio...</div>`;
+            const r=await window.firebaseApp.obtenerServicioPorIdFirebase(servicioId);
+            if(!r.success){ contenedor.innerHTML=`<div style="text-align:center;padding:40px;color:#999;">❌ ${r.error}</div>`; return; }
+            servicioData=r.data;
+            contenedor.innerHTML=`
+                <form id="formEditarServicio">
+                    <div class="seccion-form">
+                        <h3>📋 Datos Generales</h3>
+                        <div class="form-grid">
+                            <div class="campo"><label>No. de Folio</label><input type="text" id="folio" value="${escapeHtml(servicioData.folio||'')}" readonly style="background:#f1f3f5; font-weight:bold;"></div>
+                            <div class="campo"><label for="fecha_solicitud">Fecha de solicitud</label><input type="date" id="fecha_solicitud" value="${servicioData.fecha_solicitud||''}"></div>
+                            <div class="campo campo-full"><label for="nombre_solicitante">Nombre del Solicitante <span class="obligatorio">*</span></label><input type="text" id="nombre_solicitante" value="${escapeHtml(servicioData.nombre_solicitante||'')}" required></div>
+                            <div class="campo"><label for="subsecretaria">Subsecretaría</label><select id="subsecretaria">
+                                <option value="">Selecciona una Subsecretaría</option>
+                                <option value="Subsecretaría de Administración" ${servicioData.subsecretaria==='Subsecretaría de Administración'?'selected':''}>Subsecretaría de Administración</option>
+                                <option value="Subsecretaría de Ingresos" ${servicioData.subsecretaria==='Subsecretaría de Ingresos'?'selected':''}>Subsecretaría de Ingresos</option>
+                                <option value="Subsecretaría de Egresos" ${servicioData.subsecretaria==='Subsecretaría de Egresos'?'selected':''}>Subsecretaría de Egresos</option>
+                                <option value="Subsecretaría de Planeación" ${servicioData.subsecretaria==='Subsecretaría de Planeación'?'selected':''}>Subsecretaría de Planeación</option>
+                            </select></div>
+                            <div class="campo"><label for="direccion">Dirección</label><select id="direccion">
+                                <option value="">Selecciona una Dirección</option>
+                                <option value="Dirección de Tecnologías" ${servicioData.direccion==='Dirección de Tecnologías'?'selected':''}>Dirección de Tecnologías</option>
+                                <option value="Dirección de Recursos Humanos" ${servicioData.direccion==='Dirección de Recursos Humanos'?'selected':''}>Dirección de Recursos Humanos</option>
+                                <option value="Dirección de Finanzas" ${servicioData.direccion==='Dirección de Finanzas'?'selected':''}>Dirección de Finanzas</option>
+                                <option value="Dirección de Administración" ${servicioData.direccion==='Dirección de Administración'?'selected':''}>Dirección de Administración</option>
+                            </select></div>
+                            <div class="campo campo-full"><label for="departamento">Departamento/Área</label><select id="departamento">
+                                <option value="">Selecciona un Departamento</option>
+                                <option value="Soporte Técnico" ${servicioData.departamento==='Soporte Técnico'?'selected':''}>Soporte Técnico</option>
+                                <option value="Redes y Telecomunicaciones" ${servicioData.departamento==='Redes y Telecomunicaciones'?'selected':''}>Redes y Telecomunicaciones</option>
+                                <option value="Desarrollo de Software" ${servicioData.departamento==='Desarrollo de Software'?'selected':''}>Desarrollo de Software</option>
+                                <option value="Infraestructura" ${servicioData.departamento==='Infraestructura'?'selected':''}>Infraestructura</option>
+                                <option value="Seguridad Informática" ${servicioData.departamento==='Seguridad Informática'?'selected':''}>Seguridad Informática</option>
+                            </select></div>
+                        </div>
+                    </div>
+                    <div class="seccion-form">
+                        <h3>💻 Datos del Equipo</h3>
+                        <table class="tabla-equipos">
+                            <thead><tr><th>DESCRIPCIÓN</th><th>MARCA</th><th>MODELO</th><th>SERIE</th><th>N° INVENTARIO</th></tr></thead>
+                            <tbody><tr>
+                                <td data-label="DESCRIPCIÓN"><select id="descripcion">
+                                    <option value="">Selecciona un Equipo</option>
+                                    <option value="Computadora" ${servicioData.descripcion_equipo==='Computadora'?'selected':''}>Computadora</option>
+                                    <option value="Laptop" ${servicioData.descripcion_equipo==='Laptop'?'selected':''}>Laptop</option>
+                                    <option value="Impresora" ${servicioData.descripcion_equipo==='Impresora'?'selected':''}>Impresora</option>
+                                    <option value="Monitor" ${servicioData.descripcion_equipo==='Monitor'?'selected':''}>Monitor</option>
+                                    <option value="Servidor" ${servicioData.descripcion_equipo==='Servidor'?'selected':''}>Servidor</option>
+                                    <option value="Switch" ${servicioData.descripcion_equipo==='Switch'?'selected':''}>Switch</option>
+                                    <option value="Router" ${servicioData.descripcion_equipo==='Router'?'selected':''}>Router</option>
+                                    <option value="Teléfono" ${servicioData.descripcion_equipo==='Teléfono'?'selected':''}>Teléfono</option>
+                                    <option value="Proyector" ${servicioData.descripcion_equipo==='Proyector'?'selected':''}>Proyector</option>
+                                    <option value="Escáner" ${servicioData.descripcion_equipo==='Escáner'?'selected':''}>Escáner</option>
+                                </select></td>
+                                <td data-label="MARCA"><select id="marca">
+                                    <option value="">Selecciona una Marca</option>
+                                    <option value="HP" ${servicioData.marca==='HP'?'selected':''}>HP</option>
+                                    <option value="Dell" ${servicioData.marca==='Dell'?'selected':''}>Dell</option>
+                                    <option value="Lenovo" ${servicioData.marca==='Lenovo'?'selected':''}>Lenovo</option>
+                                    <option value="Apple" ${servicioData.marca==='Apple'?'selected':''}>Apple</option>
+                                    <option value="Samsung" ${servicioData.marca==='Samsung'?'selected':''}>Samsung</option>
+                                    <option value="Epson" ${servicioData.marca==='Epson'?'selected':''}>Epson</option>
+                                    <option value="Brother" ${servicioData.marca==='Brother'?'selected':''}>Brother</option>
+                                    <option value="Cisco" ${servicioData.marca==='Cisco'?'selected':''}>Cisco</option>
+                                </select></td>
+                                <td data-label="MODELO"><select id="modelo">
+                                    <option value="">Selecciona un Modelo</option>
+                                    <option value="OptiPlex" ${servicioData.modelo==='OptiPlex'?'selected':''}>OptiPlex</option>
+                                    <option value="Latitude" ${servicioData.modelo==='Latitude'?'selected':''}>Latitude</option>
+                                    <option value="ThinkPad" ${servicioData.modelo==='ThinkPad'?'selected':''}>ThinkPad</option>
+                                    <option value="MacBook" ${servicioData.modelo==='MacBook'?'selected':''}>MacBook</option>
+                                    <option value="ProBook" ${servicioData.modelo==='ProBook'?'selected':''}>ProBook</option>
+                                    <option value="PowerEdge" ${servicioData.modelo==='PowerEdge'?'selected':''}>PowerEdge</option>
+                                </select></td>
+                                <td data-label="SERIE"><input type="text" id="serie" value="${escapeHtml(servicioData.serie||'')}" placeholder="Número de serie"></td>
+                                <td data-label="N° INVENTARIO"><input type="text" id="numero_inventario" value="${escapeHtml(servicioData.numero_inventario||'')}" placeholder="Ej: P-211111..." style="width:140px;"></td>
+                            </tr></tbody>
+                        </table>
+                        <div class="campo campo-full" style="margin-top:15px;">
+                            <label for="falla_reportada">Falla reportada <span class="obligatorio">*</span></label>
+                            <textarea id="falla_reportada" rows="3" required>${escapeHtml(servicioData.falla_reportada||'')}</textarea>
+                        </div>
+                    </div>
+                    <div class="seccion-form">
+                        <h3>🔧 Datos de Soporte</h3>
+                        <div class="form-grid">
+                            <div class="campo"><label for="nombre_entrega">Nombre de quién entrega</label><input type="text" id="nombre_entrega" value="${escapeHtml(servicioData.nombre_entrega||'')}" placeholder="Nombre de quién entrega el equipo"></div>
+                            <div class="campo"><label for="soporte_recibe">Soporte quién recibe</label><select id="soporte_recibe">
+                                <option value="">Selecciona el personal</option>
+                                <option value="Ana María Pérez" ${servicioData.soporte_recibe==='Ana María Pérez'?'selected':''}>Ana María Pérez</option>
+                                <option value="Carlos Eduardo Ramírez" ${servicioData.soporte_recibe==='Carlos Eduardo Ramírez'?'selected':''}>Carlos Eduardo Ramírez</option>
+                                <option value="Laura Gutiérrez Ortiz" ${servicioData.soporte_recibe==='Laura Gutiérrez Ortiz'?'selected':''}>Laura Gutiérrez Ortiz</option>
+                                <option value="Jorge Luis Sánchez" ${servicioData.soporte_recibe==='Jorge Luis Sánchez'?'selected':''}>Jorge Luis Sánchez</option>
+                            </select></div>
+                            <div class="campo campo-full"><label for="accion_realizada">Acción realizada</label><textarea id="accion_realizada" rows="2">${escapeHtml(servicioData.accion_realizada||'')}</textarea></div>
+                        </div>
+                    </div>
+                    <div class="seccion-form">
+                        <h3>📌 SITUACIÓN FINAL</h3>
+                        <div class="campo campo-full" style="margin-bottom:15px;">
+                            <div style="display:flex; flex-wrap:wrap; align-items:center; gap:20px;">
+                                <label style="font-weight:600; display:flex; align-items:center; gap:5px; cursor:pointer;">
+                                    <input type="radio" name="estatus" value="Falla corregida" ${servicioData.estatus==='Falla corregida'?'checked':''}> Falla corregida
+                                </label>
+                                <label style="font-weight:600; display:flex; align-items:center; gap:5px; cursor:pointer;">
+                                    <input type="radio" name="estatus" value="Falla NO corregida" ${servicioData.estatus==='Falla NO corregida'||!servicioData.estatus?'checked':''}> Falla NO corregida
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="campo campo-full">
+                                <label>Modalidad</label>
+                                <div class="grupo-checkboxes">
+                                    <label><input type="radio" name="modalidad" value="Definitiva" ${servicioData.modalidad==='Definitiva'||!servicioData.modalidad?'checked':''}> Definitiva</label>
+                                    <label><input type="radio" name="modalidad" value="Temporal" ${servicioData.modalidad==='Temporal'?'checked':''}> Temporal</label>
+                                </div>
+                            </div>
+                            <div class="campo"><label for="fecha_realizacion">Fecha de realización</label><input type="date" id="fecha_realizacion" value="${servicioData.fecha_realizacion||''}"></div>
+                            <div class="campo"><label for="hora_conclusion">Hora de conclusión</label><input type="time" id="hora_conclusion" value="${servicioData.hora_conclusion||''}"></div>
+                        </div>
+                        <div id="panelJustificacionTemporal" style="display:${servicioData.modalidad==='Temporal'?'block':'none'};">
+                            <h4>⏳ Justificación de reparación temporal</h4>
+                            <div style="margin-bottom:10px;">
+                                <label style="font-weight:600; display:block; margin-bottom:8px; color:#856404;">Selecciona el motivo principal:</label>
+                                <div style="display:flex; flex-wrap:wrap; gap:15px; align-items:center;">
+                                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-weight:500; color:#856404;">
+                                        <input type="radio" name="motivo_temporal" value="Falta de piezas"> 🔧 Falta de piezas
+                                    </label>
+                                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-weight:500; color:#856404;">
+                                        <input type="radio" name="motivo_temporal" value="Equipo ya no funciona"> ⚠️ Equipo ya no funciona
+                                    </label>
+                                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-weight:500; color:#856404;">
+                                        <input type="radio" name="motivo_temporal" value="Se necesitan REFACCIONES"> ⚙️ Se necesitan REFACCIONES
+                                    </label>
+                                </div>
+                            </div>
+                            <hr style="border:0; border-top:1px solid #e0b574; margin:15px 0;">
+                            <div>
+                                <label style="font-weight:600; display:block; margin-bottom:8px; color:#856404;">Observaciones:</label>
+                                <textarea name="obs_temporal" rows="3" style="width:100%; padding:10px; border:2px solid #dce1e8; border-radius:8px; font-size:clamp(13px,1.2vw,15px); font-family:inherit; resize:vertical; background:#fff; box-sizing:border-box;" placeholder="Detalla cualquier información adicional..."></textarea>
+                            </div>
+                        </div>
+                        <div class="form-grid" style="margin-top:20px;">
+                            <div class="campo"><label for="nombre_recibe">Nombre de quién recibe</label><input type="text" id="nombre_recibe" value="${escapeHtml(servicioData.nombre_recibe||'')}" placeholder="Nombre de quién recibe el equipo"></div>
+                            <div class="campo"><label for="soporte_entrega">Soporte quién entrega</label><select id="soporte_entrega">
+                                <option value="">Selecciona el personal</option>
+                                <option value="Ana María Pérez" ${servicioData.soporte_entrega==='Ana María Pérez'?'selected':''}>Ana María Pérez</option>
+                                <option value="Carlos Eduardo Ramírez" ${servicioData.soporte_entrega==='Carlos Eduardo Ramírez'?'selected':''}>Carlos Eduardo Ramírez</option>
+                                <option value="Laura Gutiérrez Ortiz" ${servicioData.soporte_entrega==='Laura Gutiérrez Ortiz'?'selected':''}>Laura Gutiérrez Ortiz</option>
+                                <option value="Jorge Luis Sánchez" ${servicioData.soporte_entrega==='Jorge Luis Sánchez'?'selected':''}>Jorge Luis Sánchez</option>
+                            </select></div>
+                        </div>
+                    </div>
+                    <div class="acciones-form">
+                        <a href="gestion_servicio.html" class="btn btn-cancelar">✕ Cancelar</a>
+                        <button type="submit" class="btn btn-guardar" id="btnGuardar">💾 Guardar Cambios</button>
+                    </div>
+                </form>
+            `;
+            const radiosModalidad=document.querySelectorAll('input[name="modalidad"]');
+            const panelJustificacion=document.getElementById('panelJustificacionTemporal');
+            radiosModalidad.forEach(radio=>{
+                radio.addEventListener('change',function(){
+                    panelJustificacion.style.display=this.value==='Temporal'?'block':'none';
+                });
+            });
+            document.getElementById('formEditarServicio').addEventListener('submit', guardarServicio);
+        }
+        async function guardarServicio(e){
+            e.preventDefault();
+            const nombre_solicitante=document.getElementById('nombre_solicitante').value.trim();
+            const falla_reportada=document.getElementById('falla_reportada').value.trim();
+            const btn=document.getElementById('btnGuardar');
+            if(!nombre_solicitante||!falla_reportada){ mostrarMensaje('Los campos obligatorios no pueden estar vacíos.','danger'); return; }
+            btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Guardando...';
+            const datos={fecha_solicitud:document.getElementById('fecha_solicitud').value,nombre_solicitante,subsecretaria:document.getElementById('subsecretaria').value,direccion:document.getElementById('direccion').value,departamento:document.getElementById('departamento').value,descripcion_equipo:document.getElementById('descripcion').value,marca:document.getElementById('marca').value,modelo:document.getElementById('modelo').value,serie:document.getElementById('serie').value,numero_inventario:document.getElementById('numero_inventario').value,falla_reportada,nombre_entrega:document.getElementById('nombre_entrega').value,soporte_recibe:document.getElementById('soporte_recibe').value,accion_realizada:document.getElementById('accion_realizada').value,estatus:document.querySelector('input[name="estatus"]:checked')?.value||'Falla NO corregida',modalidad:document.querySelector('input[name="modalidad"]:checked')?.value||'Definitiva',fecha_realizacion:document.getElementById('fecha_realizacion').value,hora_conclusion:document.getElementById('hora_conclusion').value,nombre_recibe:document.getElementById('nombre_recibe').value,soporte_entrega:document.getElementById('soporte_entrega').value};
+            const r=await window.firebaseApp.actualizarServicioFirebase(servicioId,datos);
+            if(r.success){ mostrarMensaje('✅ Servicio actualizado.','success'); btn.innerHTML='✅ ¡Guardado!'; setTimeout(()=>{ window.location.href=`ver_servicio.html?id=${servicioId}&mensaje=Servicio actualizado`; },1500); }
+            else { mostrarMensaje('❌ Error: '+r.error,'danger'); btn.disabled=false; btn.innerHTML='💾 Guardar Cambios'; }
+        }
+        document.addEventListener('DOMContentLoaded',cargarDatos);
+    </script>
+</body>
+</html>

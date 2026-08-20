@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Incidencias</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            padding: 20px; 
+            background: #f9f9f9;
+        }
+        h1 { 
+            color: #1a3a5c; 
+            border-bottom: 3px solid #1a3a5c; 
+            padding-bottom: 15px; 
+            margin-bottom: 25px;
+        }
+        .seccion {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .seccion h3 {
+            color: #1a3a5c;
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+        .campo { 
+            margin-bottom: 10px; 
+        }
+        .campo strong { 
+            display: inline-block; 
+            width: 200px; 
+            font-weight: 600;
+            color: #333;
+        }
+        .campo span {
+            color: #555;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th {
+            background: #1a3a5c;
+            color: white;
+            padding: 10px 12px;
+            text-align: left;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e0e0e0;
+            vertical-align: top;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-justificada { background: #d4edda; color: #155724; }
+        .badge-pendiente { background: #f8d7da; color: #721c24; }
+        .btn-imprimir {
+            background: #1a3a5c; 
+            color: #fff; 
+            padding: 10px 25px; 
+            border: none; 
+            border-radius: 6px; 
+            font-size: 16px; 
+            font-weight: 600; 
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn-imprimir:hover {
+            background: #0f2a44;
+        }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #1a3a5c;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .cargando {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        @media print { 
+            .no-print { display: none !important; } 
+            body { background: white; padding: 0; }
+            .seccion { border: 1px solid #ccc; box-shadow: none; }
+            th { background: #1a3a5c !important; color: white !important; }
+            .badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+    <div id="contenido">
+        <div class="cargando">
+            <span class="spinner"></span> Cargando reporte...
+        </div>
+    </div>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-app.js"></script>
+    
+    <script>
+        let usuarioId = null;
+        let incidenciaId = null;
+        let numIncidencia = 0;
+        let usuario = null;
+        let incidencia = null;
+        let todasIncidencias = [];
+
+        // ========================================
+        // FUNCIONES DE UTILIDAD
+        // ========================================
+        function escapeHtml(texto) {
+            if (!texto) return '';
+            const div = document.createElement('div');
+            div.textContent = texto;
+            return div.innerHTML;
+        }
+
+        function formatearFecha(fecha) {
+            if (!fecha) return '--';
+            const d = new Date(fecha);
+            return d.toLocaleDateString('es-MX', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        function calcularDias(inicio, fin) {
+            if (!inicio || !fin) return 0;
+            const d1 = new Date(inicio);
+            const d2 = new Date(fin);
+            const diff = Math.abs(d2 - d1);
+            return Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1;
+        }
+
+        // ========================================
+        // CARGAR DATOS
+        // ========================================
+        async function cargarDatos() {
+            // Verificar sesión
+            const usuarioStr = localStorage.getItem('sg_usuario_actual');
+            if (!usuarioStr) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Obtener parámetros de la URL
+            const params = new URLSearchParams(window.location.search);
+            usuarioId = params.get('usuario_id');
+            incidenciaId = params.get('incidencia_id');
+            numIncidencia = parseInt(params.get('num_incidencia')) || 0;
+
+            if (!usuarioId) {
+                document.getElementById('contenido').innerHTML = `
+                    <h1>❌ Error</h1>
+                    <p>Usuario no válido para imprimir.</p>
+                    <a href="index.html">Volver al inicio</a>
+                `;
+                return;
+            }
+
+            // Obtener datos del usuario
+            const resultadoUser = await window.firebaseApp.obtenerUsuarioPorIdFirebase(usuarioId);
+            if (resultadoUser.success) {
+                usuario = resultadoUser.data;
+            } else {
+                document.getElementById('contenido').innerHTML = `
+                    <h1>❌ Error</h1>
+                    <p>Usuario no encontrado.</p>
+                    <a href="index.html">Volver al inicio</a>
+                `;
+                return;
+            }
+
+            // Si hay incidencia_id, cargar una sola incidencia
+            if (incidenciaId) {
+                const resultadoInc = await window.firebaseApp.obtenerIncidenciasFirebase(usuarioId);
+                if (resultadoInc.success) {
+                    incidencia = resultadoInc.data.find(i => i.id === incidenciaId);
+                }
+                renderizarUnaIncidencia();
+            } else {
+                // Cargar todas las incidencias
+                const resultadoInc = await window.firebaseApp.obtenerIncidenciasFirebase(usuarioId);
+                if (resultadoInc.success) {
+                    todasIncidencias = resultadoInc.data;
+                }
+                renderizarTodasIncidencias();
+            }
+        }
+
+        // ========================================
+        // RENDERIZAR UNA SOLA INCIDENCIA
+        // ========================================
+        function renderizarUnaIncidencia() {
+            const div = document.getElementById('contenido');
+            
+            if (!incidencia) {
+                div.innerHTML = `
+                    <h1>❌ Error</h1>
+                    <p>Incidencia no encontrada.</p>
+                    <a href="ver_incidencia.html?usuario_id=${usuarioId}">Volver</a>
+                `;
+                return;
+            }
+
+            const numMostrar = numIncidencia > 0 ? numIncidencia : incidencia.id.slice(0, 4);
+            const dias = calcularDias(incidencia.fecha_inicio, incidencia.fecha_fin);
+
+            div.innerHTML = `
+                <h1>📄 Reporte de Incidencias</h1>
+
+                <!-- DATOS DEL USUARIO -->
+                <div class="seccion">
+                    <div class="campo"><strong>Empleado:</strong> <span>${escapeHtml(usuario.nombre || '')}</span></div>
+                    <div class="campo"><strong>Email:</strong> <span>${escapeHtml(usuario.email || '')}</span></div>
+                </div>
+
+                <!-- DETALLES DE LA INCIDENCIA -->
+                <div class="seccion">
+                    <h3>📌 Detalles de la Incidencia #${numMostrar}</h3>
+                    
+                    <div class="campo"><strong>Tipo:</strong> <span>${escapeHtml(incidencia.tipo_incidencia || 'No especificado')}</span></div>
+                    <div class="campo"><strong>Fecha Inicio:</strong> <span>${formatearFecha(incidencia.fecha_inicio)}</span></div>
+                    <div class="campo"><strong>Días:</strong> <span>${dias}</span></div>
+                    <div class="campo"><strong>Motivo original:</strong> <span>${escapeHtml(incidencia.motivo || '--')}</span></div>
+                </div>
+
+                <!-- DETALLES DE LA JUSTIFICACIÓN -->
+                <div class="seccion">
+                    <h3>📌 Detalles de la Justificación</h3>
+                    <div class="campo"><strong>Título:</strong> <span>${escapeHtml(incidencia.titulo || 'No especificado')}</span></div>
+                    <div class="campo"><strong>Prioridad:</strong> <span>${escapeHtml(incidencia.prioridad || 'No especificada')}</span></div>
+                    <div class="campo"><strong>Plazo:</strong> <span>${escapeHtml(incidencia.plazo || 'No especificado')}</span></div>
+                    <div class="campo"><strong>Descripción:</strong><br>
+                        <span style="white-space: pre-wrap;">${escapeHtml(incidencia.descripcion || 'No especificada')}</span>
+                    </div>
+                    <div class="campo"><strong>Pasos:</strong><br>
+                        <span style="white-space: pre-wrap;">${escapeHtml(incidencia.pasos || 'No especificados')}</span>
+                    </div>
+                    <div class="campo"><strong>Evidencia:</strong><br>
+                        <span>${escapeHtml(incidencia.evidencia || 'No especificada')}</span>
+                    </div>
+                    <div class="campo"><strong>Causa raíz:</strong><br>
+                        <span>${escapeHtml(incidencia.causa_raiz || 'No especificada')}</span>
+                    </div>
+                    <div class="campo"><strong>Acción inmediata:</strong><br>
+                        <span>${escapeHtml(incidencia.accion_inmediata || 'No especificada')}</span>
+                    </div>
+                    <div class="campo"><strong>Solución definitiva:</strong><br>
+                        <span>${escapeHtml(incidencia.solucion_definitiva || 'No especificada')}</span>
+                    </div>
+                </div>
+
+                <button onclick="window.print()" class="btn-imprimir no-print">🖨️ Imprimir este reporte</button>
+            `;
+        }
+
+        // ========================================
+        // RENDERIZAR TODAS LAS INCIDENCIAS
+        // ========================================
+        function renderizarTodasIncidencias() {
+            const div = document.getElementById('contenido');
+
+            let tablaHtml = '';
+            if (todasIncidencias.length > 0) {
+                tablaHtml = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Tipo</th>
+                                <th>Fecha Inicio</th>
+                                <th>Días</th>
+                                <th>Motivo</th>
+                                <th>Estado</th>
+                                <th>Título</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                todasIncidencias.forEach((inc, index) => {
+                    const dias = calcularDias(inc.fecha_inicio, inc.fecha_fin);
+                    const estado = inc.justificada ? 'Justificada' : 'Pendiente';
+                    const badgeClass = inc.justificada ? 'badge-justificada' : 'badge-pendiente';
+                    const estadoTexto = inc.justificada ? '✅ Justificada' : '❌ Pendiente';
+
+                    tablaHtml += `
+                        <tr>
+                            <td><strong>${index + 1}</strong></td>
+                            <td>${escapeHtml(inc.tipo_incidencia || 'Otra')}</td>
+                            <td>${formatearFecha(inc.fecha_inicio)}</td>
+                            <td>${dias}</td>
+                            <td>${escapeHtml(inc.motivo || '--')}</td>
+                            <td><span class="badge ${badgeClass}">${estado}</span></td>
+                            <td>${escapeHtml(inc.titulo || '--')}</td>
+                        </tr>
+                    `;
+                });
+
+                tablaHtml += `
+                        </tbody>
+                    </table>
+                `;
+            } else {
+                tablaHtml = `<p style="text-align: center; color: #999; padding: 20px;">📭 Este usuario no tiene incidencias registradas.</p>`;
+            }
+
+            div.innerHTML = `
+                <h1>📄 Reporte de Incidencias</h1>
+
+                <!-- DATOS DEL USUARIO -->
+                <div class="seccion">
+                    <div class="campo"><strong>Empleado:</strong> <span>${escapeHtml(usuario.nombre || '')}</span></div>
+                    <div class="campo"><strong>Email:</strong> <span>${escapeHtml(usuario.email || '')}</span></div>
+                </div>
+
+                <!-- TODAS LAS INCIDENCIAS -->
+                <div class="seccion">
+                    <h3>📋 Todas las incidencias de ${escapeHtml(usuario.nombre || 'Usuario')}</h3>
+                    ${tablaHtml}
+                </div>
+
+                <button onclick="window.print()" class="btn-imprimir no-print">🖨️ Imprimir este reporte</button>
+            `;
+        }
+
+        // ========================================
+        // INICIALIZAR
+        // ========================================
+        document.addEventListener('DOMContentLoaded', cargarDatos);
+    </script>
+</body>
+</html>
