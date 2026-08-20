@@ -159,6 +159,10 @@
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
+        /* Clase para ocultar visualmente pero mantener en DOM */
+        .oculto-visualmente {
+            display: none !important;
+        }
         @media print {
             body { padding: 0.5cm; }
             .no-print { display: none !important; }
@@ -276,6 +280,10 @@
                 tablaHtml = `<p style="text-align: center; padding: 20px; color: #999;">Este usuario no tiene faltas registradas.</p>`;
             }
 
+            // Ocultamos email y teléfono visualmente, pero los guardamos en atributos data-*
+            const emailOculto = `<span class="oculto-visualmente" data-email="${escapeHtml(usuario.email || '')}"></span>`;
+            const telefonoOculto = `<span class="oculto-visualmente" data-telefono="${escapeHtml(usuario.telefono || '')}"></span>`;
+
             div.innerHTML = `
                 <div class="no-print">
                     <button onclick="window.print()" class="btn-imprimir">🖨️ Imprimir Reporte</button>
@@ -296,8 +304,10 @@
 
                 <div class="info-usuario">
                     <p><strong>👤 Nombre:</strong> ${escapeHtml(usuario.nombre || '')}</p>
-                    <p><strong>📧 Email:</strong> ${escapeHtml(usuario.email || '')}</p>
-                    <p><strong>📱 Teléfono:</strong> ${escapeHtml(usuario.telefono || '')}</p>
+                    <!-- Email oculto visualmente -->
+                    ${emailOculto}
+                    <!-- Teléfono oculto visualmente -->
+                    ${telefonoOculto}
                     <p><strong>📅 Fecha de registro:</strong> ${formatearFechaHora(usuario.fecha_registro)}</p>
                 </div>
 
