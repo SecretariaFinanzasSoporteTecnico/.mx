@@ -335,7 +335,7 @@
             /* Resetear estilos para impresión */
             body { 
                 background: white !important; 
-                padding: 40px !important; 
+                padding: 30px !important; 
                 margin: 0 !important;
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
             }
@@ -347,99 +347,30 @@
                 border-radius: 0 !important;
             }
             
-            /* Encabezado - exactamente como en la imagen */
+            /* Ocultar el encabezado superior (logo y fecha) */
             .header-superior {
-                display: flex !important;
-                justify-content: space-between !important;
-                align-items: center !important;
-                padding-bottom: 15px !important;
-                border-bottom: 3px solid #1a3a5c !important;
-                margin-bottom: 25px !important;
-                border-top: none !important;
-            }
-            .header-superior .logo-izquierda {
-                display: flex !important;
-                align-items: center !important;
-                gap: 15px !important;
-            }
-            .header-superior .logo-izquierda .logo-img {
-                height: 65px !important;
-                width: auto !important;
-                object-fit: contain !important;
-            }
-            .header-superior .logo-izquierda .textos-logo {
-                display: flex !important;
-                flex-direction: column !important;
-                line-height: 1.15 !important;
-            }
-            .header-superior .logo-izquierda .textos-logo .humanismo {
-                font-size: 13px !important;
-                font-weight: 700 !important;
-                color: #1a3a5c !important;
-                letter-spacing: 1px !important;
-            }
-            .header-superior .logo-izquierda .textos-logo .secret {
-                font-size: 17px !important;
-                font-weight: 800 !important;
-                color: #b8860b !important;
-            }
-            .header-superior .logo-izquierda .textos-logo .gobierno {
-                font-size: 13px !important;
-                font-weight: 600 !important;
-                color: #1a3a5c !important;
-            }
-            .header-superior .logo-izquierda .textos-logo .periodo {
-                font-size: 12px !important;
-                font-weight: 600 !important;
-                color: #1a3a5c !important;
-            }
-            
-            /* Reloj en impresión - fecha y hora */
-            .reloj-moderno {
-                text-align: right !important;
-                font-weight: 600 !important;
-                background: none !important;
-                border: none !important;
-                padding: 0 !important;
-                min-width: auto !important;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-            }
-            .reloj-moderno .fecha {
-                font-size: 15px !important;
-                color: #1a3a5c !important;
-                display: block !important;
-                font-weight: 600 !important;
-                letter-spacing: 0.5px !important;
-            }
-            .reloj-moderno .hora {
-                font-size: 18px !important;
-                font-weight: 700 !important;
-                color: #1a3a5c !important;
-                display: block !important;
-                letter-spacing: 1px !important;
-                margin-top: 2px !important;
+                display: none !important;
             }
             
             /* Título - exactamente como en la imagen */
             .header-titulo {
                 text-align: center !important;
-                margin-bottom: 30px !important;
+                margin-bottom: 25px !important;
             }
             .titulo-gestion {
-                font-size: 26px !important;
+                font-size: 24px !important;
                 color: #1a3a5c !important;
                 border-bottom: 3px solid #1a3a5c !important;
-                padding-bottom: 12px !important;
+                padding-bottom: 10px !important;
                 display: inline-block !important;
                 font-weight: 700 !important;
-                letter-spacing: 1px !important;
             }
             
             /* Tabla en impresión - exactamente como en la imagen */
             .table-responsive {
                 border: 1px solid #ddd !important;
                 border-radius: 0 !important;
-                margin-top: 20px !important;
+                margin-top: 0 !important;
             }
             table {
                 font-size: 14px !important;
@@ -514,14 +445,12 @@
             /* Estilo para el # en la tabla */
             td:first-child {
                 font-weight: 600 !important;
+                text-align: center !important;
             }
             
-            /* Asegurar que los textos se vean bien */
-            .header-superior .logo-izquierda .textos-logo .humanismo,
-            .header-superior .logo-izquierda .textos-logo .secret,
-            .header-superior .logo-izquierda .textos-logo .gobierno,
-            .header-superior .logo-izquierda .textos-logo .periodo {
-                display: block !important;
+            /* Nombre en negrita como en la imagen */
+            td:nth-child(2) {
+                font-weight: 600 !important;
             }
         }
     </style>
