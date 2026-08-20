@@ -8,85 +8,185 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             padding: 20px; 
-            background: #f9f9f9;
+            background: #f0f2f5;
         }
-        h1 { 
-            color: #1a3a5c; 
-            border-bottom: 3px solid #1a3a5c; 
-            padding-bottom: 15px; 
-            margin-bottom: 25px;
-        }
-        .seccion {
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
             background: #fff;
-            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 25px 30px;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.1);
+        }
+
+        /* HEADER */
+        .header-reporte {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #1a3a5c;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .header-reporte .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .header-reporte .logo-section .logo-img {
+            height: 55px;
+            width: auto;
+            object-fit: contain;
+        }
+        .header-reporte .logo-section .textos-logo {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.15;
+        }
+        .header-reporte .logo-section .textos-logo .humanismo {
+            font-size: 12px;
+            font-weight: 700;
+            color: #1a3a5c;
+            letter-spacing: 0.8px;
+        }
+        .header-reporte .logo-section .textos-logo .secret {
+            font-size: 15px;
+            font-weight: 800;
+            color: #b8860b;
+        }
+        .header-reporte .logo-section .textos-logo .gobierno {
+            font-size: 12px;
+            font-weight: 600;
+            color: #1a3a5c;
+        }
+        .header-reporte .logo-section .textos-logo .periodo {
+            font-size: 11px;
+            font-weight: 600;
+            color: #1a3a5c;
+        }
+        .header-reporte .fecha-reporte {
+            text-align: right;
+            font-size: 13px;
+            color: #6c757d;
+            font-weight: 600;
+        }
+        .header-reporte .fecha-reporte span {
+            display: block;
+        }
+
+        h1 {
+            color: #1a3a5c;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 2px solid #1a3a5c;
+            padding-bottom: 8px;
+            display: inline-block;
+        }
+
+        .titulo-seccion {
+            color: #1a3a5c;
+            font-size: 16px;
+            font-weight: 700;
+            border-bottom: 2px solid #b8860b;
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+        }
+
+        /* Tarjetas de información */
+        .seccion {
+            background: #f8f9fa;
             border-radius: 8px;
             padding: 15px 20px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border: 1px solid #e6eaef;
         }
-        .seccion h3 {
-            color: #1a3a5c;
-            margin-top: 0;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 8px;
+
+        .grid-datos {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 30px;
         }
-        .campo { 
-            margin-bottom: 10px; 
+
+        .campo {
+            display: flex;
+            align-items: baseline;
+            padding: 3px 0;
         }
         .campo strong { 
             display: inline-block; 
-            width: 200px; 
+            width: 130px; 
             font-weight: 600;
-            color: #333;
+            color: #1a3a5c;
+            font-size: 13px;
         }
         .campo span {
-            color: #555;
+            color: #333;
+            font-size: 13px;
         }
+        .campo .valor {
+            font-weight: 500;
+            color: #1a2a3a;
+        }
+
+        /* Tabla de incidencias */
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
+            margin-top: 12px;
+            font-size: 13px;
         }
         th {
             background: #1a3a5c;
-            color: white;
+            color: #fff;
             padding: 10px 12px;
             text-align: left;
+            font-weight: 600;
         }
         td {
-            padding: 10px 12px;
+            padding: 9px 12px;
             border-bottom: 1px solid #e0e0e0;
-            vertical-align: top;
+            vertical-align: middle;
         }
         tr:hover {
-            background: #f8f9fa;
+            background: #f5f8fc;
         }
         .badge {
             display: inline-block;
-            padding: 4px 12px;
+            padding: 3px 12px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
         }
         .badge-justificada { background: #d4edda; color: #155724; }
         .badge-pendiente { background: #f8d7da; color: #721c24; }
+
+        /* Botón imprimir */
         .btn-imprimir {
-            background: #1a3a5c; 
-            color: #fff; 
-            padding: 10px 25px; 
-            border: none; 
-            border-radius: 6px; 
-            font-size: 16px; 
-            font-weight: 600; 
+            background: #1a3a5c;
+            color: #fff;
+            padding: 10px 28px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
-            margin-top: 10px;
+            transition: 0.3s;
+            display: inline-block;
         }
         .btn-imprimir:hover {
             background: #0f2a44;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
+
         .spinner {
             display: inline-block;
             width: 16px;
@@ -95,6 +195,7 @@
             border-radius: 50%;
             border-top-color: transparent;
             animation: spin 0.8s linear infinite;
+            margin-right: 10px;
         }
         @keyframes spin {
             to { transform: rotate(360deg); }
@@ -103,20 +204,63 @@
             text-align: center;
             padding: 40px;
             color: #999;
+            font-size: 15px;
         }
+
+        .acciones-botones {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        .btn-volver {
+            background: #6c757d;
+            color: #fff;
+            padding: 10px 28px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: 0.3s;
+        }
+        .btn-volver:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        /* Estilos para impresión */
         @media print { 
             .no-print { display: none !important; } 
-            body { background: white; padding: 0; }
-            .seccion { border: 1px solid #ccc; box-shadow: none; }
-            th { background: #1a3a5c !important; color: white !important; }
+            body { background: white; padding: 10px; }
+            .container { box-shadow: none; padding: 15px; border: 1px solid #ddd; }
+            .seccion { background: #fafafa; border-color: #ccc; break-inside: avoid; }
+            th { background: #1a3a5c !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .grid-datos { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .container { padding: 15px; }
+            .grid-datos { grid-template-columns: 1fr; gap: 5px; }
+            .campo strong { width: 110px; font-size: 12px; }
+            .campo span { font-size: 12px; }
+            table { font-size: 12px; }
+            th, td { padding: 6px 8px; }
+            .header-reporte { flex-direction: column; align-items: flex-start; }
+            .header-reporte .fecha-reporte { text-align: left; width: 100%; }
         }
     </style>
 </head>
 <body>
-    <div id="contenido">
-        <div class="cargando">
-            <span class="spinner"></span> Cargando reporte...
+    <div class="container">
+        <div id="contenido">
+            <div class="cargando">
+                <span class="spinner"></span> Cargando reporte...
+            </div>
         </div>
     </div>
 
@@ -125,10 +269,7 @@
     
     <script>
         let usuarioId = null;
-        let incidenciaId = null;
-        let numIncidencia = 0;
         let usuario = null;
-        let incidencia = null;
         let todasIncidencias = [];
 
         // ========================================
@@ -151,12 +292,35 @@
             });
         }
 
+        function formatearFechaHora(fecha) {
+            if (!fecha) return '--';
+            const d = new Date(fecha);
+            return d.toLocaleString('es-MX', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
         function calcularDias(inicio, fin) {
             if (!inicio || !fin) return 0;
             const d1 = new Date(inicio);
             const d2 = new Date(fin);
             const diff = Math.abs(d2 - d1);
             return Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1;
+        }
+
+        function obtenerFechaActual() {
+            const ahora = new Date();
+            return ahora.toLocaleString('es-MX', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
         }
 
         // ========================================
@@ -173,14 +337,14 @@
             // Obtener parámetros de la URL
             const params = new URLSearchParams(window.location.search);
             usuarioId = params.get('usuario_id');
-            incidenciaId = params.get('incidencia_id');
-            numIncidencia = parseInt(params.get('num_incidencia')) || 0;
 
             if (!usuarioId) {
                 document.getElementById('contenido').innerHTML = `
                     <h1>❌ Error</h1>
-                    <p>Usuario no válido para imprimir.</p>
-                    <a href="index.html">Volver al inicio</a>
+                    <p style="font-size:15px; color:#555;">Usuario no válido para imprimir.</p>
+                    <div class="acciones-botones">
+                        <a href="index.html" class="btn-volver">⬅ Volver al inicio</a>
+                    </div>
                 `;
                 return;
             }
@@ -192,94 +356,20 @@
             } else {
                 document.getElementById('contenido').innerHTML = `
                     <h1>❌ Error</h1>
-                    <p>Usuario no encontrado.</p>
-                    <a href="index.html">Volver al inicio</a>
+                    <p style="font-size:15px; color:#555;">Usuario no encontrado.</p>
+                    <div class="acciones-botones">
+                        <a href="index.html" class="btn-volver">⬅ Volver al inicio</a>
+                    </div>
                 `;
                 return;
             }
 
-            // Si hay incidencia_id, cargar una sola incidencia
-            if (incidenciaId) {
-                const resultadoInc = await window.firebaseApp.obtenerIncidenciasFirebase(usuarioId);
-                if (resultadoInc.success) {
-                    incidencia = resultadoInc.data.find(i => i.id === incidenciaId);
-                }
-                renderizarUnaIncidencia();
-            } else {
-                // Cargar todas las incidencias
-                const resultadoInc = await window.firebaseApp.obtenerIncidenciasFirebase(usuarioId);
-                if (resultadoInc.success) {
-                    todasIncidencias = resultadoInc.data;
-                }
-                renderizarTodasIncidencias();
+            // Cargar todas las incidencias del usuario
+            const resultadoInc = await window.firebaseApp.obtenerIncidenciasFirebase(usuarioId);
+            if (resultadoInc.success) {
+                todasIncidencias = resultadoInc.data;
             }
-        }
-
-        // ========================================
-        // RENDERIZAR UNA SOLA INCIDENCIA
-        // ========================================
-        function renderizarUnaIncidencia() {
-            const div = document.getElementById('contenido');
-            
-            if (!incidencia) {
-                div.innerHTML = `
-                    <h1>❌ Error</h1>
-                    <p>Incidencia no encontrada.</p>
-                    <a href="ver_incidencia.html?usuario_id=${usuarioId}">Volver</a>
-                `;
-                return;
-            }
-
-            const numMostrar = numIncidencia > 0 ? numIncidencia : incidencia.id.slice(0, 4);
-            const dias = calcularDias(incidencia.fecha_inicio, incidencia.fecha_fin);
-
-            div.innerHTML = `
-                <h1>📄 Reporte de Incidencias</h1>
-
-                <!-- DATOS DEL USUARIO -->
-                <div class="seccion">
-                    <div class="campo"><strong>Empleado:</strong> <span>${escapeHtml(usuario.nombre || '')}</span></div>
-                    <div class="campo"><strong>Email:</strong> <span>${escapeHtml(usuario.email || '')}</span></div>
-                </div>
-
-                <!-- DETALLES DE LA INCIDENCIA -->
-                <div class="seccion">
-                    <h3>📌 Detalles de la Incidencia #${numMostrar}</h3>
-                    
-                    <div class="campo"><strong>Tipo:</strong> <span>${escapeHtml(incidencia.tipo_incidencia || 'No especificado')}</span></div>
-                    <div class="campo"><strong>Fecha Inicio:</strong> <span>${formatearFecha(incidencia.fecha_inicio)}</span></div>
-                    <div class="campo"><strong>Días:</strong> <span>${dias}</span></div>
-                    <div class="campo"><strong>Motivo original:</strong> <span>${escapeHtml(incidencia.motivo || '--')}</span></div>
-                </div>
-
-                <!-- DETALLES DE LA JUSTIFICACIÓN -->
-                <div class="seccion">
-                    <h3>📌 Detalles de la Justificación</h3>
-                    <div class="campo"><strong>Título:</strong> <span>${escapeHtml(incidencia.titulo || 'No especificado')}</span></div>
-                    <div class="campo"><strong>Prioridad:</strong> <span>${escapeHtml(incidencia.prioridad || 'No especificada')}</span></div>
-                    <div class="campo"><strong>Plazo:</strong> <span>${escapeHtml(incidencia.plazo || 'No especificado')}</span></div>
-                    <div class="campo"><strong>Descripción:</strong><br>
-                        <span style="white-space: pre-wrap;">${escapeHtml(incidencia.descripcion || 'No especificada')}</span>
-                    </div>
-                    <div class="campo"><strong>Pasos:</strong><br>
-                        <span style="white-space: pre-wrap;">${escapeHtml(incidencia.pasos || 'No especificados')}</span>
-                    </div>
-                    <div class="campo"><strong>Evidencia:</strong><br>
-                        <span>${escapeHtml(incidencia.evidencia || 'No especificada')}</span>
-                    </div>
-                    <div class="campo"><strong>Causa raíz:</strong><br>
-                        <span>${escapeHtml(incidencia.causa_raiz || 'No especificada')}</span>
-                    </div>
-                    <div class="campo"><strong>Acción inmediata:</strong><br>
-                        <span>${escapeHtml(incidencia.accion_inmediata || 'No especificada')}</span>
-                    </div>
-                    <div class="campo"><strong>Solución definitiva:</strong><br>
-                        <span>${escapeHtml(incidencia.solucion_definitiva || 'No especificada')}</span>
-                    </div>
-                </div>
-
-                <button onclick="window.print()" class="btn-imprimir no-print">🖨️ Imprimir este reporte</button>
-            `;
+            renderizarTodasIncidencias();
         }
 
         // ========================================
@@ -294,12 +384,12 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>#</th>
+                                <th style="width:45px;">#</th>
                                 <th>Tipo</th>
                                 <th>Fecha Inicio</th>
-                                <th>Días</th>
+                                <th style="width:55px;">Días</th>
                                 <th>Motivo</th>
-                                <th>Estado</th>
+                                <th style="width:110px;">Estado</th>
                                 <th>Título</th>
                             </tr>
                         </thead>
@@ -310,7 +400,6 @@
                     const dias = calcularDias(inc.fecha_inicio, inc.fecha_fin);
                     const estado = inc.justificada ? 'Justificada' : 'Pendiente';
                     const badgeClass = inc.justificada ? 'badge-justificada' : 'badge-pendiente';
-                    const estadoTexto = inc.justificada ? '✅ Justificada' : '❌ Pendiente';
 
                     tablaHtml += `
                         <tr>
@@ -330,25 +419,49 @@
                     </table>
                 `;
             } else {
-                tablaHtml = `<p style="text-align: center; color: #999; padding: 20px;">📭 Este usuario no tiene incidencias registradas.</p>`;
+                tablaHtml = `<p style="text-align: center; color: #999; padding: 20px; font-size: 14px;">📭 Este usuario no tiene incidencias registradas.</p>`;
             }
 
             div.innerHTML = `
+                <!-- HEADER DEL REPORTE -->
+                <div class="header-reporte">
+                    <div class="logo-section">
+                        <img src="logos/logo_izquierdo.jpg" alt="Logotipo" class="logo-img" onerror="this.style.display='none'">
+                        <div class="textos-logo">
+                            <span class="humanismo">HUMANISMO QUE TRANSFORMA</span>
+                            <span class="secret">SECRETARÍA DE FINANZAS</span>
+                            <span class="gobierno">GOBIERNO DE CHIAPAS</span>
+                            <span class="periodo">2024 - 2030</span>
+                        </div>
+                    </div>
+                    <div class="fecha-reporte">
+                        <span>📅 ${obtenerFechaActual()}</span>
+                        <span style="font-size:12px; color:#999;">Reporte de incidencias</span>
+                    </div>
+                </div>
+
                 <h1>📄 Reporte de Incidencias</h1>
 
-                <!-- DATOS DEL USUARIO -->
+                <!-- DATOS DEL USUARIO (SIN EMAIL) -->
                 <div class="seccion">
-                    <div class="campo"><strong>Empleado:</strong> <span>${escapeHtml(usuario.nombre || '')}</span></div>
-                    <div class="campo"><strong>Email:</strong> <span>${escapeHtml(usuario.email || '')}</span></div>
+                    <div class="titulo-seccion">👤 Datos del Empleado</div>
+                    <div class="grid-datos">
+                        <div class="campo"><strong>Nombre:</strong> <span class="valor">${escapeHtml(usuario.nombre || '')}</span></div>
+                        <div class="campo"><strong>Área:</strong> <span class="valor">${escapeHtml(usuario.area || 'No especificada')}</span></div>
+                        <div class="campo"><strong>Puesto:</strong> <span class="valor">${escapeHtml(usuario.puesto || 'No especificado')}</span></div>
+                    </div>
                 </div>
 
                 <!-- TODAS LAS INCIDENCIAS -->
                 <div class="seccion">
-                    <h3>📋 Todas las incidencias de ${escapeHtml(usuario.nombre || 'Usuario')}</h3>
+                    <div class="titulo-seccion">📋 Lista de Incidencias</div>
                     ${tablaHtml}
                 </div>
 
-                <button onclick="window.print()" class="btn-imprimir no-print">🖨️ Imprimir este reporte</button>
+                <div class="acciones-botones no-print">
+                    <button onclick="window.print()" class="btn-imprimir">🖨️ Imprimir</button>
+                    <a href="ver_incidencia.html?usuario_id=${usuarioId}" class="btn-volver">⬅ Volver</a>
+                </div>
             `;
         }
 
