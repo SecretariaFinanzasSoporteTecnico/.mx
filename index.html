@@ -195,10 +195,10 @@
             width: 100%;
             border-collapse: collapse;
             font-size: clamp(12px, 1vw, 15px);
-            min-width: 600px;
+            min-width: 900px;
         }
         thead { background: #1a3a5c; color: #fff; }
-        th { padding: clamp(8px, 1vw, 14px) clamp(10px, 1.2vw, 18px); text-align: left; font-weight: 600; }
+        th { padding: clamp(8px, 1vw, 14px) clamp(10px, 1.2vw, 18px); text-align: left; font-weight: 600; white-space: nowrap; }
         td { padding: clamp(8px, 1vw, 14px) clamp(10px, 1.2vw, 18px); border-bottom: 1px solid #e6eaef; vertical-align: middle; }
         tbody tr:hover { background: #f5f8fc; }
         .btn-small {
@@ -352,21 +352,23 @@
             </form>
         </div>
 
-        <!-- TABLA -->
+        <!-- TABLA - Con columnas: #, Nombre, Email, Teléfono, Área, Puesto, Fecha Registro, Acciones -->
         <div class="table-responsive">
             <table>
                 <thead>
                     <tr>
-                        <th style="width:50px;">#</th>
+                        <th style="width:40px;">#</th>
                         <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Teléfono</th>
                         <th>Área</th>
                         <th>Puesto</th>
                         <th>Fecha Registro</th>
-                        <th class="no-print" style="width:250px;">Acciones</th>
+                        <th class="no-print" style="min-width:280px;">Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="tablaBody">
-                    <tr><td colspan="6" class="cargando"><span class="spinner"></span> Cargando usuarios...</td></tr>
+                    <tr><td colspan="8" class="cargando"><span class="spinner"></span> Cargando usuarios...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -454,7 +456,7 @@
 
         async function cargarUsuarios() {
             const tbody = document.getElementById('tablaBody');
-            tbody.innerHTML = `<tr><td colspan="6" class="cargando"><span class="spinner"></span> Cargando usuarios...</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" class="cargando"><span class="spinner"></span> Cargando usuarios...</td></tr>`;
 
             const resultado = await window.firebaseApp.obtenerUsuariosFirebase();
             
@@ -462,7 +464,7 @@
                 usuarios = resultado.data;
                 renderizarTabla(usuarios);
             } else {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:#999;">❌ Error al cargar usuarios: ${resultado.error}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:40px; color:#999;">❌ Error al cargar usuarios: ${resultado.error}</td></tr>`;
             }
         }
 
@@ -471,7 +473,7 @@
             
             if (!lista || lista.length === 0) {
                 tbody.innerHTML = `
-                    <tr><td colspan="6" style="text-align: center; padding: 40px; color: #999;">📭 No hay usuarios registrados</td></tr>
+                    <tr><td colspan="8" style="text-align: center; padding: 40px; color: #999;">📭 No hay usuarios registrados</td></tr>
                 `;
                 return;
             }
@@ -484,6 +486,8 @@
                     <tr>
                         <td data-label="#">${index + 1}</td>
                         <td data-label="Nombre"><strong>${escapeHtml(usuario.nombre)}</strong></td>
+                        <td data-label="Email">${escapeHtml(usuario.email || '')}</td>
+                        <td data-label="Teléfono">${escapeHtml(usuario.telefono || '')}</td>
                         <td data-label="Área">${escapeHtml(usuario.area || '')}</td>
                         <td data-label="Puesto">${escapeHtml(usuario.puesto || '')}</td>
                         <td data-label="Fecha Registro" style="font-size: 13px; color: #555;">${fechaRegistro}</td>
@@ -529,7 +533,8 @@
                 return;
             }
             const filtrados = usuarios.filter(u => 
-                u.nombre.toLowerCase().includes(termino.toLowerCase())
+                u.nombre.toLowerCase().includes(termino.toLowerCase()) ||
+                (u.email && u.email.toLowerCase().includes(termino.toLowerCase()))
             );
             renderizarTabla(filtrados);
             document.getElementById('limpiarBuscar').style.display = 'inline-block';
