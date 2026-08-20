@@ -1,534 +1,567 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-  <title>Gestión de Usuario · Chiapas</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      background: #f0f2f5;
-      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
-      padding: 20px;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-    }
-    .container {
-      max-width: 1200px;
-      width: 100%;
-      background: #ffffff;
-      border-radius: 12px;
-      padding: 20px 24px 28px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Gestión de Usuario</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            padding: clamp(15px, 2.5vw, 30px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+        .header-superior {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #1a3a5c;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .header-superior .logo-izquierda {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .header-superior .logo-izquierda .logo-img {
+            height: clamp(50px, 8vw, 75px);
+            width: auto;
+            object-fit: contain;
+        }
+        .header-superior .logo-izquierda .textos-logo {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+        .header-superior .logo-izquierda .textos-logo .humanismo {
+            font-size: clamp(11px, 1.5vw, 15px);
+            font-weight: 700;
+            color: #1a3a5c;
+            letter-spacing: 1px;
+        }
+        .header-superior .logo-izquierda .textos-logo .secret {
+            font-size: clamp(13px, 1.8vw, 17px);
+            font-weight: 800;
+            color: #b8860b;
+            letter-spacing: 0.5px;
+        }
+        .header-superior .logo-izquierda .textos-logo .gobierno {
+            font-size: clamp(11px, 1.5vw, 15px);
+            font-weight: 600;
+            color: #1a3a5c;
+        }
+        .header-superior .logo-izquierda .textos-logo .periodo {
+            font-size: clamp(10px, 1.2vw, 14px);
+            font-weight: 600;
+            color: #1a3a5c;
+        }
+        .reloj-moderno {
+            font-size: clamp(14px, 1.5vw, 18px);
+            font-weight: 700;
+            color: #1a3a5c;
+            background: #f8f9fa;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            min-width: 100px;
+        }
+        .reloj-moderno .fecha {
+            font-size: clamp(10px, 1vw, 13px);
+            color: #6c757d;
+            font-weight: 600;
+            display: block;
+        }
+        .reloj-moderno .hora {
+            font-size: clamp(16px, 1.8vw, 22px);
+            display: block;
+        }
+        .header-titulo { text-align: center; margin-bottom: 25px; }
+        .titulo-gestion {
+            font-size: clamp(22px, 4vw, 32px);
+            font-weight: 700;
+            color: #1a3a5c;
+            display: inline-block;
+            padding: 0 5px;
+            border-bottom: 3px solid #1a3a5c;
+        }
+        .header-actions { display: flex; justify-content: center; margin-bottom: 25px; }
+        .header-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+        }
+        .btn {
+            padding: clamp(10px, 1.5vw, 16px) clamp(18px, 2.5vw, 30px);
+            border: none;
+            border-radius: 8px;
+            font-size: clamp(13px, 1.2vw, 16px);
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .btn-agregar { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: #fff; }
+        .btn-blanco { background: #6c757d; color: #fff; }
+        .btn-imprimir { background: #1a3a5c; color: #fff; }
+        .btn-faltas { background: #17a2b8; color: #fff; }
+        .btn-incidencias { background: #6f42c1; color: #fff; }
+        @media (max-width: 768px) {
+            .btn { width: 100%; white-space: normal; padding: 14px 20px; font-size: 16px; }
+            .header-buttons { flex-direction: column; width: 100%; }
+        }
 
-    .header-superior {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-bottom: 10px;
-      border-bottom: 2px solid #1a3a5c;
-      margin-bottom: 18px;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    .logo-izquierda {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      flex-wrap: wrap;
-    }
-    .logo-img {
-      height: 60px;
-      width: auto;
-      object-fit: contain;
-    }
-    .textos-logo {
-      display: flex;
-      flex-direction: column;
-      line-height: 1.25;
-    }
-    .humanismo {
-      font-size: 13px;
-      font-weight: 700;
-      color: #1a3a5c;
-      letter-spacing: 0.8px;
-    }
-    .secret {
-      font-size: 16px;
-      font-weight: 800;
-      color: #b8860b;
-      letter-spacing: 0.3px;
-    }
-    .gobierno {
-      font-size: 13px;
-      font-weight: 600;
-      color: #1a3a5c;
-    }
-    .periodo {
-      font-size: 12px;
-      font-weight: 600;
-      color: #1a3a5c;
-    }
+        .buscador-moderno {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .buscador-moderno input {
+            flex: 1;
+            min-width: 200px;
+            max-width: 500px;
+            padding: clamp(10px, 1.5vw, 14px) 15px;
+            border: 1px solid #dce1e8;
+            border-radius: 8px;
+            font-size: clamp(14px, 1.2vw, 17px);
+            transition: 0.3s;
+            background: #f8f9fa;
+        }
+        .buscador-moderno input:focus {
+            border-color: #1a3a5c;
+            outline: none;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(26, 58, 92, 0.1);
+        }
+        .btn-buscar {
+            background: #1a3a5c; color: #fff;
+            padding: clamp(10px, 1.5vw, 14px) clamp(20px, 2.5vw, 30px);
+            border: none;
+            border-radius: 8px;
+            font-size: clamp(14px, 1.2vw, 17px);
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-limpiar {
+            background: #dc3545; color: #fff;
+            padding: clamp(10px, 1.5vw, 14px) clamp(20px, 2.5vw, 30px);
+            border: none;
+            border-radius: 8px;
+            font-size: clamp(14px, 1.2vw, 17px);
+            font-weight: 600;
+            cursor: pointer;
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .buscador-moderno { flex-direction: column; align-items: stretch; }
+            .buscador-moderno input { max-width: 100%; width: 100%; }
+            .buscador-moderno .btn-buscar,
+            .buscador-moderno .btn-limpiar { width: 100%; text-align: center; }
+        }
 
-    .reloj-moderno {
-      background: #f8f9fa;
-      border: 1px solid #dce1e8;
-      border-radius: 10px;
-      padding: 6px 18px 8px;
-      text-align: center;
-      min-width: 130px;
-      font-family: 'Courier New', monospace;
-    }
-    .reloj-moderno .fecha {
-      font-size: 13px;
-      font-weight: 600;
-      color: #6c757d;
-      display: block;
-    }
-    .reloj-moderno .hora {
-      font-size: 20px;
-      font-weight: 700;
-      color: #1a3a5c;
-      display: block;
-      letter-spacing: 0.5px;
-    }
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 15px;
+            border-radius: 8px;
+            border: 1px solid #e6eaef;
+            -webkit-overflow-scrolling: touch;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(12px, 1vw, 15px);
+            min-width: 600px;
+        }
+        thead { background: #1a3a5c; color: #fff; }
+        th { padding: clamp(8px, 1vw, 14px) clamp(10px, 1.2vw, 18px); text-align: left; font-weight: 600; }
+        td { padding: clamp(8px, 1vw, 14px) clamp(10px, 1.2vw, 18px); border-bottom: 1px solid #e6eaef; vertical-align: middle; }
+        tbody tr:hover { background: #f5f8fc; }
+        .btn-small {
+            font-size: clamp(11px, 0.9vw, 13px);
+            padding: 5px 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-warning-small { background: #ffc107; color: #1e2a3a; }
+        .btn-danger-small { background: #dc3545; color: #fff; }
+        .btn-secondary-small { background: #6c757d; color: #fff; }
+        .btn-warning-small:hover { background: #e0a800; }
+        .btn-danger-small:hover { background: #c82333; }
+        .btn-secondary-small:hover { background: #5a6268; }
+        .acciones { display: flex; gap: 6px; flex-wrap: wrap; }
 
-    .header-titulo {
-      text-align: center;
-      margin-bottom: 18px;
-    }
-    .titulo-gestion {
-      font-size: 26px;
-      font-weight: 700;
-      color: #1a3a5c;
-      border-bottom: 3px solid #1a3a5c;
-      padding: 0 6px 6px;
-      display: inline-block;
-    }
+        @media (max-width: 768px) {
+            table, thead, tbody, th, td, tr { display: block; }
+            thead { display: none; }
+            tbody tr {
+                display: block;
+                border: 1px solid #e6eaef;
+                border-radius: 8px;
+                margin-bottom: 15px;
+                padding: 15px;
+                background: #fff;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            }
+            tbody tr td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px 5px;
+                border-bottom: 1px solid #f0f0f0;
+            }
+            tbody tr td:last-child { border-bottom: none; }
+            tbody tr td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: #1a3a5c;
+                font-size: 11px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                flex: 0 0 40%;
+            }
+            .acciones { flex-wrap: wrap; gap: 8px; }
+            .acciones .btn-small { flex: 1; min-width: 80px; text-align: center; font-size: 13px; padding: 8px 12px; }
+            .sin-permisos { font-size: 13px; padding: 6px 12px; }
+        }
 
-    .header-actions {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 18px;
-    }
-    .header-buttons {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    .btn {
-      padding: 10px 22px;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 15px;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: 0.2s;
-      background: #e9ecef;
-      color: #1a2a3a;
-    }
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    .btn-agregar { background: #28a745; color: #fff; }
-    .btn-blanco { background: #6c757d; color: #fff; }
-    .btn-imprimir { background: #1a3a5c; color: #fff; }
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: inherit; opacity: 0.7; }
+        .close-btn:hover { opacity: 1; }
 
-    .buscador-moderno {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-    .buscador-moderno input {
-      flex: 1 1 280px;
-      max-width: 420px;
-      padding: 10px 16px;
-      border: 1px solid #dce1e8;
-      border-radius: 8px;
-      font-size: 15px;
-      background: #f8f9fa;
-      transition: 0.2s;
-    }
-    .buscador-moderno input:focus {
-      border-color: #1a3a5c;
-      outline: none;
-      background: #fff;
-      box-shadow: 0 0 0 3px rgba(26,58,92,0.08);
-    }
-    .btn-buscar {
-      background: #1a3a5c;
-      color: #fff;
-      padding: 10px 24px;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 15px;
-    }
-    .btn-limpiar {
-      background: #dc3545;
-      color: #fff;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      display: none;
-      font-size: 15px;
-    }
+        .btn-volver-menu {
+            background: #6c757d; color: #fff;
+            padding: clamp(10px, 1.5vw, 14px) clamp(20px, 2.5vw, 30px);
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: clamp(14px, 1.2vw, 17px);
+        }
+        .btn-volver-menu:hover { background: #5a6268; transform: translateY(-2px); }
+        @media (max-width: 768px) { .btn-volver-menu { display: block; width: 100%; text-align: center; } }
 
-    .table-responsive {
-      overflow-x: auto;
-      border-radius: 8px;
-      border: 1px solid #e6eaef;
-      margin-top: 4px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-      min-width: 700px;
-    }
-    thead {
-      background: #1a3a5c;
-      color: #fff;
-    }
-    th {
-      padding: 12px 14px;
-      text-align: left;
-      font-weight: 600;
-      letter-spacing: 0.3px;
-      white-space: nowrap;
-    }
-    td {
-      padding: 12px 14px;
-      border-bottom: 1px solid #e6eaef;
-      vertical-align: middle;
-    }
-    tbody tr:hover {
-      background: #f5f8fc;
-    }
+        .sin-permisos {
+            color: #999;
+            font-size: clamp(11px, 0.9vw, 13px);
+            display: inline-block;
+            background: #f1f1f1;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #1a3a5c;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .cargando { text-align: center; padding: 40px; color: #999; }
 
-    .acciones {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .btn-small {
-      font-size: 12px;
-      padding: 5px 10px;
-      border-radius: 5px;
-      border: none;
-      font-weight: 600;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-block;
-      transition: 0.15s;
-    }
-    .btn-warning-small { background: #ffc107; color: #1e2a3a; }
-    .btn-danger-small { background: #dc3545; color: #fff; }
-    .btn-faltas { background: #17a2b8; color: #fff; }
-    .btn-incidencias { background: #6f42c1; color: #fff; }
-    .btn-secondary-small { background: #6c757d; color: #fff; }
-    .btn-small:hover { opacity: 0.85; transform: scale(0.97); }
-
-    .sin-permisos {
-      color: #999;
-      font-size: 12px;
-      background: #f1f1f1;
-      padding: 3px 10px;
-      border-radius: 12px;
-    }
-
-    .volver-menu {
-      margin-top: 22px;
-      text-align: left;
-    }
-    .btn-volver-menu {
-      background: #6c757d;
-      color: #fff;
-      padding: 10px 28px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 600;
-      display: inline-block;
-      transition: 0.2s;
-      font-size: 15px;
-    }
-    .btn-volver-menu:hover {
-      background: #5a6268;
-      transform: translateY(-2px);
-    }
-
-    .alert {
-      padding: 12px 18px;
-      border-radius: 8px;
-      margin-bottom: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: 500;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-    .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-    .alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-    .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; opacity: 0.6; padding: 0 8px; }
-    .close-btn:hover { opacity: 1; }
-
-    .spinner {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      border: 2px solid #1a3a5c;
-      border-radius: 50%;
-      border-top-color: transparent;
-      animation: spin 0.7s linear infinite;
-      margin-right: 8px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .cargando { text-align: center; padding: 30px; color: #777; }
-
-    @media (max-width: 768px) {
-      .container { padding: 16px; }
-      .header-superior { flex-direction: column; align-items: flex-start; }
-      .reloj-moderno { align-self: flex-end; }
-      .header-buttons .btn { width: 100%; justify-content: center; }
-      .buscador-moderno { flex-direction: column; align-items: stretch; }
-      .buscador-moderno input { max-width: 100%; }
-      .btn-buscar, .btn-limpiar { width: 100%; text-align: center; }
-      table, thead, tbody, th, td, tr { display: block; }
-      thead { display: none; }
-      tbody tr {
-        display: block;
-        border: 1px solid #e6eaef;
-        border-radius: 10px;
-        margin-bottom: 14px;
-        padding: 12px 14px;
-        background: #fff;
-      }
-      tbody tr td {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 6px 0;
-        border-bottom: 1px solid #f0f0f0;
-      }
-      tbody tr td:last-child { border-bottom: none; }
-      tbody tr td::before {
-        content: attr(data-label);
-        font-weight: 600;
-        color: #1a3a5c;
-        font-size: 11px;
-        text-transform: uppercase;
-        flex: 0 0 38%;
-      }
-      .acciones { flex-wrap: wrap; gap: 6px; }
-      .acciones .btn-small { flex: 1; min-width: 70px; text-align: center; }
-      .volver-menu { text-align: center; }
-    }
-    @media print {
-      .no-print { display: none !important; }
-    }
-  </style>
+        @media print { .no-print { display: none !important; } }
+    </style>
 </head>
 <body>
-<div class="container">
+    <div class="container">
+        <!-- HEADER SUPERIOR -->
+        <div class="header-superior">
+            <div class="logo-izquierda">
+                <img src="logos/logo_izquierdo.jpg" alt="Logotipo" class="logo-img" onerror="this.style.display='none'">
+                <div class="textos-logo">
+                    <span class="humanismo">HUMANISMO QUE TRANSFORMA</span>
+                    <span class="secret">SECRETARÍA DE FINANZAS</span>
+                    <span class="gobierno">GOBIERNO DE CHIAPAS</span>
+                    <span class="periodo">2024 - 2030</span>
+                </div>
+            </div>
+            <div class="reloj-moderno" id="reloj">
+                <span class="fecha" id="fecha">Cargando...</span>
+                <span class="hora" id="hora">Cargando...</span>
+            </div>
+        </div>
 
-  <!-- HEADER superior con el logo exacto de tu código original -->
-  <div class="header-superior">
-    <div class="logo-izquierda">
-      <img src="logos/logo_izquierdo.jpg" alt="Logotipo" class="logo-img" onerror="this.style.display='none'">
-      <div class="textos-logo">
-        <span class="humanismo">HUMANISMO QUE TRANSFORMA</span>
-        <span class="secret">SECRETARÍA DE FINANZAS</span>
-        <span class="gobierno">GOBIERNO DE CHIAPAS</span>
-        <span class="periodo">2024 - 2030</span>
-      </div>
+        <!-- TÍTULO -->
+        <div class="header-titulo">
+            <span class="titulo-gestion">📊 Gestión de Usuario</span>
+        </div>
+
+        <!-- BOTONES -->
+        <div class="header-actions">
+            <div class="header-buttons no-print" id="botonesAccion">
+                <a href="agregar.html" class="btn btn-agregar">➕ Agregar Usuario</a>
+                <a href="imprimir_formato_blanco.html" target="_blank" class="btn btn-blanco">📄 Formato en Blanco</a>
+                <button onclick="window.print()" class="btn btn-imprimir">🖨️ Imprimir todo</button>
+            </div>
+        </div>
+
+        <!-- MENSAJES -->
+        <div id="mensajeContainer"></div>
+
+        <!-- BUSCADOR -->
+        <div class="buscador-moderno no-print">
+            <form id="buscarForm" style="display:flex; gap:10px; width:100%; justify-content:center; flex-wrap:wrap;">
+                <input type="text" id="buscarInput" placeholder="🔍 Buscar por nombre o email...">
+                <button type="submit" class="btn-buscar">Buscar</button>
+                <button type="button" id="limpiarBuscar" class="btn-limpiar">✖ Limpiar</button>
+            </form>
+        </div>
+
+        <!-- TABLA -->
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:50px;">#</th>
+                        <th>Nombre</th>
+                        <th>Área</th>
+                        <th>Puesto</th>
+                        <th>Fecha Registro</th>
+                        <th class="no-print" style="width:250px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaBody">
+                    <tr><td colspan="6" class="cargando"><span class="spinner"></span> Cargando usuarios...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- VOLVER AL MENÚ -->
+        <div style="text-align:left; margin-top:20px;" class="no-print">
+            <a href="menu.html" class="btn-volver-menu">⬅ Volver al Menú</a>
+        </div>
     </div>
-    <div class="reloj-moderno" id="reloj">
-      <span class="fecha" id="fecha">📅 20/08/2026</span>
-      <span class="hora" id="hora">🕐 09:15:30</span>
-    </div>
-  </div>
 
-  <!-- TÍTULO -->
-  <div class="header-titulo">
-    <span class="titulo-gestion">📊 Gestión de Usuario</span>
-  </div>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-app.js"></script>
+    
+    <script>
+        let usuarioActual = null;
+        let usuarios = [];
 
-  <!-- BOTONES superiores -->
-  <div class="header-actions no-print">
-    <div class="header-buttons">
-      <a href="#" class="btn btn-agregar">➕ Agregar Usuario</a>
-      <a href="#" target="_blank" class="btn btn-blanco">📄 Formato en Blanco</a>
-      <button onclick="window.print()" class="btn btn-imprimir">🖨️ Imprimir todo</button>
-    </div>
-  </div>
-
-  <div id="mensajeContainer"></div>
-
-  <!-- BUSCADOR -->
-  <div class="buscador-moderno no-print">
-    <input type="text" id="buscarInput" placeholder="🔍 Buscar por nombre o email...">
-    <button class="btn-buscar" id="buscarBtn">Buscar</button>
-    <button class="btn-limpiar" id="limpiarBtn">✖ Limpiar</button>
-  </div>
-
-  <!-- TABLA de usuarios -->
-  <div class="table-responsive">
-    <table>
-      <thead>
-        <tr>
-          <th style="width:40px;">#</th>
-          <th>Nombre</th>
-          <th>Área</th>
-          <th>Puesto</th>
-          <th>Fecha Registro</th>
-          <th class="no-print" style="min-width:240px;">Acciones</th>
-        </tr>
-      </thead>
-      <tbody id="tablaBody">
-      </tbody>
-    </table>
-  </div>
-
-  <!-- VOLVER AL MENÚ -->
-  <div class="volver-menu no-print">
-    <a href="#" class="btn-volver-menu">⬅ Volver al Menú</a>
-  </div>
-</div>
-
-<script>
-  (function() {
-    // Datos fijos para mostrar, igual que en la imagen 1
-    const usuariosDemo = [
-      { id: 1, nombre: 'gjgdh', email: 'gmghm@gmail.com', telefono: 'ghmhgmgd', area: 'ghmdgdm', puesto: 'ghmdgdm', fecha: '13/08/2026 13:31' },
-      { id: 2, nombre: 'cruz pepe cruz', email: 'anal@gmail.com', telefono: '961 565 7898', area: 'Área de soporte tecnico', puesto: 'Analista computop', fecha: '06/08/2026 11:25' }
-    ];
-
-    const extras = [
-      { id: 3, nombre: 'ALEJANDRO VELA', email: 'alejandro@finanzas.gob', telefono: '9611234567', area: 'soporte tecnico', puesto: 'Analista h', fecha: '20/08/2026 08:59' },
-      { id: 4, nombre: 'Aguzman', email: 'aguzman@chiapas.gob', telefono: '9612345678', area: '', puesto: '', fecha: '20/08/2026 08:59' },
-      { id: 5, nombre: 'Prueba usuario', email: 'prueba@test.com', telefono: '9613456789', area: '', puesto: '', fecha: '20/08/2026 08:56' },
-      { id: 6, nombre: 'nose', email: 'nose@nada.com', telefono: '9614567890', area: '', puesto: '', fecha: '20/08/2026 08:45' },
-      { id: 7, nombre: 'Administrador', email: 'admin@chiapas.gob', telefono: '9615678901', area: '', puesto: '', fecha: '19/08/2026 09:38' },
-      { id: 8, nombre: 'prueba4', email: 'p4@mail.com', telefono: '9616789012', area: '', puesto: '', fecha: '18/08/2026 15:36' },
-      { id: 9, nombre: 'prueba3', email: 'p3@mail.com', telefono: '9617890123', area: '', puesto: '', fecha: '18/08/2026 09:49' }
-    ];
-
-    const todos = [...usuariosDemo, ...extras];
-
-    function formatearFecha(fechaStr) {
-      if (!fechaStr) return '--';
-      try {
-        const d = new Date(fechaStr);
-        if (!isNaN(d)) {
-          return d.toLocaleString('es-MX', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+        function escapeHtml(texto) {
+            if (!texto) return '';
+            const div = document.createElement('div');
+            div.textContent = texto;
+            return div.innerHTML;
         }
-      } catch(e) {}
-      return fechaStr;
-    }
 
-    function renderTabla(lista) {
-      const tbody = document.getElementById('tablaBody');
-      if (!lista || lista.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:#999;">📭 No hay usuarios</td></tr>`;
-        return;
-      }
+        function mostrarMensaje(texto, tipo) {
+            const container = document.getElementById('mensajeContainer');
+            container.innerHTML = `
+                <div class="alert alert-${tipo}">
+                    ${texto}
+                    <button class="close-btn" onclick="this.parentElement.style.display='none'">✕</button>
+                </div>
+            `;
+            setTimeout(() => {
+                const alert = container.querySelector('.alert');
+                if (alert) alert.style.display = 'none';
+            }, 5000);
+        }
 
-      let html = '';
-      lista.forEach((u, idx) => {
-        const fechaMostrar = u.fecha ? formatearFecha(u.fecha) : '--';
-        const area = u.area || '';
-        const puesto = u.puesto || '';
-        html += `
-          <tr>
-            <td data-label="#">${idx + 1}</td>
-            <td data-label="Nombre"><strong>${u.nombre}</strong></td>
-            <td data-label="Área">${area}</td>
-            <td data-label="Puesto">${puesto}</td>
-            <td data-label="Fecha Registro" style="font-size:13px; color:#444;">${fechaMostrar}</td>
-            <td data-label="Acciones" class="no-print">
-              <div class="acciones">
-                <a href="#" class="btn-small btn-warning-small">✏️ Editar</a>
-                <a href="#" class="btn-small btn-danger-small">🗑️ Eliminar</a>
-                <a href="#" class="btn-small btn-faltas">📋 Faltas</a>
-                <a href="#" class="btn-small btn-incidencias">📄 Incidencias</a>
-                <a href="#" target="_blank" class="btn-small btn-secondary-small">🖨️ Imprimir</a>
-              </div>
-            </td>
-          </tr>
-        `;
-      });
-      tbody.innerHTML = html;
-    }
+        function formatearFechaHora(fecha) {
+            if (!fecha) return '--';
+            const d = new Date(fecha);
+            return d.toLocaleString('es-MX', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
 
-    function buscar(termino) {
-      const filtro = termino.toLowerCase().trim();
-      if (!filtro) {
-        renderTabla(todos);
-        document.getElementById('limpiarBtn').style.display = 'none';
-        return;
-      }
-      const filtrados = todos.filter(u => u.nombre.toLowerCase().includes(filtro));
-      renderTabla(filtrados);
-      document.getElementById('limpiarBtn').style.display = 'inline-block';
-    }
+        function actualizarReloj() {
+            const ahora = new Date();
+            const fecha = ahora.toLocaleDateString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit' });
+            const hora = ahora.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById('fecha').textContent = '📅 ' + fecha;
+            document.getElementById('hora').textContent = '🕐 ' + hora;
+        }
+        setInterval(actualizarReloj, 1000);
+        actualizarReloj();
 
-    function actualizarReloj() {
-      const ahora = new Date();
-      const fecha = ahora.toLocaleDateString('es-MX', { year:'numeric', month:'2-digit', day:'2-digit' });
-      const hora = ahora.toLocaleTimeString('es-MX', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
-      document.getElementById('fecha').textContent = '📅 ' + fecha;
-      document.getElementById('hora').textContent = '🕐 ' + hora;
-    }
-    setInterval(actualizarReloj, 1000);
-    actualizarReloj();
+        async function cargarDatos() {
+            const usuarioStr = localStorage.getItem('sg_usuario_actual');
+            if (!usuarioStr) {
+                window.location.href = 'login.html';
+                return;
+            }
+            usuarioActual = JSON.parse(usuarioStr);
 
-    renderTabla(todos);
+            const botonesDiv = document.getElementById('botonesAccion');
+            if (usuarioActual.rol === 'admin') {
+                botonesDiv.innerHTML = `
+                    <a href="agregar.html" class="btn btn-agregar">➕ Agregar Usuario</a>
+                    <a href="imprimir_formato_blanco.html" target="_blank" class="btn btn-blanco">📄 Formato en Blanco</a>
+                    <button onclick="window.print()" class="btn btn-imprimir">🖨️ Imprimir todo</button>
+                `;
+            } else {
+                botonesDiv.innerHTML = `
+                    <a href="imprimir_formato_blanco.html" target="_blank" class="btn btn-blanco">📄 Formato en Blanco</a>
+                    <button onclick="window.print()" class="btn btn-imprimir">🖨️ Imprimir todo</button>
+                `;
+            }
 
-    const inputBuscar = document.getElementById('buscarInput');
-    const buscarBtn = document.getElementById('buscarBtn');
-    const limpiarBtn = document.getElementById('limpiarBtn');
+            await cargarUsuarios();
+        }
 
-    function handleBuscar() {
-      buscar(inputBuscar.value);
-    }
+        async function cargarUsuarios() {
+            const tbody = document.getElementById('tablaBody');
+            tbody.innerHTML = `<tr><td colspan="6" class="cargando"><span class="spinner"></span> Cargando usuarios...</td></tr>`;
 
-    buscarBtn.addEventListener('click', handleBuscar);
-    inputBuscar.addEventListener('keyup', function(e) {
-      if (e.key === 'Enter') handleBuscar();
-      const val = this.value;
-      if (val.length >= 2 || val.length === 0) {
-        buscar(val);
-      }
-    });
+            const resultado = await window.firebaseApp.obtenerUsuariosFirebase();
+            
+            if (resultado.success) {
+                usuarios = resultado.data;
+                renderizarTabla(usuarios);
+            } else {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:#999;">❌ Error al cargar usuarios: ${resultado.error}</td></tr>`;
+            }
+        }
 
-    limpiarBtn.addEventListener('click', function() {
-      inputBuscar.value = '';
-      buscar('');
-      this.style.display = 'none';
-    });
+        function renderizarTabla(lista) {
+            const tbody = document.getElementById('tablaBody');
+            
+            if (!lista || lista.length === 0) {
+                tbody.innerHTML = `
+                    <tr><td colspan="6" style="text-align: center; padding: 40px; color: #999;">📭 No hay usuarios registrados</td></tr>
+                `;
+                return;
+            }
 
-    document.getElementById('limpiarBtn').style.display = 'none';
-  })();
-</script>
+            let html = '';
+            lista.forEach((usuario, index) => {
+                const fechaRegistro = usuario.fecha_registro ? formatearFechaHora(usuario.fecha_registro) : '--';
+
+                html += `
+                    <tr>
+                        <td data-label="#">${index + 1}</td>
+                        <td data-label="Nombre"><strong>${escapeHtml(usuario.nombre)}</strong></td>
+                        <td data-label="Área">${escapeHtml(usuario.area || '')}</td>
+                        <td data-label="Puesto">${escapeHtml(usuario.puesto || '')}</td>
+                        <td data-label="Fecha Registro" style="font-size: 13px; color: #555;">${fechaRegistro}</td>
+                        <td data-label="Acciones" class="no-print">
+                            <div class="acciones">
+                                ${usuarioActual && usuarioActual.rol === 'admin' ? `
+                                    <a href="editar.html?uid=${usuario.uid}" class="btn btn-warning-small btn-small">✏️ Editar</a>
+                                    <button onclick="eliminarUsuario('${usuario.uid}')" class="btn btn-danger-small btn-small">🗑️ Eliminar</button>
+                                ` : `
+                                    <span class="sin-permisos">🔒 Sin permisos</span>
+                                `}
+                                <a href="faltas.html?usuario_id=${usuario.uid}" class="btn btn-faltas btn-small">📋 Faltas</a>
+                                <a href="ver_incidencia.html?usuario_id=${usuario.uid}" class="btn btn-incidencias btn-small">📄 Incidencias</a>
+                                <a href="imprimir_usuario.html?uid=${usuario.uid}" target="_blank" class="btn btn-secondary-small btn-small">🖨️ Imprimir</a>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        async function eliminarUsuario(uid) {
+            if (!confirm('¿Estás seguro de eliminar este usuario?')) return;
+            if (usuarioActual && usuarioActual.uid === uid) {
+                mostrarMensaje('No puedes eliminar tu propio usuario.', 'danger');
+                return;
+            }
+            const resultado = await window.firebaseApp.eliminarUsuarioFirebase(uid);
+            if (resultado.success) {
+                mostrarMensaje('Usuario eliminado correctamente.', 'success');
+                await cargarUsuarios();
+            } else {
+                mostrarMensaje('❌ Error al eliminar: ' + resultado.error, 'danger');
+            }
+        }
+
+        function buscarUsuarios(termino) {
+            if (!termino.trim()) {
+                renderizarTabla(usuarios);
+                document.getElementById('limpiarBuscar').style.display = 'none';
+                return;
+            }
+            const filtrados = usuarios.filter(u => 
+                u.nombre.toLowerCase().includes(termino.toLowerCase())
+            );
+            renderizarTabla(filtrados);
+            document.getElementById('limpiarBuscar').style.display = 'inline-block';
+        }
+
+        document.addEventListener('DOMContentLoaded', cargarDatos);
+
+        document.getElementById('buscarForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const termino = document.getElementById('buscarInput').value;
+            buscarUsuarios(termino);
+        });
+
+        document.getElementById('limpiarBuscar').addEventListener('click', function() {
+            document.getElementById('buscarInput').value = '';
+            buscarUsuarios('');
+        });
+
+        document.getElementById('buscarInput').addEventListener('input', function() {
+            const termino = this.value;
+            if (termino.length >= 2 || termino.length === 0) {
+                buscarUsuarios(termino);
+            }
+        });
+
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            const mensaje = params.get('mensaje');
+            const error = params.get('error');
+            if (mensaje) mostrarMensaje(mensaje, 'success');
+            if (error) mostrarMensaje(error, 'danger');
+        })();
+    </script>
 </body>
 </html>
