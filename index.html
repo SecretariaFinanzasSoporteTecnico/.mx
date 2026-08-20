@@ -13,109 +13,109 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f0f2f5;
             min-height: 100vh;
-            padding: 20px;
+            padding: 15px;
             margin: 0;
         }
         .container {
-            max-width: 1200px;
+            max-width: 1100px;
             margin: 0 auto;
             background: #fff;
-            border-radius: 12px;
-            padding: clamp(15px, 2.5vw, 30px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            padding: clamp(12px, 2vw, 22px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
         }
         .header-superior {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding-bottom: 10px;
+            padding-bottom: 8px;
             border-bottom: 2px solid #1a3a5c;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 10px;
         }
         .header-superior .logo-izquierda {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
             flex-wrap: wrap;
         }
         .header-superior .logo-izquierda .logo-img {
-            height: clamp(50px, 8vw, 75px);
+            height: clamp(45px, 6vw, 60px);
             width: auto;
             object-fit: contain;
         }
         .header-superior .logo-izquierda .textos-logo {
             display: flex;
             flex-direction: column;
-            line-height: 1.2;
+            line-height: 1.15;
         }
         .header-superior .logo-izquierda .textos-logo .humanismo {
-            font-size: clamp(11px, 1.5vw, 15px);
+            font-size: clamp(10px, 1.2vw, 13px);
             font-weight: 700;
             color: #1a3a5c;
-            letter-spacing: 1px;
+            letter-spacing: 0.8px;
         }
         .header-superior .logo-izquierda .textos-logo .secret {
-            font-size: clamp(13px, 1.8vw, 17px);
+            font-size: clamp(12px, 1.5vw, 15px);
             font-weight: 800;
             color: #b8860b;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
         .header-superior .logo-izquierda .textos-logo .gobierno {
-            font-size: clamp(11px, 1.5vw, 15px);
+            font-size: clamp(10px, 1.2vw, 13px);
             font-weight: 600;
             color: #1a3a5c;
         }
         .header-superior .logo-izquierda .textos-logo .periodo {
-            font-size: clamp(10px, 1.2vw, 14px);
+            font-size: clamp(9px, 1vw, 12px);
             font-weight: 600;
             color: #1a3a5c;
         }
         .reloj-moderno {
-            font-size: clamp(14px, 1.5vw, 18px);
+            font-size: clamp(12px, 1.2vw, 15px);
             font-weight: 700;
             color: #1a3a5c;
             background: #f8f9fa;
-            padding: 8px 16px;
-            border-radius: 8px;
+            padding: 6px 14px;
+            border-radius: 6px;
             border: 1px solid #e0e0e0;
             font-family: 'Courier New', monospace;
             text-align: center;
-            min-width: 100px;
+            min-width: 90px;
         }
         .reloj-moderno .fecha {
-            font-size: clamp(10px, 1vw, 13px);
+            font-size: clamp(9px, 0.8vw, 11px);
             color: #6c757d;
             font-weight: 600;
             display: block;
         }
         .reloj-moderno .hora {
-            font-size: clamp(16px, 1.8vw, 22px);
+            font-size: clamp(14px, 1.5vw, 18px);
             display: block;
         }
-        .header-titulo { text-align: center; margin-bottom: 25px; }
+        .header-titulo { text-align: center; margin-bottom: 18px; }
         .titulo-gestion {
-            font-size: clamp(22px, 4vw, 32px);
+            font-size: clamp(18px, 3vw, 26px);
             font-weight: 700;
             color: #1a3a5c;
             display: inline-block;
-            padding: 0 5px;
+            padding: 0 4px;
             border-bottom: 3px solid #1a3a5c;
         }
-        .header-actions { display: flex; justify-content: center; margin-bottom: 25px; }
+        .header-actions { display: flex; justify-content: center; margin-bottom: 18px; }
         .header-buttons {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             flex-wrap: wrap;
             justify-content: center;
             width: 100%;
         }
         .btn {
-            padding: clamp(10px, 1.5vw, 16px) clamp(18px, 2.5vw, 30px);
+            padding: clamp(8px, 1vw, 12px) clamp(14px, 2vw, 24px);
             border: none;
-            border-radius: 8px;
-            font-size: clamp(13px, 1.2vw, 16px);
+            border-radius: 6px;
+            font-size: clamp(11px, 1vw, 14px);
             font-weight: 600;
             cursor: pointer;
             text-decoration: none;
@@ -123,32 +123,32 @@
             transition: all 0.3s;
             text-align: center;
         }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
         .btn-agregar { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: #fff; }
         .btn-blanco { background: #6c757d; color: #fff; }
         .btn-imprimir { background: #1a3a5c; color: #fff; }
         .btn-faltas { background: #17a2b8; color: #fff; }
         .btn-incidencias { background: #6f42c1; color: #fff; }
         @media (max-width: 768px) {
-            .btn { width: 100%; white-space: normal; padding: 14px 20px; font-size: 16px; }
+            .btn { width: 100%; white-space: normal; padding: 12px 16px; font-size: 14px; }
             .header-buttons { flex-direction: column; width: 100%; }
         }
 
         .buscador-moderno {
             display: flex;
             justify-content: center;
-            gap: 10px;
-            margin-bottom: 25px;
+            gap: 8px;
+            margin-bottom: 18px;
             flex-wrap: wrap;
         }
         .buscador-moderno input {
             flex: 1;
-            min-width: 200px;
-            max-width: 500px;
-            padding: clamp(10px, 1.5vw, 14px) 15px;
+            min-width: 180px;
+            max-width: 400px;
+            padding: clamp(8px, 1vw, 11px) 12px;
             border: 1px solid #dce1e8;
-            border-radius: 8px;
-            font-size: clamp(14px, 1.2vw, 17px);
+            border-radius: 6px;
+            font-size: clamp(12px, 1vw, 14px);
             transition: 0.3s;
             background: #f8f9fa;
         }
@@ -156,23 +156,23 @@
             border-color: #1a3a5c;
             outline: none;
             background: #fff;
-            box-shadow: 0 0 0 3px rgba(26, 58, 92, 0.1);
+            box-shadow: 0 0 0 3px rgba(26, 58, 92, 0.08);
         }
         .btn-buscar {
             background: #1a3a5c; color: #fff;
-            padding: clamp(10px, 1.5vw, 14px) clamp(20px, 2.5vw, 30px);
+            padding: clamp(8px, 1vw, 11px) clamp(16px, 2vw, 24px);
             border: none;
-            border-radius: 8px;
-            font-size: clamp(14px, 1.2vw, 17px);
+            border-radius: 6px;
+            font-size: clamp(12px, 1vw, 14px);
             font-weight: 600;
             cursor: pointer;
         }
         .btn-limpiar {
             background: #dc3545; color: #fff;
-            padding: clamp(10px, 1.5vw, 14px) clamp(20px, 2.5vw, 30px);
+            padding: clamp(8px, 1vw, 11px) clamp(16px, 2vw, 24px);
             border: none;
-            border-radius: 8px;
-            font-size: clamp(14px, 1.2vw, 17px);
+            border-radius: 6px;
+            font-size: clamp(12px, 1vw, 14px);
             font-weight: 600;
             cursor: pointer;
             display: none;
@@ -186,39 +186,53 @@
 
         .table-responsive {
             overflow-x: auto;
-            margin-top: 15px;
-            border-radius: 8px;
+            margin-top: 10px;
+            border-radius: 6px;
             border: 1px solid #e6eaef;
             -webkit-overflow-scrolling: touch;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: clamp(12px, 1vw, 15px);
-            min-width: 900px;
+            font-size: clamp(11px, 0.85vw, 13px);
+            min-width: 650px;
         }
         thead { background: #1a3a5c; color: #fff; }
-        th { padding: clamp(8px, 1vw, 14px) clamp(10px, 1.2vw, 18px); text-align: left; font-weight: 600; white-space: nowrap; }
-        td { padding: clamp(8px, 1vw, 14px) clamp(10px, 1.2vw, 18px); border-bottom: 1px solid #e6eaef; vertical-align: middle; }
+        th { 
+            padding: clamp(6px, 0.8vw, 10px) clamp(8px, 1vw, 14px); 
+            text-align: left; 
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        td { 
+            padding: clamp(6px, 0.8vw, 10px) clamp(8px, 1vw, 14px); 
+            border-bottom: 1px solid #e6eaef; 
+            vertical-align: middle; 
+        }
         tbody tr:hover { background: #f5f8fc; }
         .btn-small {
-            font-size: clamp(11px, 0.9vw, 13px);
-            padding: 5px 12px;
-            border-radius: 6px;
+            font-size: clamp(10px, 0.75vw, 12px);
+            padding: 4px 10px;
+            border-radius: 5px;
             border: none;
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
             font-weight: 600;
             transition: all 0.3s;
+            white-space: nowrap;
         }
-        .btn-warning-small { background: #ffc107; color: #1e2a3a; }
-        .btn-danger-small { background: #dc3545; color: #fff; }
-        .btn-secondary-small { background: #6c757d; color: #fff; }
-        .btn-warning-small:hover { background: #e0a800; }
-        .btn-danger-small:hover { background: #c82333; }
-        .btn-secondary-small:hover { background: #5a6268; }
-        .acciones { display: flex; gap: 6px; flex-wrap: wrap; }
+        .btn-editar { background: #ffc107; color: #1e2a3a; }
+        .btn-eliminar { background: #dc3545; color: #fff; }
+        .btn-faltas-small { background: #17a2b8; color: #fff; }
+        .btn-incidencias-small { background: #6f42c1; color: #fff; }
+        .btn-imprimir-small { background: #6c757d; color: #fff; }
+        .btn-editar:hover { background: #e0a800; }
+        .btn-eliminar:hover { background: #c82333; }
+        .btn-faltas-small:hover { background: #138496; }
+        .btn-incidencias-small:hover { background: #5a32a3; }
+        .btn-imprimir-small:hover { background: #5a6268; }
+        .acciones { display: flex; gap: 4px; flex-wrap: wrap; }
 
         @media (max-width: 768px) {
             table, thead, tbody, th, td, tr { display: block; }
@@ -226,83 +240,91 @@
             tbody tr {
                 display: block;
                 border: 1px solid #e6eaef;
-                border-radius: 8px;
-                margin-bottom: 15px;
-                padding: 15px;
+                border-radius: 6px;
+                margin-bottom: 10px;
+                padding: 10px 12px;
                 background: #fff;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                box-shadow: 0 2px 6px rgba(0,0,0,0.04);
             }
             tbody tr td {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                padding: 8px 5px;
+                padding: 6px 4px;
                 border-bottom: 1px solid #f0f0f0;
+                font-size: 13px;
             }
             tbody tr td:last-child { border-bottom: none; }
             tbody tr td::before {
                 content: attr(data-label);
                 font-weight: 600;
                 color: #1a3a5c;
-                font-size: 11px;
+                font-size: 10px;
                 text-transform: uppercase;
-                letter-spacing: 0.5px;
-                flex: 0 0 40%;
+                letter-spacing: 0.3px;
+                flex: 0 0 38%;
             }
-            .acciones { flex-wrap: wrap; gap: 8px; }
-            .acciones .btn-small { flex: 1; min-width: 80px; text-align: center; font-size: 13px; padding: 8px 12px; }
-            .sin-permisos { font-size: 13px; padding: 6px 12px; }
+            .acciones { flex-wrap: wrap; gap: 5px; }
+            .acciones .btn-small { 
+                flex: 1; 
+                min-width: 70px; 
+                text-align: center; 
+                font-size: 12px; 
+                padding: 6px 10px; 
+            }
+            .sin-permisos { font-size: 12px; padding: 5px 10px; }
         }
 
         .alert {
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-weight: 500;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
+            font-size: 13px;
         }
         .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: inherit; opacity: 0.7; }
+        .close-btn { background: none; border: none; font-size: 18px; cursor: pointer; color: inherit; opacity: 0.6; padding: 0 6px; }
         .close-btn:hover { opacity: 1; }
 
         .btn-volver-menu {
             background: #6c757d; color: #fff;
-            padding: clamp(10px, 1.5vw, 14px) clamp(20px, 2.5vw, 30px);
-            border-radius: 8px;
+            padding: clamp(8px, 1vw, 12px) clamp(16px, 2vw, 24px);
+            border-radius: 6px;
             text-decoration: none;
             font-weight: 600;
             display: inline-block;
             transition: all 0.3s;
             text-align: center;
-            font-size: clamp(14px, 1.2vw, 17px);
+            font-size: clamp(12px, 1vw, 14px);
         }
         .btn-volver-menu:hover { background: #5a6268; transform: translateY(-2px); }
         @media (max-width: 768px) { .btn-volver-menu { display: block; width: 100%; text-align: center; } }
 
         .sin-permisos {
             color: #999;
-            font-size: clamp(11px, 0.9vw, 13px);
+            font-size: clamp(10px, 0.75vw, 12px);
             display: inline-block;
             background: #f1f1f1;
-            padding: 4px 8px;
+            padding: 3px 8px;
             border-radius: 4px;
         }
         .spinner {
             display: inline-block;
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             border: 2px solid #1a3a5c;
             border-radius: 50%;
             border-top-color: transparent;
             animation: spin 0.8s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .cargando { text-align: center; padding: 40px; color: #999; }
+        .cargando { text-align: center; padding: 30px; color: #999; font-size: 14px; }
 
         @media print { .no-print { display: none !important; } }
     </style>
@@ -345,22 +367,20 @@
 
         <!-- BUSCADOR -->
         <div class="buscador-moderno no-print">
-            <form id="buscarForm" style="display:flex; gap:10px; width:100%; justify-content:center; flex-wrap:wrap;">
+            <form id="buscarForm" style="display:flex; gap:8px; width:100%; justify-content:center; flex-wrap:wrap;">
                 <input type="text" id="buscarInput" placeholder="🔍 Buscar por nombre o email...">
                 <button type="submit" class="btn-buscar">Buscar</button>
                 <button type="button" id="limpiarBuscar" class="btn-limpiar">✖ Limpiar</button>
             </form>
         </div>
 
-        <!-- TABLA - Con columnas: #, Nombre, Email, Teléfono, Área, Puesto, Fecha Registro, Acciones -->
+        <!-- TABLA - EXACTAMENTE como la primera imagen: #, Nombre, Área, Puesto, Fecha Registro, Acciones -->
         <div class="table-responsive">
             <table>
                 <thead>
                     <tr>
-                        <th style="width:40px;">#</th>
+                        <th style="width:35px;">#</th>
                         <th>Nombre</th>
-                        <th>Email</th>
-                        <th>Teléfono</th>
                         <th>Área</th>
                         <th>Puesto</th>
                         <th>Fecha Registro</th>
@@ -368,13 +388,13 @@
                     </tr>
                 </thead>
                 <tbody id="tablaBody">
-                    <tr><td colspan="8" class="cargando"><span class="spinner"></span> Cargando usuarios...</td></tr>
+                    <tr><td colspan="6" class="cargando"><span class="spinner"></span> Cargando usuarios...</td></tr>
                 </tbody>
             </table>
         </div>
 
         <!-- VOLVER AL MENÚ -->
-        <div style="text-align:left; margin-top:20px;" class="no-print">
+        <div style="text-align:left; margin-top:15px;" class="no-print">
             <a href="menu.html" class="btn-volver-menu">⬅ Volver al Menú</a>
         </div>
     </div>
@@ -456,7 +476,7 @@
 
         async function cargarUsuarios() {
             const tbody = document.getElementById('tablaBody');
-            tbody.innerHTML = `<tr><td colspan="8" class="cargando"><span class="spinner"></span> Cargando usuarios...</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="cargando"><span class="spinner"></span> Cargando usuarios...</td></tr>`;
 
             const resultado = await window.firebaseApp.obtenerUsuariosFirebase();
             
@@ -464,7 +484,7 @@
                 usuarios = resultado.data;
                 renderizarTabla(usuarios);
             } else {
-                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:40px; color:#999;">❌ Error al cargar usuarios: ${resultado.error}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:#999;">❌ Error al cargar usuarios: ${resultado.error}</td></tr>`;
             }
         }
 
@@ -473,7 +493,7 @@
             
             if (!lista || lista.length === 0) {
                 tbody.innerHTML = `
-                    <tr><td colspan="8" style="text-align: center; padding: 40px; color: #999;">📭 No hay usuarios registrados</td></tr>
+                    <tr><td colspan="6" style="text-align: center; padding: 30px; color: #999;">📭 No hay usuarios registrados</td></tr>
                 `;
                 return;
             }
@@ -486,22 +506,20 @@
                     <tr>
                         <td data-label="#">${index + 1}</td>
                         <td data-label="Nombre"><strong>${escapeHtml(usuario.nombre)}</strong></td>
-                        <td data-label="Email">${escapeHtml(usuario.email || '')}</td>
-                        <td data-label="Teléfono">${escapeHtml(usuario.telefono || '')}</td>
                         <td data-label="Área">${escapeHtml(usuario.area || '')}</td>
                         <td data-label="Puesto">${escapeHtml(usuario.puesto || '')}</td>
-                        <td data-label="Fecha Registro" style="font-size: 13px; color: #555;">${fechaRegistro}</td>
+                        <td data-label="Fecha Registro" style="font-size: 12px; color: #555;">${fechaRegistro}</td>
                         <td data-label="Acciones" class="no-print">
                             <div class="acciones">
                                 ${usuarioActual && usuarioActual.rol === 'admin' ? `
-                                    <a href="editar.html?uid=${usuario.uid}" class="btn btn-warning-small btn-small">✏️ Editar</a>
-                                    <button onclick="eliminarUsuario('${usuario.uid}')" class="btn btn-danger-small btn-small">🗑️ Eliminar</button>
+                                    <a href="editar.html?uid=${usuario.uid}" class="btn-small btn-editar">✏️ Editar</a>
+                                    <button onclick="eliminarUsuario('${usuario.uid}')" class="btn-small btn-eliminar">🗑️ Eliminar</button>
                                 ` : `
                                     <span class="sin-permisos">🔒 Sin permisos</span>
                                 `}
-                                <a href="faltas.html?usuario_id=${usuario.uid}" class="btn btn-faltas btn-small">📋 Faltas</a>
-                                <a href="ver_incidencia.html?usuario_id=${usuario.uid}" class="btn btn-incidencias btn-small">📄 Incidencias</a>
-                                <a href="imprimir_usuario.html?uid=${usuario.uid}" target="_blank" class="btn btn-secondary-small btn-small">🖨️ Imprimir</a>
+                                <a href="faltas.html?usuario_id=${usuario.uid}" class="btn-small btn-faltas-small">📋 Faltas</a>
+                                <a href="ver_incidencia.html?usuario_id=${usuario.uid}" class="btn-small btn-incidencias-small">📄 Incidencias</a>
+                                <a href="imprimir_usuario.html?uid=${usuario.uid}" target="_blank" class="btn-small btn-imprimir-small">🖨️ Imprimir</a>
                             </div>
                         </td>
                     </tr>
@@ -533,8 +551,7 @@
                 return;
             }
             const filtrados = usuarios.filter(u => 
-                u.nombre.toLowerCase().includes(termino.toLowerCase()) ||
-                (u.email && u.email.toLowerCase().includes(termino.toLowerCase()))
+                u.nombre.toLowerCase().includes(termino.toLowerCase())
             );
             renderizarTabla(filtrados);
             document.getElementById('limpiarBuscar').style.display = 'inline-block';
