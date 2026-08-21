@@ -8,127 +8,10 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f0f2f5;
-            min-height: 100vh;
-            padding: 15px;
-            margin: 0;
-        }
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            background: #fff;
-            border-radius: 10px;
-            padding: clamp(15px, 2vw, 25px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-        }
-        .header-superior {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #1a3a5c;
-            margin-bottom: 18px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-        .header-superior .logo-izquierda {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            flex-wrap: wrap;
-        }
-        .header-superior .logo-izquierda .logo-img {
-            height: clamp(50px, 6vw, 65px);
-            width: auto;
-            object-fit: contain;
-        }
-        .header-superior .logo-izquierda .textos-logo {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.2;
-        }
-        .header-superior .logo-izquierda .textos-logo .humanismo {
-            font-size: clamp(11px, 1.2vw, 14px);
-            font-weight: 700;
-            color: #1a3a5c;
-            letter-spacing: 0.8px;
-        }
-        .header-superior .logo-izquierda .textos-logo .secret {
-            font-size: clamp(13px, 1.5vw, 16px);
-            font-weight: 800;
-            color: #b8860b;
-            letter-spacing: 0.3px;
-        }
-        .header-superior .logo-izquierda .textos-logo .gobierno {
-            font-size: clamp(11px, 1.2vw, 14px);
-            font-weight: 600;
-            color: #1a3a5c;
-        }
-        .header-superior .logo-izquierda .textos-logo .periodo {
-            font-size: clamp(10px, 1vw, 13px);
-            font-weight: 600;
-            color: #1a3a5c;
-        }
-        .reloj-moderno {
-            font-size: clamp(13px, 1.2vw, 16px);
-            font-weight: 700;
-            color: #1a3a5c;
-            background: #f8f9fa;
-            padding: 6px 16px;
-            border-radius: 6px;
-            border: 1px solid #e0e0e0;
-            font-family: 'Courier New', monospace;
-            text-align: center;
-            min-width: 100px;
-        }
-        .reloj-moderno .fecha {
-            font-size: clamp(10px, 0.8vw, 12px);
-            color: #6c757d;
-            font-weight: 600;
-            display: block;
-        }
-        .reloj-moderno .hora {
-            font-size: clamp(15px, 1.5vw, 19px);
-            display: block;
-        }
-        .header-titulo { text-align: center; margin-bottom: 20px; }
-        .titulo-gestion {
-            font-size: clamp(20px, 3vw, 28px);
-            font-weight: 700;
-            color: #1a3a5c;
-            display: inline-block;
-            padding: 0 5px;
-            border-bottom: 3px solid #1a3a5c;
-        }
-        .header-actions { display: flex; justify-content: center; margin-bottom: 20px; }
-        .header-buttons {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            justify-content: center;
-            width: 100%;
-        }
-        .btn {
-            padding: clamp(9px, 1vw, 13px) clamp(16px, 2vw, 26px);
-            border: none;
-            border-radius: 6px;
-            font-size: clamp(12px, 1vw, 14px);
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s;
-            text-align: center;
-        }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
-        .btn-agregar { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: #fff; }
-        .btn-blanco { background: #6c757d; color: #fff; }
-        .btn-imprimir { background: #1a3a5c; color: #fff; }
-
-        /* BOTÓN CONEXIONES - SOLO ADMIN */
+        /* TODOS LOS ESTILOS QUE YA TENÍAS, MANTENLOS IGUAL */
+        /* ... (tus estilos existentes) ... */
+        
+        /* AGREGAR ESTE ESTILO PARA EL BOTÓN CONEXIONES */
         .btn-conexiones {
             background: linear-gradient(135deg, #6f42c1 0%, #8b5cf6 100%);
             color: #fff;
@@ -148,252 +31,8 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(111, 66, 193, 0.35);
         }
-
+        
         .oculto { display: none !important; }
-
-        @media (max-width: 768px) {
-            .btn { width: 100%; white-space: normal; padding: 12px 16px; font-size: 14px; }
-            .btn-conexiones { width: 100%; white-space: normal; padding: 12px 16px; font-size: 14px; }
-            .header-buttons { flex-direction: column; width: 100%; }
-        }
-
-        .buscador-moderno {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        .buscador-moderno input {
-            flex: 1;
-            min-width: 200px;
-            max-width: 450px;
-            padding: clamp(9px, 1vw, 12px) 14px;
-            border: 1px solid #dce1e8;
-            border-radius: 6px;
-            font-size: clamp(13px, 1vw, 15px);
-            transition: 0.3s;
-            background: #f8f9fa;
-        }
-        .buscador-moderno input:focus {
-            border-color: #1a3a5c;
-            outline: none;
-            background: #fff;
-            box-shadow: 0 0 0 3px rgba(26, 58, 92, 0.08);
-        }
-        .btn-buscar {
-            background: #1a3a5c; color: #fff;
-            padding: clamp(9px, 1vw, 12px) clamp(18px, 2vw, 26px);
-            border: none;
-            border-radius: 6px;
-            font-size: clamp(13px, 1vw, 15px);
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .btn-limpiar {
-            background: #dc3545; color: #fff;
-            padding: clamp(9px, 1vw, 12px) clamp(18px, 2vw, 26px);
-            border: none;
-            border-radius: 6px;
-            font-size: clamp(13px, 1vw, 15px);
-            font-weight: 600;
-            cursor: pointer;
-            display: none;
-        }
-        @media (max-width: 768px) {
-            .buscador-moderno { flex-direction: column; align-items: stretch; }
-            .buscador-moderno input { max-width: 100%; width: 100%; }
-            .buscador-moderno .btn-buscar,
-            .buscador-moderno .btn-limpiar { width: 100%; text-align: center; }
-        }
-
-        .table-responsive {
-            overflow-x: auto;
-            margin-top: 12px;
-            border-radius: 6px;
-            border: 1px solid #e6eaef;
-            -webkit-overflow-scrolling: touch;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: clamp(13px, 0.95vw, 15px);
-            min-width: 700px;
-        }
-        thead { background: #1a3a5c; color: #fff; }
-        th { 
-            padding: clamp(10px, 1vw, 14px) clamp(12px, 1.2vw, 18px); 
-            text-align: left; 
-            font-weight: 600;
-            white-space: nowrap;
-        }
-        td { 
-            padding: clamp(10px, 1vw, 14px) clamp(12px, 1.2vw, 18px); 
-            border-bottom: 1px solid #e6eaef; 
-            vertical-align: middle; 
-        }
-        tbody tr:hover { background: #f5f8fc; }
-
-        .btn-small {
-            font-size: clamp(12px, 0.85vw, 14px);
-            padding: 6px 14px;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            font-weight: 600;
-            transition: all 0.3s;
-            white-space: nowrap;
-        }
-        .btn-editar { background: #ffc107; color: #1e2a3a; }
-        .btn-eliminar { background: #dc3545; color: #fff; }
-        .btn-faltas-small { background: #17a2b8; color: #fff; }
-        .btn-incidencias-small { background: #6f42c1; color: #fff; }
-        .btn-imprimir-small { background: #6c757d; color: #fff; }
-        .btn-editar:hover { background: #e0a800; }
-        .btn-eliminar:hover { background: #c82333; }
-        .btn-faltas-small:hover { background: #138496; }
-        .btn-incidencias-small:hover { background: #5a32a3; }
-        .btn-imprimir-small:hover { background: #5a6268; }
-        .acciones { display: flex; gap: 6px; flex-wrap: wrap; }
-
-        @media (max-width: 768px) {
-            table, thead, tbody, th, td, tr { display: block; }
-            thead { display: none; }
-            tbody tr {
-                display: block;
-                border: 1px solid #e6eaef;
-                border-radius: 6px;
-                margin-bottom: 12px;
-                padding: 12px 14px;
-                background: #fff;
-                box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-            }
-            tbody tr td {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 8px 4px;
-                border-bottom: 1px solid #f0f0f0;
-                font-size: 14px;
-            }
-            tbody tr td:last-child { border-bottom: none; }
-            tbody tr td::before {
-                content: attr(data-label);
-                font-weight: 600;
-                color: #1a3a5c;
-                font-size: 11px;
-                text-transform: uppercase;
-                letter-spacing: 0.3px;
-                flex: 0 0 38%;
-            }
-            .acciones { flex-wrap: wrap; gap: 6px; }
-            .acciones .btn-small { 
-                flex: 1; 
-                min-width: 80px; 
-                text-align: center; 
-                font-size: 13px; 
-                padding: 8px 12px; 
-            }
-            .sin-permisos { font-size: 13px; padding: 5px 10px; }
-        }
-
-        .alert {
-            padding: 12px 16px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 500;
-            flex-wrap: wrap;
-            gap: 8px;
-            font-size: 14px;
-        }
-        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .close-btn { background: none; border: none; font-size: 18px; cursor: pointer; color: inherit; opacity: 0.6; padding: 0 6px; }
-        .close-btn:hover { opacity: 1; }
-
-        .btn-volver-menu {
-            background: #6c757d; color: #fff;
-            padding: clamp(9px, 1vw, 13px) clamp(18px, 2vw, 26px);
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 600;
-            display: inline-block;
-            transition: all 0.3s;
-            text-align: center;
-            font-size: clamp(13px, 1vw, 15px);
-        }
-        .btn-volver-menu:hover { background: #5a6268; transform: translateY(-2px); }
-        @media (max-width: 768px) { .btn-volver-menu { display: block; width: 100%; text-align: center; } }
-
-        .sin-permisos {
-            color: #999;
-            font-size: clamp(12px, 0.8vw, 14px);
-            display: inline-block;
-            background: #f1f1f1;
-            padding: 4px 10px;
-            border-radius: 4px;
-        }
-        .spinner {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid #1a3a5c;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .cargando { text-align: center; padding: 35px; color: #999; font-size: 15px; }
-
-        /* ======================================== */
-        /* ESTILOS PARA IMPRESIÓN */
-        /* ======================================== */
-        @media print {
-            .no-print { display: none !important; }
-            body { background: white !important; padding: 30px !important; margin: 0 !important; }
-            .container { box-shadow: none !important; border: none !important; padding: 0 !important; max-width: 100% !important; border-radius: 0 !important; }
-            .header-superior { display: flex !important; justify-content: space-between !important; align-items: center !important; padding-bottom: 15px !important; border-bottom: 3px solid #1a3a5c !important; margin-bottom: 25px !important; }
-            .header-superior .logo-izquierda { display: flex !important; align-items: center !important; gap: 15px !important; }
-            .header-superior .logo-izquierda .logo-img { height: 60px !important; width: auto !important; object-fit: contain !important; }
-            .header-superior .logo-izquierda .textos-logo { display: flex !important; flex-direction: column !important; line-height: 1.15 !important; }
-            .header-superior .logo-izquierda .textos-logo .humanismo { font-size: 13px !important; font-weight: 700 !important; color: #1a3a5c !important; letter-spacing: 1px !important; }
-            .header-superior .logo-izquierda .textos-logo .secret { font-size: 17px !important; font-weight: 800 !important; color: #b8860b !important; }
-            .header-superior .logo-izquierda .textos-logo .gobierno { font-size: 13px !important; font-weight: 600 !important; color: #1a3a5c !important; }
-            .header-superior .logo-izquierda .textos-logo .periodo { font-size: 12px !important; font-weight: 600 !important; color: #1a3a5c !important; }
-            .reloj-moderno { text-align: right !important; font-weight: 600 !important; background: none !important; border: none !important; padding: 0 !important; min-width: auto !important; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important; }
-            .reloj-moderno .fecha { font-size: 15px !important; color: #1a3a5c !important; display: block !important; font-weight: 600 !important; letter-spacing: 0.5px !important; }
-            .reloj-moderno .hora { font-size: 18px !important; font-weight: 700 !important; color: #1a3a5c !important; display: block !important; letter-spacing: 1px !important; margin-top: 2px !important; }
-            .header-titulo { text-align: center !important; margin-bottom: 25px !important; }
-            .titulo-gestion { font-size: 24px !important; color: #1a3a5c !important; border-bottom: 3px solid #1a3a5c !important; padding-bottom: 10px !important; display: inline-block !important; font-weight: 700 !important; }
-            .table-responsive { border: 1px solid #ddd !important; border-radius: 0 !important; margin-top: 0 !important; overflow: visible !important; }
-            table, thead, tbody, tfoot, tr, th, td { display: table !important; width: 100% !important; border-collapse: collapse !important; box-sizing: border-box !important; }
-            thead { display: table-header-group !important; background: #1a3a5c !important; color: #fff !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            tbody { display: table-row-group !important; }
-            tr { display: table-row !important; border: none !important; padding: 0 !important; box-shadow: none !important; margin: 0 !important; background: transparent !important; }
-            th { display: table-cell !important; background: #1a3a5c !important; color: #fff !important; padding: 12px 15px !important; text-align: left !important; font-weight: 600 !important; font-size: 14px !important; border: none !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; white-space: nowrap !important; }
-            td { display: table-cell !important; padding: 11px 15px !important; font-size: 14px !important; border-bottom: 1px solid #e0e0e0 !important; vertical-align: middle !important; background: transparent !important; white-space: nowrap !important; }
-            td::before { display: none !important; content: none !important; }
-            .acciones { display: none !important; }
-            td:last-child { display: none !important; }
-            th:last-child { display: none !important; }
-            .buscador-moderno { display: none !important; }
-            .header-actions { display: none !important; }
-            .alert { display: none !important; }
-            .volver-menu { display: none !important; }
-            #mensajeContainer { display: none !important; }
-            .no-print { display: none !important; }
-            td:first-child { font-weight: 600 !important; text-align: center !important; }
-            td:nth-child(2) { font-weight: 600 !important; }
-            .header-superior .logo-izquierda .textos-logo .humanismo,
-            .header-superior .logo-izquierda .textos-logo .secret,
-            .header-superior .logo-izquierda .textos-logo .gobierno,
-            .header-superior .logo-izquierda .textos-logo .periodo { display: block !important; }
-        }
     </style>
 </head>
 <body>
@@ -423,11 +62,7 @@
         <!-- BOTONES -->
         <div class="header-actions">
             <div class="header-buttons no-print" id="botonesAccion">
-                <a href="agregar.html" class="btn btn-agregar">➕ Agregar Usuario</a>
-                <a href="imprimir_formato_blanco.html" target="_blank" class="btn btn-blanco">📄 Formato en Blanco</a>
-                <button onclick="window.print()" class="btn btn-imprimir">🖨️ Imprimir todo</button>
-                <!-- BOTÓN CONEXIONES - SOLO ADMIN (se muestra con JS) -->
-                <a href="conexiones.html" id="btnConexiones" class="btn-conexiones oculto">🔗 Conexiones</a>
+                <!-- Los botones se cargan dinámicamente con JavaScript -->
             </div>
         </div>
 
@@ -526,16 +161,19 @@
             }
             usuarioActual = JSON.parse(usuarioStr);
 
+            // ACTUALIZAR QUE EL USUARIO ESTÁ CONECTADO (CORRECCIÓN)
+            try {
+                await window.firebaseApp.actualizarUsuarioFirebase(usuarioActual.uid, {
+                    conectado: true,
+                    ultima_conexion: new Date().toISOString()
+                });
+            } catch (e) {
+                console.error('Error actualizando estado de conexión:', e);
+            }
+
+            // Mostrar botones según rol
             const botonesDiv = document.getElementById('botonesAccion');
             const esAdmin = usuarioActual.rol === 'admin';
-
-            // Mostrar/Ocultar botón Conexiones según rol
-            const btnConexiones = document.getElementById('btnConexiones');
-            if (esAdmin) {
-                btnConexiones.classList.remove('oculto');
-            } else {
-                btnConexiones.classList.add('oculto');
-            }
 
             if (esAdmin) {
                 botonesDiv.innerHTML = `
@@ -666,20 +304,4 @@
         })();
     </script>
 </body>
-    async function cargarDatos() {
-    const usuarioStr = localStorage.getItem('sg_usuario_actual');
-    if (!usuarioStr) {
-        window.location.href = 'login.html';
-        return;
-    }
-    usuarioActual = JSON.parse(usuarioStr);
-
-    // Actualizar que el usuario está conectado
-    await window.firebaseApp.actualizarUsuarioFirebase(usuarioActual.uid, {
-        conectado: true,
-        ultima_conexion: new Date().toISOString()
-    });
-
-    // ... resto del código
-}
 </html>
