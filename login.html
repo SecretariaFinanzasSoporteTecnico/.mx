@@ -28,22 +28,37 @@
         }
         .login-container .logo {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
-        .login-container .logo img {
+        .login-container .logo .logo-img {
             height: 70px;
             width: auto;
             object-fit: contain;
+            display: block;
+            margin: 0 auto 5px;
+        }
+        .login-container .logo .humanismo {
+            font-size: 12px;
+            font-weight: 700;
+            color: #1a3a5c;
+            letter-spacing: 1px;
+            display: block;
         }
         .login-container .logo .secret {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 800;
             color: #b8860b;
             display: block;
-            margin-top: 5px;
+            margin-top: 2px;
         }
         .login-container .logo .gobierno {
-            font-size: 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a3a5c;
+            display: block;
+        }
+        .login-container .logo .periodo {
+            font-size: 12px;
             font-weight: 600;
             color: #1a3a5c;
             display: block;
@@ -116,6 +131,7 @@
         }
         .alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-warning { background: #fff3cd; color: #856404; border: 1px solid #ffc107; }
         .spinner {
             display: inline-block;
             width: 16px;
@@ -152,16 +168,25 @@
         .register-link a:hover {
             text-decoration: underline;
         }
+        .separador {
+            border: none;
+            border-top: 2px solid #1a3a5c;
+            margin: 15px 0;
+        }
     </style>
 </head>
 <body>
     <div class="login-container">
         <div class="logo">
-            <img src="logos/logo_izquierdo.jpg" alt="Logotipo" onerror="this.style.display='none'">
+            <img src="logos/logo_izquierdo.jpg" alt="Logotipo" class="logo-img" onerror="this.style.display='none'">
+            <span class="humanismo">HUMANISMO QUE TRANSFORMA</span>
             <span class="secret">SECRETARÍA DE FINANZAS</span>
             <span class="gobierno">GOBIERNO DE CHIAPAS</span>
+            <span class="periodo">2024 - 2030</span>
         </div>
         
+        <hr class="separador">
+
         <h1>Iniciar Sesión</h1>
         <p class="subtitulo">Ingresa tus credenciales para acceder al sistema</p>
 
@@ -169,8 +194,8 @@
 
         <form id="loginForm">
             <div class="form-group">
-                <label for="email">Correo Electrónico</label>
-                <input type="email" id="email" placeholder="ejemplo@correo.com" required autocomplete="email">
+                <label for="usuario">Usuario</label>
+                <input type="text" id="usuario" placeholder="Ingresa tu nombre de usuario" required autocomplete="username">
             </div>
             <div class="form-group">
                 <label for="password">Contraseña</label>
@@ -206,14 +231,33 @@
             }, 5000);
         }
 
+        // Función para buscar usuario por nombre de usuario en Firestore
+        async function buscarUsuarioPorNombre(nombreUsuario) {
+            try {
+                const resultado = await window.firebaseApp.obtenerUsuariosFirebase();
+                if (resultado.success) {
+                    const usuarios = resultado.data;
+                    // Buscar usuario que coincida con el nombre (case insensitive)
+                    const usuarioEncontrado = usuarios.find(u => 
+                        u.nombre && u.nombre.toLowerCase() === nombreUsuario.toLowerCase()
+                    );
+                    return usuarioEncontrado || null;
+                }
+                return null;
+            } catch (error) {
+                console.error('Error buscando usuario:', error);
+                return null;
+            }
+        }
+
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const email = document.getElementById('email').value.trim();
+            const nombreUsuario = document.getElementById('usuario').value.trim();
             const password = document.getElementById('password').value;
             const btnLogin = document.getElementById('btnLogin');
             
-            if (!email || !password) {
+            if (!nombreUsuario || !password) {
                 mostrarMensaje('⚠️ Por favor, completa todos los campos.', 'danger');
                 return;
             }
@@ -222,7 +266,26 @@
             btnLogin.innerHTML = '<span class="spinner"></span> Iniciando sesión...';
 
             try {
-                const result = await window.firebaseApp.iniciarSesionFirebase(email, password);
+                // 1. Buscar el usuario por nombre en Firestore
+                const usuarioData = await buscarUsuarioPorNombre(nombreUsuario);
+                
+                if (!usuarioData) {
+                    mostrarMensaje('❌ Usuario no encontrado. Verifica tu nombre de usuario.', 'danger');
+                    btnLogin.disabled = false;
+                    btnLogin.innerHTML = 'Iniciar Sesión';
+                    return;
+                }
+
+                // 2. Verificar que tenga email asociado
+                if (!usuarioData.email) {
+                    mostrarMensaje('❌ El usuario no tiene un email asociado. Contacta al administrador.', 'danger');
+                    btnLogin.disabled = false;
+                    btnLogin.innerHTML = 'Iniciar Sesión';
+                    return;
+                }
+
+                // 3. Autenticar con Firebase usando el email encontrado
+                const result = await window.firebaseApp.iniciarSesionFirebase(usuarioData.email, password);
                 
                 if (result.success) {
                     // Guardar usuario en localStorage con la clave correcta
@@ -238,7 +301,7 @@
                         console.error('Error actualizando estado de conexión:', e);
                     }
                     
-                    mostrarMensaje('✅ ¡Bienvenido! Redirigiendo...', 'success');
+                    mostrarMensaje('✅ ¡Bienvenido ' + usuarioData.nombre + '! Redirigiendo...', 'success');
                     
                     setTimeout(() => {
                         window.location.href = 'menu.html';
