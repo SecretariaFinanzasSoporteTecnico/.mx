@@ -3,14 +3,6 @@
 // ============================================================
 
 // ============================================================
-// INICIALIZACIÓN DE FIREBASE
-// ============================================================
-
-// Asegurar que auth y db estén definidas
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-// ============================================================
 // AUTENTICACIÓN
 // ============================================================
 
@@ -41,12 +33,6 @@ async function loginFirebase(email, password) {
         return { success: false, error: mensaje };
     }
 }
-
-// ALIAS para compatibilidad con login.html
-async function iniciarSesionFirebase(email, password) {
-    return loginFirebase(email, password);
-}
-
 // Registrar usuario
 async function registrarFirebase(email, password, datosUsuario) {
     try {
@@ -95,11 +81,6 @@ async function logoutFirebase() {
     }
 }
 
-// ALIAS para compatibilidad
-async function cerrarSesionFirebase() {
-    return logoutFirebase();
-}
-
 function getCurrentUser() {
     return auth.currentUser;
 }
@@ -119,7 +100,7 @@ async function obtenerUsuariosFirebase() {
         snapshot.forEach(doc => {
             const data = doc.data();
             usuarios.push({ 
-                uid: doc.id, 
+                id: doc.id, 
                 ...data,
                 fecha_registro: data.fecha_registro ? data.fecha_registro.toDate().toISOString() : null
             });
@@ -144,7 +125,7 @@ async function obtenerUsuarioPorIdFirebase(uid) {
             return { 
                 success: true, 
                 data: { 
-                    uid: doc.id, 
+                    id: doc.id, 
                     ...data,
                     fecha_registro: data.fecha_registro ? data.fecha_registro.toDate().toISOString() : null
                 } 
@@ -318,7 +299,7 @@ async function justificarIncidenciaFirebase(incidenciaId, datosJustificacion) {
 }
 
 // ============================================================
-// SERVICIOS (CRUD)
+// SERVICIOS (CRUD) - VERSIÓN SIN ÍNDICES
 // ============================================================
 
 async function agregarServicioFirebase(datos) {
@@ -600,16 +581,12 @@ async function crearAdminPorDefecto() {
 // ============================================================
 
 window.firebaseApp = {
-    // Auth - Nombres originales
+    // Auth
     loginFirebase: loginFirebase,
     registrarFirebase: registrarFirebase,
     logoutFirebase: logoutFirebase,
     getCurrentUser: getCurrentUser,
     onAuthStateChanged: onAuthStateChanged,
-    
-    // Auth - ALIAS para compatibilidad con login.html
-    iniciarSesionFirebase: loginFirebase,  // <--- ESTO ES LO QUE FALTABA
-    cerrarSesionFirebase: logoutFirebase,   // <--- ESTO ES LO QUE FALTABA
     
     // Usuarios
     obtenerUsuariosFirebase: obtenerUsuariosFirebase,
@@ -652,4 +629,4 @@ window.firebaseApp = {
 
 console.log('🔥 Firebase App cargada correctamente');
 console.log('✅ Funciones disponibles:', Object.keys(window.firebaseApp));
-console.log('✅ iniciarSesionFirebase existe:', typeof window.firebaseApp.iniciarSesionFirebase === 'function');
+console.log('✅ registrarFirebase existe:', typeof window.firebaseApp.registrarFirebase === 'function');
