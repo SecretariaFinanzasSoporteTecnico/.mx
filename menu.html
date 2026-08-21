@@ -250,4 +250,22 @@
         setInterval(actualizarReloj, 1000);
     </script>
 </body>
+    async function cerrarSesion() {
+    if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+        const usuarioStr = localStorage.getItem('sg_usuario_actual');
+        if (usuarioStr) {
+            try {
+                const usuario = JSON.parse(usuarioStr);
+                await window.firebaseApp.actualizarUsuarioFirebase(usuario.uid, {
+                    conectado: false,
+                    ultima_conexion: new Date().toISOString()
+                });
+            } catch (e) {
+                console.error('Error al actualizar estado:', e);
+            }
+        }
+        localStorage.removeItem('sg_usuario_actual');
+        window.location.href = 'login.html';
+    }
+}
 </html>
