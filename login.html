@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Secretaría de Finanzas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Iniciar Sesión</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -11,69 +11,43 @@
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f0f2f5;
+            background: linear-gradient(135deg, #0d1b2a, #1a3a5c, #2c5f7c);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            margin: 0;
         }
         .login-container {
             background: #fff;
-            border-radius: 12px;
-            padding: 40px 35px;
-            max-width: 420px;
+            border-radius: 16px;
+            padding: clamp(25px, 5vw, 45px) clamp(20px, 4vw, 40px);
+            max-width: 450px;
             width: 100%;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
         }
-        .login-container .logo {
+        .login-container .logo-login {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
-        .login-container .logo .logo-img {
-            height: 70px;
+        .login-container .logo-login img {
+            height: clamp(60px, 12vw, 90px);
             width: auto;
-            object-fit: contain;
             display: block;
-            margin: 0 auto 5px;
-        }
-        .login-container .logo .humanismo {
-            font-size: 12px;
-            font-weight: 700;
-            color: #1a3a5c;
-            letter-spacing: 1px;
-            display: block;
-        }
-        .login-container .logo .secret {
-            font-size: 18px;
-            font-weight: 800;
-            color: #b8860b;
-            display: block;
-            margin-top: 2px;
-        }
-        .login-container .logo .gobierno {
-            font-size: 14px;
-            font-weight: 600;
-            color: #1a3a5c;
-            display: block;
-        }
-        .login-container .logo .periodo {
-            font-size: 12px;
-            font-weight: 600;
-            color: #1a3a5c;
-            display: block;
+            margin: 0 auto;
         }
         .login-container h1 {
-            text-align: center;
             color: #1a3a5c;
-            font-size: 24px;
-            margin-bottom: 5px;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: clamp(22px, 4vw, 30px);
         }
-        .login-container p.subtitulo {
+        .login-container .subtitle {
             text-align: center;
             color: #6c757d;
-            font-size: 14px;
             margin-bottom: 25px;
+            font-size: clamp(13px, 1.8vw, 16px);
         }
         .form-group {
             margin-bottom: 18px;
@@ -81,302 +55,183 @@
         .form-group label {
             display: block;
             font-weight: 600;
-            color: #1a3a5c;
-            margin-bottom: 5px;
-            font-size: 14px;
+            color: #333;
+            margin-bottom: 6px;
+            font-size: clamp(13px, 1.4vw, 15px);
         }
         .form-group input {
             width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #dce1e8;
-            border-radius: 6px;
-            font-size: 15px;
-            transition: 0.3s;
-            background: #f8f9fa;
+            padding: clamp(12px, 2vw, 16px) 15px;
+            border: 2px solid #e0e4ea;
+            border-radius: 8px;
+            font-size: clamp(14px, 1.6vw, 17px);
+            box-sizing: border-box;
+            transition: all 0.3s;
+            -webkit-appearance: none;
         }
         .form-group input:focus {
             border-color: #1a3a5c;
             outline: none;
-            background: #fff;
-            box-shadow: 0 0 0 3px rgba(26, 58, 92, 0.08);
+            box-shadow: 0 0 0 4px rgba(26,58,92,0.1);
         }
         .btn-login {
             width: 100%;
-            padding: 14px;
-            background: #1a3a5c;
+            padding: clamp(14px, 2.2vw, 18px);
+            background: linear-gradient(135deg, #1a3a5c, #2c5f7c);
             color: #fff;
             border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
+            border-radius: 8px;
+            font-size: clamp(16px, 1.8vw, 19px);
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.3s;
-            margin-top: 5px;
         }
         .btn-login:hover {
-            background: #0f2a44;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 25px rgba(26,58,92,0.3);
         }
         .btn-login:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none;
         }
         .alert {
             padding: 12px 16px;
-            border-radius: 6px;
-            margin-bottom: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
             font-weight: 500;
-            font-size: 14px;
+            font-size: clamp(13px, 1.4vw, 15px);
         }
         .alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .alert-warning { background: #fff3cd; color: #856404; border: 1px solid #ffc107; }
+        .footer-links {
+            text-align: center;
+            margin-top: 20px;
+            font-size: clamp(13px, 1.4vw, 15px);
+            color: #6c757d;
+        }
+        .footer-links a { color: #1a3a5c; text-decoration: none; font-weight: 600; }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: clamp(11px, 1.2vw, 13px);
+            color: #999;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
         .spinner {
             display: inline-block;
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
             border: 2px solid #fff;
             border-radius: 50%;
             border-top-color: transparent;
             animation: spin 0.8s linear infinite;
-            margin-right: 8px;
             vertical-align: middle;
+            margin-right: 8px;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .footer-login {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 12px;
-            color: #6c757d;
-        }
-        .footer-login .periodo {
-            font-weight: 600;
-            color: #1a3a5c;
-        }
-        .register-link {
-            text-align: center;
-            margin-top: 15px;
-            font-size: 14px;
-            color: #6c757d;
-        }
-        .register-link a {
-            color: #1a3a5c;
-            font-weight: 600;
-            text-decoration: none;
-        }
-        .register-link a:hover {
-            text-decoration: underline;
-        }
-        .separador {
-            border: none;
-            border-top: 2px solid #1a3a5c;
-            margin: 15px 0;
-        }
+        @media (max-width: 480px) { .login-container { padding: 20px 15px; } .form-group input { font-size: 16px; } }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <div class="logo">
-            <img src="logos/logo_izquierdo.jpg" alt="Logotipo" class="logo-img" onerror="this.style.display='none'">
-            <span class="humanismo">HUMANISMO QUE TRANSFORMA</span>
-            <span class="secret">SECRETARÍA DE FINANZAS</span>
-            <span class="gobierno">GOBIERNO DE CHIAPAS</span>
-            <span class="periodo">2024 - 2030</span>
+        <div class="logo-login">
+            <img src="logos/logo_izquierdo.jpg" alt="Logotipo" onerror="this.style.display='none'">
         </div>
-        
-        <hr class="separador">
-
-        <h1>Iniciar Sesión</h1>
-        <p class="subtitulo">Ingresa tus credenciales para acceder al sistema</p>
-
-        <div id="mensajeContainer"></div>
-
+        <h1>🔐 Iniciar Sesión</h1>
+        <p class="subtitle">Ingresa tus credenciales para acceder al sistema</p>
+        <div id="mensaje"></div>
         <form id="loginForm">
             <div class="form-group">
-                <label for="usuario">Usuario</label>
-                <input type="text" id="usuario" placeholder="Ingresa tu nombre de usuario" required autocomplete="username">
+                <label>👤 Usuario</label>
+                <input type="text" id="nombre" placeholder="Ej: Administrador" required>
             </div>
             <div class="form-group">
-                <label for="password">Contraseña</label>
-                <input type="password" id="password" placeholder="Ingresa tu contraseña" required autocomplete="current-password">
+                <label>🔒 Contraseña</label>
+                <input type="password" id="contrasena" placeholder="Ingresa tu contraseña" required>
             </div>
-            <button type="submit" class="btn-login" id="btnLogin">Iniciar Sesión</button>
+            <button type="submit" class="btn-login" id="btnLogin">🚀 Iniciar Sesión</button>
         </form>
-
-        <div class="register-link">
+        <div class="footer-links">
             ¿No tienes cuenta? <a href="registro.html">Regístrate aquí</a>
         </div>
-
-        <div class="footer-login">
-            Sistema de Gestión - Secretaría de Finanzas de Chiapas<br>
-            <span class="periodo">2024 - 2030</span>
-        </div>
+        <div class="footer">Sistema de Gestión - Secretaría de Finanzas de Chiapas</div>
     </div>
 
     <script src="js/firebase-config.js"></script>
     <script src="js/firebase-app.js"></script>
     
     <script>
-        function mostrarMensaje(texto, tipo) {
-            const container = document.getElementById('mensajeContainer');
-            container.innerHTML = `
-                <div class="alert alert-${tipo}">
-                    ${texto}
-                </div>
-            `;
-            setTimeout(() => {
-                const alert = container.querySelector('.alert');
-                if (alert) alert.style.display = 'none';
-            }, 5000);
-        }
-
-        // Función para buscar usuario por nombre de usuario en Firestore
-        async function buscarUsuarioPorNombre(nombreUsuario) {
-            try {
-                console.log('🔍 Buscando usuario:', nombreUsuario);
-                
-                // Verificar que firebaseApp existe
-                if (!window.firebaseApp) {
-                    console.error('❌ firebaseApp no está definido');
-                    return null;
-                }
-                
-                // Verificar que la función existe
-                if (typeof window.firebaseApp.obtenerUsuariosFirebase !== 'function') {
-                    console.error('❌ obtenerUsuariosFirebase no es una función');
-                    return null;
-                }
-                
-                const resultado = await window.firebaseApp.obtenerUsuariosFirebase();
-                console.log('📊 Resultado de obtenerUsuarios:', resultado);
-                
-                if (resultado.success) {
-                    const usuarios = resultado.data;
-                    console.log('📋 Usuarios encontrados:', usuarios.length);
-                    
-                    // Buscar usuario que coincida con el nombre (case insensitive)
-                    const usuarioEncontrado = usuarios.find(u => 
-                        u.nombre && u.nombre.toLowerCase() === nombreUsuario.toLowerCase()
-                    );
-                    
-                    if (usuarioEncontrado) {
-                        console.log('✅ Usuario encontrado:', usuarioEncontrado.nombre);
-                        console.log('📧 Email asociado:', usuarioEncontrado.email);
-                    } else {
-                        console.log('❌ Usuario no encontrado');
-                    }
-                    return usuarioEncontrado || null;
-                } else {
-                    console.error('❌ Error al obtener usuarios:', resultado.error);
-                    return null;
-                }
-            } catch (error) {
-                console.error('❌ Error buscando usuario:', error);
-                return null;
-            }
-        }
-
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const nombreUsuario = document.getElementById('usuario').value.trim();
-            const password = document.getElementById('password').value;
-            const btnLogin = document.getElementById('btnLogin');
+            const nombre = document.getElementById('nombre').value.trim();
+            const contrasena = document.getElementById('contrasena').value.trim();
+            const btn = document.getElementById('btnLogin');
+            const mensajeDiv = document.getElementById('mensaje');
             
-            if (!nombreUsuario || !password) {
-                mostrarMensaje('⚠️ Por favor, completa todos los campos.', 'danger');
+            if (!nombre || !contrasena) {
+                mostrarMensaje('Todos los campos son obligatorios.', 'danger');
                 return;
             }
-
-            btnLogin.disabled = true;
-            btnLogin.innerHTML = '<span class="spinner"></span> Iniciando sesión...';
-
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Iniciando sesión...';
+            mensajeDiv.innerHTML = '';
+            
             try {
-                // 1. Buscar el usuario por nombre en Firestore
-                const usuarioData = await buscarUsuarioPorNombre(nombreUsuario);
+                const usuariosResult = await window.firebaseApp.obtenerUsuariosFirebase();
                 
-                if (!usuarioData) {
-                    mostrarMensaje('❌ Usuario no encontrado. Verifica tu nombre de usuario.', 'danger');
-                    btnLogin.disabled = false;
-                    btnLogin.innerHTML = 'Iniciar Sesión';
+                if (!usuariosResult.success || !usuariosResult.data || usuariosResult.data.length === 0) {
+                    mostrarMensaje('❌ No hay usuarios registrados.', 'danger');
+                    btn.disabled = false;
+                    btn.innerHTML = '🚀 Iniciar Sesión';
                     return;
                 }
-
-                // 2. Verificar que tenga email asociado
-                if (!usuarioData.email) {
-                    mostrarMensaje('❌ El usuario no tiene un email asociado. Contacta al administrador.', 'danger');
-                    btnLogin.disabled = false;
-                    btnLogin.innerHTML = 'Iniciar Sesión';
-                    return;
-                }
-
-                console.log('🔑 Intentando autenticar con email:', usuarioData.email);
-
-                // 3. Verificar que la función iniciarSesionFirebase existe
-                if (typeof window.firebaseApp.iniciarSesionFirebase !== 'function') {
-                    console.error('❌ iniciarSesionFirebase no es una función');
-                    console.log('📋 Funciones disponibles:', Object.keys(window.firebaseApp));
-                    mostrarMensaje('❌ Error de configuración. Contacta al administrador.', 'danger');
-                    btnLogin.disabled = false;
-                    btnLogin.innerHTML = 'Iniciar Sesión';
-                    return;
-                }
-
-                // 4. Autenticar con Firebase usando el email encontrado
-                // ¡ATENCIÓN! El nombre correcto es: iniciarSesionFirebase (con S mayúscula, no "Session")
-                const result = await window.firebaseApp.iniciarSesionFirebase(usuarioData.email, password);
-                console.log('📊 Resultado del login:', result);
                 
-                if (result.success) {
-                    // Guardar usuario en localStorage
-                    const usuarioCompleto = {
-                        uid: result.user ? result.user.uid : usuarioData.uid,
-                        ...usuarioData
-                    };
-                    localStorage.setItem('sg_usuario_actual', JSON.stringify(usuarioCompleto));
-                    
-                    // Actualizar estado de conexión
-                    try {
-                        await window.firebaseApp.actualizarUsuarioFirebase(usuarioCompleto.uid, {
-                            conectado: true,
-                            ultima_conexion: new Date().toISOString()
-                        });
-                    } catch (e) {
-                        console.error('Error actualizando estado de conexión:', e);
-                    }
-                    
-                    mostrarMensaje('✅ ¡Bienvenido ' + usuarioData.nombre + '! Redirigiendo...', 'success');
-                    
-                    setTimeout(() => {
-                        window.location.href = 'menu.html';
-                    }, 1000);
-                } else {
-                    mostrarMensaje('❌ ' + result.error, 'danger');
-                    btnLogin.disabled = false;
-                    btnLogin.innerHTML = 'Iniciar Sesión';
+                const usuario = usuariosResult.data.find(u => {
+                    const nombreMatch = u.nombre && u.nombre.toLowerCase().trim() === nombre.toLowerCase().trim();
+                    const emailMatch = u.email && u.email.toLowerCase().trim() === nombre.toLowerCase().trim();
+                    return nombreMatch || emailMatch;
+                });
+                
+                if (!usuario) {
+                    mostrarMensaje(`❌ Usuario "${nombre}" no encontrado.`, 'danger');
+                    btn.disabled = false;
+                    btn.innerHTML = '🚀 Iniciar Sesión';
+                    return;
                 }
+                
+                const usuarioGuardar = {
+                    uid: usuario.uid,
+                    nombre: usuario.nombre,
+                    email: usuario.email || 'usuario@email.com',
+                    rol: usuario.rol || 'usuario',
+                    telefono: usuario.telefono || '',
+                    area: usuario.area || '',
+                    puesto: usuario.puesto || ''
+                };
+                
+                localStorage.setItem('sg_usuario_actual', JSON.stringify(usuarioGuardar));
+                
+                mostrarMensaje(`✅ ¡Bienvenido ${usuario.nombre}!`, 'success');
+                btn.innerHTML = '✅ ¡Bienvenido!';
+                
+                window.location.href = 'menu.html';
+                
             } catch (error) {
-                console.error('❌ Error en el login:', error);
-                mostrarMensaje('❌ Error al iniciar sesión: ' + error.message, 'danger');
-                btnLogin.disabled = false;
-                btnLogin.innerHTML = 'Iniciar Sesión';
+                console.error('❌ Error:', error);
+                mostrarMensaje('❌ Error inesperado: ' + error.message, 'danger');
+                btn.disabled = false;
+                btn.innerHTML = '🚀 Iniciar Sesión';
             }
         });
 
-        // Verificar si ya hay sesión activa
-        (function() {
-            const usuarioStr = localStorage.getItem('sg_usuario_actual');
-            if (usuarioStr) {
-                try {
-                    const usuario = JSON.parse(usuarioStr);
-                    window.location.href = 'menu.html';
-                } catch (e) {
-                    localStorage.removeItem('sg_usuario_actual');
-                }
-            }
-        })();
+        function mostrarMensaje(texto, tipo) {
+            const div = document.getElementById('mensaje');
+            div.innerHTML = `<div class="alert alert-${tipo}">${texto}</div>`;
+            setTimeout(() => { div.innerHTML = ''; }, 5000);
+        }
     </script>
 </body>
 </html>
