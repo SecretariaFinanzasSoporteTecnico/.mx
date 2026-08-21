@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-    <title>Iniciar Sesión</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Secretaría de Finanzas</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -11,43 +11,54 @@
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0d1b2a, #1a3a5c, #2c5f7c);
+            background: #f0f2f5;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
-            margin: 0;
         }
         .login-container {
             background: #fff;
-            border-radius: 16px;
-            padding: clamp(25px, 5vw, 45px) clamp(20px, 4vw, 40px);
-            max-width: 450px;
+            border-radius: 12px;
+            padding: 40px 35px;
+            max-width: 420px;
             width: 100%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
         }
-        .login-container .logo-login {
+        .login-container .logo {
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 30px;
         }
-        .login-container .logo-login img {
-            height: clamp(60px, 12vw, 90px);
+        .login-container .logo img {
+            height: 70px;
             width: auto;
+            object-fit: contain;
+        }
+        .login-container .logo .secret {
+            font-size: 20px;
+            font-weight: 800;
+            color: #b8860b;
             display: block;
-            margin: 0 auto;
+            margin-top: 5px;
+        }
+        .login-container .logo .gobierno {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a3a5c;
+            display: block;
         }
         .login-container h1 {
-            color: #1a3a5c;
             text-align: center;
-            margin-bottom: 10px;
-            font-size: clamp(22px, 4vw, 30px);
+            color: #1a3a5c;
+            font-size: 24px;
+            margin-bottom: 5px;
         }
-        .login-container .subtitle {
+        .login-container p.subtitulo {
             text-align: center;
             color: #6c757d;
+            font-size: 14px;
             margin-bottom: 25px;
-            font-size: clamp(13px, 1.8vw, 16px);
         }
         .form-group {
             margin-bottom: 18px;
@@ -55,199 +66,207 @@
         .form-group label {
             display: block;
             font-weight: 600;
-            color: #333;
-            margin-bottom: 6px;
-            font-size: clamp(13px, 1.4vw, 15px);
+            color: #1a3a5c;
+            margin-bottom: 5px;
+            font-size: 14px;
         }
         .form-group input {
             width: 100%;
-            padding: clamp(12px, 2vw, 16px) 15px;
-            border: 2px solid #e0e4ea;
-            border-radius: 8px;
-            font-size: clamp(14px, 1.6vw, 17px);
-            box-sizing: border-box;
-            transition: all 0.3s;
-            -webkit-appearance: none;
+            padding: 12px 15px;
+            border: 1px solid #dce1e8;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: 0.3s;
+            background: #f8f9fa;
         }
         .form-group input:focus {
             border-color: #1a3a5c;
             outline: none;
-            box-shadow: 0 0 0 4px rgba(26,58,92,0.1);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(26, 58, 92, 0.08);
         }
         .btn-login {
             width: 100%;
-            padding: clamp(14px, 2.2vw, 18px);
-            background: linear-gradient(135deg, #1a3a5c, #2c5f7c);
+            padding: 14px;
+            background: #1a3a5c;
             color: #fff;
             border: none;
-            border-radius: 8px;
-            font-size: clamp(16px, 1.8vw, 19px);
-            font-weight: 700;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
         }
         .btn-login:hover {
+            background: #0f2a44;
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(26,58,92,0.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         .btn-login:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+            transform: none;
         }
         .alert {
             padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            border-radius: 6px;
+            margin-bottom: 15px;
             font-weight: 500;
-            font-size: clamp(13px, 1.4vw, 15px);
+            font-size: 14px;
         }
         .alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .footer-links {
-            text-align: center;
-            margin-top: 20px;
-            font-size: clamp(13px, 1.4vw, 15px);
-            color: #6c757d;
-        }
-        .footer-links a { color: #1a3a5c; text-decoration: none; font-weight: 600; }
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            font-size: clamp(11px, 1.2vw, 13px);
-            color: #999;
-            border-top: 1px solid #eee;
-            padding-top: 20px;
-        }
         .spinner {
             display: inline-block;
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             border: 2px solid #fff;
             border-radius: 50%;
             border-top-color: transparent;
             animation: spin 0.8s linear infinite;
-            vertical-align: middle;
             margin-right: 8px;
+            vertical-align: middle;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        @media (max-width: 480px) { .login-container { padding: 20px 15px; } .form-group input { font-size: 16px; } }
+        .footer-login {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #6c757d;
+        }
+        .footer-login .periodo {
+            font-weight: 600;
+            color: #1a3a5c;
+        }
+        .register-link {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .register-link a {
+            color: #1a3a5c;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .register-link a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <div class="logo-login">
+        <div class="logo">
             <img src="logos/logo_izquierdo.jpg" alt="Logotipo" onerror="this.style.display='none'">
+            <span class="secret">SECRETARÍA DE FINANZAS</span>
+            <span class="gobierno">GOBIERNO DE CHIAPAS</span>
         </div>
-        <h1>🔐 Iniciar Sesión</h1>
-        <p class="subtitle">Ingresa tus credenciales para acceder al sistema</p>
-        <div id="mensaje"></div>
+        
+        <h1>Iniciar Sesión</h1>
+        <p class="subtitulo">Ingresa tus credenciales para acceder al sistema</p>
+
+        <div id="mensajeContainer"></div>
+
         <form id="loginForm">
             <div class="form-group">
-                <label>👤 Usuario</label>
-                <input type="text" id="nombre" placeholder="Ej: Administrador" required>
+                <label for="email">Correo Electrónico</label>
+                <input type="email" id="email" placeholder="ejemplo@correo.com" required autocomplete="email">
             </div>
             <div class="form-group">
-                <label>🔒 Contraseña</label>
-                <input type="password" id="contrasena" placeholder="Ingresa tu contraseña" required>
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" placeholder="Ingresa tu contraseña" required autocomplete="current-password">
             </div>
-            <button type="submit" class="btn-login" id="btnLogin">🚀 Iniciar Sesión</button>
+            <button type="submit" class="btn-login" id="btnLogin">Iniciar Sesión</button>
         </form>
-        <div class="footer-links">
+
+        <div class="register-link">
             ¿No tienes cuenta? <a href="registro.html">Regístrate aquí</a>
         </div>
-        <div class="footer">Sistema de Gestión - Secretaría de Finanzas de Chiapas</div>
+
+        <div class="footer-login">
+            Sistema de Gestión - Secretaría de Finanzas de Chiapas<br>
+            <span class="periodo">2024 - 2030</span>
+        </div>
     </div>
 
     <script src="js/firebase-config.js"></script>
     <script src="js/firebase-app.js"></script>
     
     <script>
+        function mostrarMensaje(texto, tipo) {
+            const container = document.getElementById('mensajeContainer');
+            container.innerHTML = `
+                <div class="alert alert-${tipo}">
+                    ${texto}
+                </div>
+            `;
+            setTimeout(() => {
+                const alert = container.querySelector('.alert');
+                if (alert) alert.style.display = 'none';
+            }, 5000);
+        }
+
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const nombre = document.getElementById('nombre').value.trim();
-            const contrasena = document.getElementById('contrasena').value.trim();
-            const btn = document.getElementById('btnLogin');
-            const mensajeDiv = document.getElementById('mensaje');
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const btnLogin = document.getElementById('btnLogin');
             
-            if (!nombre || !contrasena) {
-                mostrarMensaje('Todos los campos son obligatorios.', 'danger');
+            if (!email || !password) {
+                mostrarMensaje('⚠️ Por favor, completa todos los campos.', 'danger');
                 return;
             }
-            
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner"></span> Iniciando sesión...';
-            mensajeDiv.innerHTML = '';
-            
+
+            btnLogin.disabled = true;
+            btnLogin.innerHTML = '<span class="spinner"></span> Iniciando sesión...';
+
             try {
-                const usuariosResult = await window.firebaseApp.obtenerUsuariosFirebase();
+                const result = await window.firebaseApp.iniciarSesionFirebase(email, password);
                 
-                if (!usuariosResult.success || !usuariosResult.data || usuariosResult.data.length === 0) {
-                    mostrarMensaje('❌ No hay usuarios registrados.', 'danger');
-                    btn.disabled = false;
-                    btn.innerHTML = '🚀 Iniciar Sesión';
-                    return;
+                if (result.success) {
+                    // Guardar usuario en localStorage con la clave correcta
+                    localStorage.setItem('sg_usuario_actual', JSON.stringify(result.data));
+                    
+                    // Actualizar estado de conexión
+                    try {
+                        await window.firebaseApp.actualizarUsuarioFirebase(result.data.uid, {
+                            conectado: true,
+                            ultima_conexion: new Date().toISOString()
+                        });
+                    } catch (e) {
+                        console.error('Error actualizando estado de conexión:', e);
+                    }
+                    
+                    mostrarMensaje('✅ ¡Bienvenido! Redirigiendo...', 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'menu.html';
+                    }, 1000);
+                } else {
+                    mostrarMensaje('❌ ' + result.error, 'danger');
+                    btnLogin.disabled = false;
+                    btnLogin.innerHTML = 'Iniciar Sesión';
                 }
-                
-                const usuario = usuariosResult.data.find(u => {
-                    const nombreMatch = u.nombre && u.nombre.toLowerCase().trim() === nombre.toLowerCase().trim();
-                    const emailMatch = u.email && u.email.toLowerCase().trim() === nombre.toLowerCase().trim();
-                    return nombreMatch || emailMatch;
-                });
-                
-                if (!usuario) {
-                    mostrarMensaje(`❌ Usuario "${nombre}" no encontrado.`, 'danger');
-                    btn.disabled = false;
-                    btn.innerHTML = '🚀 Iniciar Sesión';
-                    return;
-                }
-                
-                const usuarioGuardar = {
-                    uid: usuario.uid,
-                    nombre: usuario.nombre,
-                    email: usuario.email || 'usuario@email.com',
-                    rol: usuario.rol || 'usuario',
-                    telefono: usuario.telefono || '',
-                    area: usuario.area || '',
-                    puesto: usuario.puesto || ''
-                };
-                
-                localStorage.setItem('sg_usuario_actual', JSON.stringify(usuarioGuardar));
-                
-                mostrarMensaje(`✅ ¡Bienvenido ${usuario.nombre}!`, 'success');
-                btn.innerHTML = '✅ ¡Bienvenido!';
-                
-                window.location.href = 'menu.html';
-                
             } catch (error) {
-                console.error('❌ Error:', error);
-                mostrarMensaje('❌ Error inesperado: ' + error.message, 'danger');
-                btn.disabled = false;
-                btn.innerHTML = '🚀 Iniciar Sesión';
+                mostrarMensaje('❌ Error al iniciar sesión: ' + error.message, 'danger');
+                btnLogin.disabled = false;
+                btnLogin.innerHTML = 'Iniciar Sesión';
             }
         });
 
-        function mostrarMensaje(texto, tipo) {
-            const div = document.getElementById('mensaje');
-            div.innerHTML = `<div class="alert alert-${tipo}">${texto}</div>`;
-            setTimeout(() => { div.innerHTML = ''; }, 5000);
-        }
+        // Verificar si ya hay sesión activa
+        (function() {
+            const usuarioStr = localStorage.getItem('sg_usuario_actual');
+            if (usuarioStr) {
+                try {
+                    const usuario = JSON.parse(usuarioStr);
+                    window.location.href = 'menu.html';
+                } catch (e) {
+                    localStorage.removeItem('sg_usuario_actual');
+                }
+            }
+        })();
     </script>
 </body>
-    // Dentro de la función de login, después de autenticar al usuario
-async function actualizarEstadoConexion(uid, conectado) {
-    try {
-        await window.firebaseApp.actualizarUsuarioFirebase(uid, {
-            conectado: conectado,
-            ultima_conexion: new Date().toISOString()
-        });
-    } catch (error) {
-        console.error('Error actualizando estado de conexión:', error);
-    }
-}
-
-// En el login, después de obtener el usuario:
-const user = result.user;
-// Actualizar estado a conectado
-await actualizarEstadoConexion(user.uid, true);
 </html>
