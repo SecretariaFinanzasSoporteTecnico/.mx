@@ -10,4 +10,457 @@
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            padding: clamp(20px, 3vw, 35px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+
+        .header-superior {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #1a3a5c;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .header-superior .logo-izquierda {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .header-superior .logo-izquierda .logo-img {
+            height: clamp(50px, 6vw, 65px);
+            width: auto;
+            object-fit: contain;
+        }
+        .header-superior .logo-izquierda .textos-logo {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+        .header-superior .logo-izquierda .textos-logo .humanismo {
+            font-size: clamp(11px, 1.2vw, 14px);
+            font-weight: 700;
+            color: #1a3a5c;
+            letter-spacing: 0.8px;
+        }
+        .header-superior .logo-izquierda .textos-logo .secret {
+            font-size: clamp(13px, 1.5vw, 16px);
+            font-weight: 800;
+            color: #b8860b;
+            letter-spacing: 0.3px;
+        }
+        .header-superior .logo-izquierda .textos-logo .gobierno {
+            font-size: clamp(11px, 1.2vw, 14px);
+            font-weight: 600;
+            color: #1a3a5c;
+        }
+        .header-superior .logo-izquierda .textos-logo .periodo {
+            font-size: clamp(10px, 1vw, 13px);
+            font-weight: 600;
+            color: #1a3a5c;
+        }
+        .reloj-moderno {
+            font-size: clamp(13px, 1.2vw, 16px);
+            font-weight: 700;
+            color: #1a3a5c;
+            background: #f8f9fa;
+            padding: 6px 16px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            min-width: 100px;
+        }
+        .reloj-moderno .fecha {
+            font-size: clamp(10px, 0.8vw, 12px);
+            color: #6c757d;
+            font-weight: 600;
+            display: block;
+        }
+        .reloj-moderno .hora {
+            font-size: clamp(15px, 1.5vw, 19px);
+            display: block;
+        }
+
+        .titulo-pagina {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .titulo-pagina h1 {
+            font-size: clamp(24px, 4vw, 32px);
+            color: #1a3a5c;
+            font-weight: 700;
+            border-bottom: 3px solid #1a3a5c;
+            display: inline-block;
+            padding-bottom: 8px;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 12px;
+            border-radius: 6px;
+            border: 1px solid #e6eaef;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(13px, 0.95vw, 15px);
+            min-width: 700px;
+        }
+        thead { background: #1a3a5c; color: #fff; }
+        th { 
+            padding: 12px 15px; 
+            text-align: left; 
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        td { 
+            padding: 11px 15px; 
+            border-bottom: 1px solid #e6eaef; 
+            vertical-align: middle; 
+        }
+        tbody tr:hover { background: #f5f8fc; }
+
+        .estado-conectado {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .estado-conectado.online { background: #d4edda; color: #155724; }
+        .estado-conectado.offline { background: #f8d7da; color: #721c24; }
+
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #1a3a5c;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+            margin-right: 10px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .cargando {
+            text-align: center;
+            padding: 50px;
+            color: #999;
+            font-size: 16px;
+        }
+
+        .btn-volver {
+            background: #6c757d;
+            color: #fff;
+            padding: 10px 28px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+        .btn-volver:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .sin-permisos {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        .sin-permisos .icono {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        .sin-permisos h2 {
+            color: #dc3545;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .sin-permisos p {
+            color: #6c757d;
+            font-size: 16px;
+        }
+
+        @media (max-width: 768px) {
+            table, thead, tbody, th, td, tr { display: block; }
+            thead { display: none; }
+            tbody tr {
+                display: block;
+                border: 1px solid #e6eaef;
+                border-radius: 6px;
+                margin-bottom: 12px;
+                padding: 12px 14px;
+                background: #fff;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            }
+            tbody tr td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px 4px;
+                border-bottom: 1px solid #f0f0f0;
+                font-size: 14px;
+            }
+            tbody tr td:last-child { border-bottom: none; }
+            tbody tr td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: #1a3a5c;
+                font-size: 11px;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+                flex: 0 0 38%;
+            }
+            .header-superior { flex-direction: column; align-items: flex-start; }
+            .reloj-moderno { align-self: flex-end; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header-superior">
+            <div class="logo-izquierda">
+                <img src="logos/logo_izquierdo.jpg" alt="Logotipo" class="logo-img" onerror="this.style.display='none'">
+                <div class="textos-logo">
+                    <span class="humanismo">HUMANISMO QUE TRANSFORMA</span>
+                    <span class="secret">SECRETARÍA DE FINANZAS</span>
+                    <span class="gobierno">GOBIERNO DE CHIAPAS</span>
+                    <span class="periodo">2024 - 2030</span>
+                </div>
+            </div>
+            <div class="reloj-moderno" id="reloj">
+                <span class="fecha" id="fecha">Cargando...</span>
+                <span class="hora" id="hora">Cargando...</span>
+            </div>
+        </div>
+
+        <!-- CONTENIDO -->
+        <div id="contenido">
+            <div class="cargando">
+                <span class="spinner"></span> Cargando conexiones...
+            </div>
+        </div>
+    </div>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-app.js"></script>
+    
+    <script>
+        let usuarioActual = null;
+        let conexiones = [];
+
+        function escapeHtml(texto) {
+            if (!texto) return '';
+            const div = document.createElement('div');
+            div.textContent = texto;
+            return div.innerHTML;
+        }
+
+        function formatearFechaHora(fecha) {
+            if (!fecha) return '--';
+            const d = new Date(fecha);
+            return d.toLocaleString('es-MX', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+
+        function formatearFechaHoraCorta(fecha) {
+            if (!fecha) return '--';
+            const d = new Date(fecha);
+            return d.toLocaleString('es-MX', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function actualizarReloj() {
+            const ahora = new Date();
+            const fecha = ahora.toLocaleDateString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit' });
+            const hora = ahora.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById('fecha').textContent = '📅 ' + fecha;
+            document.getElementById('hora').textContent = '🕐 ' + hora;
+        }
+        setInterval(actualizarReloj, 1000);
+        actualizarReloj();
+
+        async function cargarConexiones() {
+            const usuarioStr = localStorage.getItem('sg_usuario_actual');
+            if (!usuarioStr) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                usuarioActual = JSON.parse(usuarioStr);
+            } catch (e) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Verificar que sea administrador
+            if (usuarioActual.rol !== 'admin') {
+                document.getElementById('contenido').innerHTML = `
+                    <div class="sin-permisos">
+                        <div class="icono">🔒</div>
+                        <h2>Acceso Denegado</h2>
+                        <p>Esta sección solo está disponible para administradores.</p>
+                        <a href="index.html" class="btn-volver">⬅ Volver al inicio</a>
+                    </div>
+                `;
+                return;
+            }
+
+            // Cargar usuarios y sus conexiones
+            const resultado = await window.firebaseApp.obtenerUsuariosFirebase();
+            
+            if (resultado.success) {
+                const usuarios = resultado.data;
+                conexiones = usuarios.map(u => ({
+                    uid: u.uid,
+                    nombre: u.nombre || 'Usuario sin nombre',
+                    email: u.email || '',
+                    area: u.area || '',
+                    puesto: u.puesto || '',
+                    ultima_conexion: u.ultima_conexion || u.fecha_registro || null,
+                    ultima_modificacion: u.ultima_modificacion || null,
+                    conectado: u.conectado || false,
+                    rol: u.rol || 'user'
+                }));
+
+                renderizarConexiones();
+            } else {
+                document.getElementById('contenido').innerHTML = `
+                    <div style="text-align:center; padding:40px; color:#999;">
+                        ❌ Error al cargar conexiones: ${resultado.error}
+                    </div>
+                `;
+            }
+        }
+
+        function renderizarConexiones() {
+            const div = document.getElementById('contenido');
+
+            if (conexiones.length === 0) {
+                div.innerHTML = `
+                    <div class="titulo-pagina">
+                        <h1>🔗 Conexiones</h1>
+                    </div>
+                    <div style="text-align:center; padding:40px; color:#999;">
+                        📭 No hay usuarios registrados
+                    </div>
+                    <a href="index.html" class="btn-volver">⬅ Volver al inicio</a>
+                `;
+                return;
+            }
+
+            let tablaHtml = `
+                <div class="titulo-pagina">
+                    <h1>🔗 Conexiones</h1>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width:40px;">#</th>
+                                <th>Usuario</th>
+                                <th>Área</th>
+                                <th>Puesto</th>
+                                <th>Estado</th>
+                                <th>Última Conexión</th>
+                                <th>Última Modificación</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            conexiones.forEach((conn, index) => {
+                const estado = conn.conectado ? '🟢 Conectado' : '🔴 Desconectado';
+                const estadoClass = conn.conectado ? 'online' : 'offline';
+                const ultimaConexion = conn.ultima_conexion ? formatearFechaHoraCorta(conn.ultima_conexion) : '--';
+                const ultimaModificacion = conn.ultima_modificacion ? formatearFechaHoraCorta(conn.ultima_modificacion) : '--';
+
+                tablaHtml += `
+                    <tr>
+                        <td data-label="#">${index + 1}</td>
+                        <td data-label="Usuario">
+                            <strong>${escapeHtml(conn.nombre)}</strong>
+                            <br><span style="font-size:12px; color:#6c757d;">${escapeHtml(conn.email)}</span>
+                        </td>
+                        <td data-label="Área">${escapeHtml(conn.area || '--')}</td>
+                        <td data-label="Puesto">${escapeHtml(conn.puesto || '--')}</td>
+                        <td data-label="Estado"><span class="estado-conectado ${estadoClass}">${estado}</span></td>
+                        <td data-label="Última Conexión" style="font-size:13px; color:#555;">${ultimaConexion}</td>
+                        <td data-label="Última Modificación" style="font-size:13px; color:#555;">${ultimaModificacion}</td>
+                    </tr>
+                `;
+            });
+
+            tablaHtml += `
+                        </tbody>
+                    </table>
+                </div>
+                <a href="index.html" class="btn-volver">⬅ Volver al inicio</a>
+            `;
+
+            div.innerHTML = tablaHtml;
+        }
+
+        // Función para actualizar el estado de conexión en tiempo real (cada 30 segundos)
+        async function actualizarConexionesEnVivo() {
+            try {
+                const resultado = await window.firebaseApp.obtenerUsuariosFirebase();
+                if (resultado.success) {
+                    const usuarios = resultado.data;
+                    conexiones = usuarios.map(u => ({
+                        uid: u.uid,
+                        nombre: u.nombre || 'Usuario sin nombre',
+                        email: u.email || '',
+                        area: u.area || '',
+                        puesto: u.puesto || '',
+                        ultima_conexion: u.ultima_conexion || u.fecha_registro || null,
+                        ultima_modificacion: u.ultima_modificacion || null,
+                        conectado: u.conectado || false,
+                        rol: u.rol || 'user'
+                    }));
+                    renderizarConexiones();
+                }
+            } catch (e) {
+                console.log('Error actualizando conexiones:', e);
+            }
+        }
+
+        // Actualizar cada 30 segundos
+        setInterval(actualizarConexionesEnVivo, 30000);
+
+        document.addEventListener('DOMContentLoaded', cargarConexiones);
+    </script>
+</body>
+</html>
