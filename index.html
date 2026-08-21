@@ -666,4 +666,20 @@
         })();
     </script>
 </body>
+    async function cargarDatos() {
+    const usuarioStr = localStorage.getItem('sg_usuario_actual');
+    if (!usuarioStr) {
+        window.location.href = 'login.html';
+        return;
+    }
+    usuarioActual = JSON.parse(usuarioStr);
+
+    // Actualizar que el usuario está conectado
+    await window.firebaseApp.actualizarUsuarioFirebase(usuarioActual.uid, {
+        conectado: true,
+        ultima_conexion: new Date().toISOString()
+    });
+
+    // ... resto del código
+}
 </html>
