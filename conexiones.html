@@ -433,7 +433,7 @@
             div.innerHTML = tablaHtml;
         }
 
-        // Función para actualizar el estado de conexión en tiempo real (cada 30 segundos)
+        // Actualizar cada 30 segundos
         async function actualizarConexionesEnVivo() {
             try {
                 const resultado = await window.firebaseApp.obtenerUsuariosFirebase();
@@ -457,7 +457,6 @@
             }
         }
 
-        // Actualizar cada 30 segundos
         setInterval(actualizarConexionesEnVivo, 30000);
 
         document.addEventListener('DOMContentLoaded', cargarConexiones);
