@@ -236,14 +236,31 @@
         async function buscarUsuarioPorNombre(nombreUsuario) {
             try {
                 console.log('🔍 Buscando usuario:', nombreUsuario);
+                
+                // Verificar que firebaseApp existe
+                if (!window.firebaseApp) {
+                    console.error('❌ firebaseApp no está definido');
+                    return null;
+                }
+                
+                // Verificar que la función existe
+                if (typeof window.firebaseApp.obtenerUsuariosFirebase !== 'function') {
+                    console.error('❌ obtenerUsuariosFirebase no es una función');
+                    return null;
+                }
+                
                 const resultado = await window.firebaseApp.obtenerUsuariosFirebase();
+                console.log('📊 Resultado de obtenerUsuarios:', resultado);
+                
                 if (resultado.success) {
                     const usuarios = resultado.data;
                     console.log('📋 Usuarios encontrados:', usuarios.length);
+                    
                     // Buscar usuario que coincida con el nombre (case insensitive)
                     const usuarioEncontrado = usuarios.find(u => 
                         u.nombre && u.nombre.toLowerCase() === nombreUsuario.toLowerCase()
                     );
+                    
                     if (usuarioEncontrado) {
                         console.log('✅ Usuario encontrado:', usuarioEncontrado.nombre);
                         console.log('📧 Email asociado:', usuarioEncontrado.email);
@@ -251,10 +268,12 @@
                         console.log('❌ Usuario no encontrado');
                     }
                     return usuarioEncontrado || null;
+                } else {
+                    console.error('❌ Error al obtener usuarios:', resultado.error);
+                    return null;
                 }
-                return null;
             } catch (error) {
-                console.error('Error buscando usuario:', error);
+                console.error('❌ Error buscando usuario:', error);
                 return null;
             }
         }
@@ -295,8 +314,20 @@
 
                 console.log('🔑 Intentando autenticar con email:', usuarioData.email);
 
-                // 3. Autenticar con Firebase usando el email encontrado
+                // 3. Verificar que la función iniciarSesionFirebase existe
+                if (typeof window.firebaseApp.iniciarSesionFirebase !== 'function') {
+                    console.error('❌ iniciarSesionFirebase no es una función');
+                    console.log('📋 Funciones disponibles:', Object.keys(window.firebaseApp));
+                    mostrarMensaje('❌ Error de configuración. Contacta al administrador.', 'danger');
+                    btnLogin.disabled = false;
+                    btnLogin.innerHTML = 'Iniciar Sesión';
+                    return;
+                }
+
+                // 4. Autenticar con Firebase usando el email encontrado
+                // ¡ATENCIÓN! El nombre correcto es: iniciarSesionFirebase (con S mayúscula, no "Session")
                 const result = await window.firebaseApp.iniciarSesionFirebase(usuarioData.email, password);
+                console.log('📊 Resultado del login:', result);
                 
                 if (result.success) {
                     // Guardar usuario en localStorage
