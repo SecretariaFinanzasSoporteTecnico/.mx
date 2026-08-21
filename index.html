@@ -233,6 +233,7 @@
         .btn-imprimir-small:hover { background: #5a6268; }
         .acciones { display: flex; gap: 6px; flex-wrap: wrap; }
 
+        /* Estilos para móviles - NO se aplican en impresión */
         @media (max-width: 768px) {
             table, thead, tbody, th, td, tr { display: block; }
             thead { display: none; }
@@ -326,7 +327,7 @@
         .cargando { text-align: center; padding: 35px; color: #999; font-size: 15px; }
 
         /* ======================================== */
-        /* ESTILOS PARA IMPRESIÓN - CON LOGO Y FECHA, TABLA COMO EN LA IMAGEN */
+        /* ESTILOS PARA IMPRESIÓN - TABLA NORMAL SIN DESFASE */
         /* ======================================== */
         @media print {
             /* Ocultar elementos que no deben imprimirse */
@@ -347,7 +348,7 @@
                 border-radius: 0 !important;
             }
             
-            /* Encabezado - CON LOGO Y FECHA (como en la imagen que te gustó) */
+            /* Encabezado - CON LOGO Y FECHA */
             .header-superior {
                 display: flex !important;
                 justify-content: space-between !important;
@@ -420,7 +421,7 @@
                 margin-top: 2px !important;
             }
             
-            /* Título - exactamente como en la imagen */
+            /* Título */
             .header-titulo {
                 text-align: center !important;
                 margin-bottom: 25px !important;
@@ -434,40 +435,71 @@
                 font-weight: 700 !important;
             }
             
-            /* Tabla en impresión - exactamente como en la imagen */
+            /* TABLA EN IMPRESIÓN - FORMATO NORMAL, SIN DESFASE */
             .table-responsive {
                 border: 1px solid #ddd !important;
                 border-radius: 0 !important;
                 margin-top: 0 !important;
+                overflow: visible !important;
             }
-            table {
-                font-size: 14px !important;
-                min-width: auto !important;
+            
+            /* FORZAR TABLA NORMAL - ANULAR ESTILOS RESPONSIVOS */
+            table, thead, tbody, tfoot, tr, th, td {
+                display: table !important;
                 width: 100% !important;
                 border-collapse: collapse !important;
+                box-sizing: border-box !important;
             }
+            
             thead {
+                display: table-header-group !important;
                 background: #1a3a5c !important;
                 color: #fff !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
+            
+            tbody {
+                display: table-row-group !important;
+            }
+            
+            tr {
+                display: table-row !important;
+                border: none !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                margin: 0 !important;
+                background: transparent !important;
+            }
+            
             th {
+                display: table-cell !important;
                 background: #1a3a5c !important;
                 color: #fff !important;
                 padding: 12px 15px !important;
                 text-align: left !important;
                 font-weight: 600 !important;
                 font-size: 14px !important;
+                border: none !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
-                border: none !important;
+                white-space: nowrap !important;
             }
+            
             td {
+                display: table-cell !important;
                 padding: 11px 15px !important;
                 font-size: 14px !important;
                 border-bottom: 1px solid #e0e0e0 !important;
                 vertical-align: middle !important;
+                background: transparent !important;
+                white-space: nowrap !important;
+            }
+            
+            /* ANULAR ::before EN IMPRESIÓN */
+            td::before {
+                display: none !important;
+                content: none !important;
             }
             
             /* Ocultar columna de acciones en impresión */
@@ -489,34 +521,13 @@
             #mensajeContainer { display: none !important; }
             .no-print { display: none !important; }
             
-            /* Ajuste para tabla responsiva en impresión - mantener formato tabla */
-            table, thead, tbody, th, td, tr {
-                display: table !important;
-            }
-            thead { display: table-header-group !important; }
-            tbody tr {
-                display: table-row !important;
-                border: none !important;
-                padding: 0 !important;
-                box-shadow: none !important;
-                margin: 0 !important;
-            }
-            tbody tr td {
-                display: table-cell !important;
-                border-bottom: 1px solid #e0e0e0 !important;
-                padding: 11px 15px !important;
-            }
-            tbody tr td::before {
-                display: none !important;
-            }
-            
             /* Estilo para el # en la tabla */
             td:first-child {
                 font-weight: 600 !important;
                 text-align: center !important;
             }
             
-            /* Nombre en negrita como en la imagen */
+            /* Nombre en negrita */
             td:nth-child(2) {
                 font-weight: 600 !important;
             }
