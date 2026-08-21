@@ -235,13 +235,21 @@
         // Función para buscar usuario por nombre de usuario en Firestore
         async function buscarUsuarioPorNombre(nombreUsuario) {
             try {
+                console.log('🔍 Buscando usuario:', nombreUsuario);
                 const resultado = await window.firebaseApp.obtenerUsuariosFirebase();
                 if (resultado.success) {
                     const usuarios = resultado.data;
+                    console.log('📋 Usuarios encontrados:', usuarios.length);
                     // Buscar usuario que coincida con el nombre (case insensitive)
                     const usuarioEncontrado = usuarios.find(u => 
                         u.nombre && u.nombre.toLowerCase() === nombreUsuario.toLowerCase()
                     );
+                    if (usuarioEncontrado) {
+                        console.log('✅ Usuario encontrado:', usuarioEncontrado.nombre);
+                        console.log('📧 Email asociado:', usuarioEncontrado.email);
+                    } else {
+                        console.log('❌ Usuario no encontrado');
+                    }
                     return usuarioEncontrado || null;
                 }
                 return null;
@@ -285,18 +293,28 @@
                     return;
                 }
 
+                console.log('🔑 Intentando autenticar con email:', usuarioData.email);
+
                 // 3. Autenticar con Firebase usando el email encontrado
                 const result = await window.firebaseApp.iniciarSesionFirebase(usuarioData.email, password);
                 
                 if (result.success) {
-                    // Guardar usuario en localStorage con la clave correcta
-                    localStorage.setItem('sg_usuario_actual', JSON.stringify(result.data));
+                    // Guardar usuario en localStorage
+                    const usuarioCompleto = {
+                        uid: result.user ? result.user.uid : usuarioData.uid,
+                        ...usuarioData
+                    };
+                    localStorage.setItem('sg_usuario_actual', JSON.stringify(usuarioCompleto));
                     
                     // Actualizar estado de conexión
-                    await window.firebaseApp.actualizarUsuarioFirebase(result.data.uid, {
-                        conectado: true,
-                        ultima_conexion: new Date().toISOString()
-                    });
+                    try {
+                        await window.firebaseApp.actualizarUsuarioFirebase(usuarioCompleto.uid, {
+                            conectado: true,
+                            ultima_conexion: new Date().toISOString()
+                        });
+                    } catch (e) {
+                        console.error('Error actualizando estado de conexión:', e);
+                    }
                     
                     mostrarMensaje('✅ ¡Bienvenido ' + usuarioData.nombre + '! Redirigiendo...', 'success');
                     
@@ -309,6 +327,7 @@
                     btnLogin.innerHTML = 'Iniciar Sesión';
                 }
             } catch (error) {
+                console.error('❌ Error en el login:', error);
                 mostrarMensaje('❌ Error al iniciar sesión: ' + error.message, 'danger');
                 btnLogin.disabled = false;
                 btnLogin.innerHTML = 'Iniciar Sesión';
