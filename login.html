@@ -28,7 +28,7 @@
         }
         .login-container .logo {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
         .login-container .logo .logo-img {
             height: 70px;
@@ -111,6 +111,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
+            margin-top: 5px;
         }
         .btn-login:hover {
             background: #0f2a44;
@@ -292,14 +293,10 @@
                     localStorage.setItem('sg_usuario_actual', JSON.stringify(result.data));
                     
                     // Actualizar estado de conexión
-                    try {
-                        await window.firebaseApp.actualizarUsuarioFirebase(result.data.uid, {
-                            conectado: true,
-                            ultima_conexion: new Date().toISOString()
-                        });
-                    } catch (e) {
-                        console.error('Error actualizando estado de conexión:', e);
-                    }
+                    await window.firebaseApp.actualizarUsuarioFirebase(result.data.uid, {
+                        conectado: true,
+                        ultima_conexion: new Date().toISOString()
+                    });
                     
                     mostrarMensaje('✅ ¡Bienvenido ' + usuarioData.nombre + '! Redirigiendo...', 'success');
                     
