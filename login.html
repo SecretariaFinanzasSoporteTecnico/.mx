@@ -234,4 +234,20 @@
         }
     </script>
 </body>
+    // Dentro de la función de login, después de autenticar al usuario
+async function actualizarEstadoConexion(uid, conectado) {
+    try {
+        await window.firebaseApp.actualizarUsuarioFirebase(uid, {
+            conectado: conectado,
+            ultima_conexion: new Date().toISOString()
+        });
+    } catch (error) {
+        console.error('Error actualizando estado de conexión:', error);
+    }
+}
+
+// En el login, después de obtener el usuario:
+const user = result.user;
+// Actualizar estado a conectado
+await actualizarEstadoConexion(user.uid, true);
 </html>
