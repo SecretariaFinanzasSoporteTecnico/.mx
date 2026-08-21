@@ -127,8 +127,33 @@
         .btn-agregar { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: #fff; }
         .btn-blanco { background: #6c757d; color: #fff; }
         .btn-imprimir { background: #1a3a5c; color: #fff; }
+
+        /* BOTÓN CONEXIONES - SOLO ADMIN */
+        .btn-conexiones {
+            background: linear-gradient(135deg, #6f42c1 0%, #8b5cf6 100%);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: clamp(9px, 1vw, 13px) clamp(16px, 2vw, 26px);
+            font-size: clamp(12px, 1vw, 14px);
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(111, 66, 193, 0.25);
+        }
+        .btn-conexiones:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(111, 66, 193, 0.35);
+        }
+
+        .oculto { display: none !important; }
+
         @media (max-width: 768px) {
             .btn { width: 100%; white-space: normal; padding: 12px 16px; font-size: 14px; }
+            .btn-conexiones { width: 100%; white-space: normal; padding: 12px 16px; font-size: 14px; }
             .header-buttons { flex-direction: column; width: 100%; }
         }
 
@@ -233,7 +258,6 @@
         .btn-imprimir-small:hover { background: #5a6268; }
         .acciones { display: flex; gap: 6px; flex-wrap: wrap; }
 
-        /* Estilos para móviles - NO se aplican en impresión */
         @media (max-width: 768px) {
             table, thead, tbody, th, td, tr { display: block; }
             thead { display: none; }
@@ -327,218 +351,48 @@
         .cargando { text-align: center; padding: 35px; color: #999; font-size: 15px; }
 
         /* ======================================== */
-        /* ESTILOS PARA IMPRESIÓN - TABLA NORMAL SIN DESFASE */
+        /* ESTILOS PARA IMPRESIÓN */
         /* ======================================== */
         @media print {
-            /* Ocultar elementos que no deben imprimirse */
             .no-print { display: none !important; }
-            
-            /* Resetear estilos para impresión */
-            body { 
-                background: white !important; 
-                padding: 30px !important; 
-                margin: 0 !important;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-            }
-            .container { 
-                box-shadow: none !important; 
-                border: none !important; 
-                padding: 0 !important;
-                max-width: 100% !important;
-                border-radius: 0 !important;
-            }
-            
-            /* Encabezado - CON LOGO Y FECHA */
-            .header-superior {
-                display: flex !important;
-                justify-content: space-between !important;
-                align-items: center !important;
-                padding-bottom: 15px !important;
-                border-bottom: 3px solid #1a3a5c !important;
-                margin-bottom: 25px !important;
-                border-top: none !important;
-            }
-            .header-superior .logo-izquierda {
-                display: flex !important;
-                align-items: center !important;
-                gap: 15px !important;
-            }
-            .header-superior .logo-izquierda .logo-img {
-                height: 60px !important;
-                width: auto !important;
-                object-fit: contain !important;
-            }
-            .header-superior .logo-izquierda .textos-logo {
-                display: flex !important;
-                flex-direction: column !important;
-                line-height: 1.15 !important;
-            }
-            .header-superior .logo-izquierda .textos-logo .humanismo {
-                font-size: 13px !important;
-                font-weight: 700 !important;
-                color: #1a3a5c !important;
-                letter-spacing: 1px !important;
-            }
-            .header-superior .logo-izquierda .textos-logo .secret {
-                font-size: 17px !important;
-                font-weight: 800 !important;
-                color: #b8860b !important;
-            }
-            .header-superior .logo-izquierda .textos-logo .gobierno {
-                font-size: 13px !important;
-                font-weight: 600 !important;
-                color: #1a3a5c !important;
-            }
-            .header-superior .logo-izquierda .textos-logo .periodo {
-                font-size: 12px !important;
-                font-weight: 600 !important;
-                color: #1a3a5c !important;
-            }
-            
-            /* Reloj en impresión - fecha y hora */
-            .reloj-moderno {
-                text-align: right !important;
-                font-weight: 600 !important;
-                background: none !important;
-                border: none !important;
-                padding: 0 !important;
-                min-width: auto !important;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-            }
-            .reloj-moderno .fecha {
-                font-size: 15px !important;
-                color: #1a3a5c !important;
-                display: block !important;
-                font-weight: 600 !important;
-                letter-spacing: 0.5px !important;
-            }
-            .reloj-moderno .hora {
-                font-size: 18px !important;
-                font-weight: 700 !important;
-                color: #1a3a5c !important;
-                display: block !important;
-                letter-spacing: 1px !important;
-                margin-top: 2px !important;
-            }
-            
-            /* Título */
-            .header-titulo {
-                text-align: center !important;
-                margin-bottom: 25px !important;
-            }
-            .titulo-gestion {
-                font-size: 24px !important;
-                color: #1a3a5c !important;
-                border-bottom: 3px solid #1a3a5c !important;
-                padding-bottom: 10px !important;
-                display: inline-block !important;
-                font-weight: 700 !important;
-            }
-            
-            /* TABLA EN IMPRESIÓN - FORMATO NORMAL, SIN DESFASE */
-            .table-responsive {
-                border: 1px solid #ddd !important;
-                border-radius: 0 !important;
-                margin-top: 0 !important;
-                overflow: visible !important;
-            }
-            
-            /* FORZAR TABLA NORMAL - ANULAR ESTILOS RESPONSIVOS */
-            table, thead, tbody, tfoot, tr, th, td {
-                display: table !important;
-                width: 100% !important;
-                border-collapse: collapse !important;
-                box-sizing: border-box !important;
-            }
-            
-            thead {
-                display: table-header-group !important;
-                background: #1a3a5c !important;
-                color: #fff !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-            
-            tbody {
-                display: table-row-group !important;
-            }
-            
-            tr {
-                display: table-row !important;
-                border: none !important;
-                padding: 0 !important;
-                box-shadow: none !important;
-                margin: 0 !important;
-                background: transparent !important;
-            }
-            
-            th {
-                display: table-cell !important;
-                background: #1a3a5c !important;
-                color: #fff !important;
-                padding: 12px 15px !important;
-                text-align: left !important;
-                font-weight: 600 !important;
-                font-size: 14px !important;
-                border: none !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-                white-space: nowrap !important;
-            }
-            
-            td {
-                display: table-cell !important;
-                padding: 11px 15px !important;
-                font-size: 14px !important;
-                border-bottom: 1px solid #e0e0e0 !important;
-                vertical-align: middle !important;
-                background: transparent !important;
-                white-space: nowrap !important;
-            }
-            
-            /* ANULAR ::before EN IMPRESIÓN */
-            td::before {
-                display: none !important;
-                content: none !important;
-            }
-            
-            /* Ocultar columna de acciones en impresión */
-            .acciones {
-                display: none !important;
-            }
-            td:last-child {
-                display: none !important;
-            }
-            th:last-child {
-                display: none !important;
-            }
-            
-            /* Ocultar elementos de interfaz */
+            body { background: white !important; padding: 30px !important; margin: 0 !important; }
+            .container { box-shadow: none !important; border: none !important; padding: 0 !important; max-width: 100% !important; border-radius: 0 !important; }
+            .header-superior { display: flex !important; justify-content: space-between !important; align-items: center !important; padding-bottom: 15px !important; border-bottom: 3px solid #1a3a5c !important; margin-bottom: 25px !important; }
+            .header-superior .logo-izquierda { display: flex !important; align-items: center !important; gap: 15px !important; }
+            .header-superior .logo-izquierda .logo-img { height: 60px !important; width: auto !important; object-fit: contain !important; }
+            .header-superior .logo-izquierda .textos-logo { display: flex !important; flex-direction: column !important; line-height: 1.15 !important; }
+            .header-superior .logo-izquierda .textos-logo .humanismo { font-size: 13px !important; font-weight: 700 !important; color: #1a3a5c !important; letter-spacing: 1px !important; }
+            .header-superior .logo-izquierda .textos-logo .secret { font-size: 17px !important; font-weight: 800 !important; color: #b8860b !important; }
+            .header-superior .logo-izquierda .textos-logo .gobierno { font-size: 13px !important; font-weight: 600 !important; color: #1a3a5c !important; }
+            .header-superior .logo-izquierda .textos-logo .periodo { font-size: 12px !important; font-weight: 600 !important; color: #1a3a5c !important; }
+            .reloj-moderno { text-align: right !important; font-weight: 600 !important; background: none !important; border: none !important; padding: 0 !important; min-width: auto !important; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important; }
+            .reloj-moderno .fecha { font-size: 15px !important; color: #1a3a5c !important; display: block !important; font-weight: 600 !important; letter-spacing: 0.5px !important; }
+            .reloj-moderno .hora { font-size: 18px !important; font-weight: 700 !important; color: #1a3a5c !important; display: block !important; letter-spacing: 1px !important; margin-top: 2px !important; }
+            .header-titulo { text-align: center !important; margin-bottom: 25px !important; }
+            .titulo-gestion { font-size: 24px !important; color: #1a3a5c !important; border-bottom: 3px solid #1a3a5c !important; padding-bottom: 10px !important; display: inline-block !important; font-weight: 700 !important; }
+            .table-responsive { border: 1px solid #ddd !important; border-radius: 0 !important; margin-top: 0 !important; overflow: visible !important; }
+            table, thead, tbody, tfoot, tr, th, td { display: table !important; width: 100% !important; border-collapse: collapse !important; box-sizing: border-box !important; }
+            thead { display: table-header-group !important; background: #1a3a5c !important; color: #fff !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            tbody { display: table-row-group !important; }
+            tr { display: table-row !important; border: none !important; padding: 0 !important; box-shadow: none !important; margin: 0 !important; background: transparent !important; }
+            th { display: table-cell !important; background: #1a3a5c !important; color: #fff !important; padding: 12px 15px !important; text-align: left !important; font-weight: 600 !important; font-size: 14px !important; border: none !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; white-space: nowrap !important; }
+            td { display: table-cell !important; padding: 11px 15px !important; font-size: 14px !important; border-bottom: 1px solid #e0e0e0 !important; vertical-align: middle !important; background: transparent !important; white-space: nowrap !important; }
+            td::before { display: none !important; content: none !important; }
+            .acciones { display: none !important; }
+            td:last-child { display: none !important; }
+            th:last-child { display: none !important; }
             .buscador-moderno { display: none !important; }
             .header-actions { display: none !important; }
             .alert { display: none !important; }
             .volver-menu { display: none !important; }
             #mensajeContainer { display: none !important; }
             .no-print { display: none !important; }
-            
-            /* Estilo para el # en la tabla */
-            td:first-child {
-                font-weight: 600 !important;
-                text-align: center !important;
-            }
-            
-            /* Nombre en negrita */
-            td:nth-child(2) {
-                font-weight: 600 !important;
-            }
-            
-            /* Asegurar que los textos del logo se vean bien */
+            td:first-child { font-weight: 600 !important; text-align: center !important; }
+            td:nth-child(2) { font-weight: 600 !important; }
             .header-superior .logo-izquierda .textos-logo .humanismo,
             .header-superior .logo-izquierda .textos-logo .secret,
             .header-superior .logo-izquierda .textos-logo .gobierno,
-            .header-superior .logo-izquierda .textos-logo .periodo {
-                display: block !important;
-            }
+            .header-superior .logo-izquierda .textos-logo .periodo { display: block !important; }
         }
     </style>
 </head>
@@ -572,6 +426,8 @@
                 <a href="agregar.html" class="btn btn-agregar">➕ Agregar Usuario</a>
                 <a href="imprimir_formato_blanco.html" target="_blank" class="btn btn-blanco">📄 Formato en Blanco</a>
                 <button onclick="window.print()" class="btn btn-imprimir">🖨️ Imprimir todo</button>
+                <!-- BOTÓN CONEXIONES - SOLO ADMIN (se muestra con JS) -->
+                <a href="conexiones.html" id="btnConexiones" class="btn-conexiones oculto">🔗 Conexiones</a>
             </div>
         </div>
 
@@ -671,11 +527,22 @@
             usuarioActual = JSON.parse(usuarioStr);
 
             const botonesDiv = document.getElementById('botonesAccion');
-            if (usuarioActual.rol === 'admin') {
+            const esAdmin = usuarioActual.rol === 'admin';
+
+            // Mostrar/Ocultar botón Conexiones según rol
+            const btnConexiones = document.getElementById('btnConexiones');
+            if (esAdmin) {
+                btnConexiones.classList.remove('oculto');
+            } else {
+                btnConexiones.classList.add('oculto');
+            }
+
+            if (esAdmin) {
                 botonesDiv.innerHTML = `
                     <a href="agregar.html" class="btn btn-agregar">➕ Agregar Usuario</a>
                     <a href="imprimir_formato_blanco.html" target="_blank" class="btn btn-blanco">📄 Formato en Blanco</a>
                     <button onclick="window.print()" class="btn btn-imprimir">🖨️ Imprimir todo</button>
+                    <a href="conexiones.html" class="btn-conexiones">🔗 Conexiones</a>
                 `;
             } else {
                 botonesDiv.innerHTML = `
